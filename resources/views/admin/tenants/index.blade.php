@@ -1,11 +1,7 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tenant Management') }}
-        </h2>
-    </x-slot>
+@extends('layouts.DashboardTemplate')
 
-    <div class="py-12">
+@section('content')
+<div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -65,23 +61,32 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
                                                 <a href="{{ route('admin.tenants.show', $tenant) }}" 
-                                                   class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                   class="btn btn-info btn-round btn-sm">
+                                                    <span class="btn-label">
+                                                        <i class="fa fa-eye"></i>
+                                                    </span>
+                                                    View
+                                                </a>
                                                 
                                                 @if($tenant->status === 'pending')
-                                                    <form action="{{ route('admin.tenants.approve', $tenant) }}" method="POST" class="inline">
+                                                    <form class="inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
                                                         @csrf
-                                                        <button type="submit" 
-                                                                class="text-green-600 hover:text-green-900"
-                                                                onclick="return confirm('Are you sure you want to approve this tenant?')">
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-success btn-round btn-sm">
+                                                            <span class="btn-label">
+                                                                <i class="fa fa-check"></i>
+                                                            </span>
                                                             Approve
                                                         </button>
                                                     </form>
 
-                                                    <form action="{{ route('admin.tenants.reject', $tenant) }}" method="POST" class="inline">
+                                                    <form class="inline" method="POST" action="{{ route('admin.tenants.reject', $tenant) }}">
                                                         @csrf
-                                                        <button type="submit" 
-                                                                class="text-red-600 hover:text-red-900"
-                                                                onclick="return confirm('Are you sure you want to reject this tenant?')">
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-danger btn-round btn-sm">
+                                                            <span class="btn-label">
+                                                                <i class="fa fa-times"></i>
+                                                            </span>
                                                             Reject
                                                         </button>
                                                     </form>
@@ -103,4 +108,4 @@
             </div>
         </div>
     </div>
-</x-app-layout> 
+@endsection

@@ -76,11 +76,11 @@ class TenantManagementController extends Controller
             
             // Run migrations on the tenant database
             try {
-                Artisan::call('migrate', [
-                    '--database' => 'tenant',
-                    '--path' => 'database/migrations/tenant',
-                    '--force' => true,
-                ]);
+            Artisan::call('migrate', [
+                '--database' => 'tenant',
+                '--path' => 'database/migrations/tenant',
+                '--force' => true,
+            ]);
             } catch (\Exception $e) {
                 // Log migration error but continue if tables already exist
                 \Log::warning('Migration warning (tables might already exist): ' . $e->getMessage());
@@ -122,16 +122,16 @@ class TenantManagementController extends Controller
 
                     if (!$existingProfile) {
                         // Create owner's user profile
-                        DB::connection('tenant')->table('user_profiles')->insert([
+                    DB::connection('tenant')->table('user_profiles')->insert([
                             'user_id' => $userId,
                             'age' => $ownerUser->age,
                             'gender' => $ownerUser->gender,
                             'address' => $ownerUser->address,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
                 }
+            }
             }
 
             DB::commit();

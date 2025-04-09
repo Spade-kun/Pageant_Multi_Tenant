@@ -4,7 +4,10 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Tenant Details') }}
             </h2>
-            <a href="{{ route('admin.tenants.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
+            <a href="{{ route('admin.tenants.index') }}" class="btn btn-secondary btn-round">
+                <span class="btn-label">
+                    <i class="fa fa-arrow-left"></i>
+                </span>
                 {{ __('Back to List') }}
             </a>
         </div>
@@ -98,8 +101,11 @@
                             <form action="{{ route('admin.tenants.approve', $tenant) }}" method="POST">
                                 @csrf
                                 <button type="submit" 
-                                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+                                        class="btn btn-success"
                                         onclick="return confirm('Are you sure you want to approve this tenant?')">
+                                    <span class="btn-label">
+                                        <i class="fa fa-check"></i>
+                                    </span>
                                     Approve Tenant
                                 </button>
                             </form>
@@ -107,8 +113,11 @@
                             <form action="{{ route('admin.tenants.reject', $tenant) }}" method="POST">
                                 @csrf
                                 <button type="submit" 
-                                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
+                                        class="btn btn-danger"
                                         onclick="return confirm('Are you sure you want to reject this tenant?')">
+                                    <span class="btn-label">
+                                        <i class="fa fa-times"></i>
+                                    </span>
                                     Reject Tenant
                                 </button>
                             </form>
