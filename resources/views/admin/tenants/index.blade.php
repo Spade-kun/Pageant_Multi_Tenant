@@ -1,78 +1,59 @@
 @extends('layouts.DashboardTemplate')
 
 @section('content')
-<div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 border border-green-200 text-green-700 rounded-md">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="mb-4 p-4 bg-red-100 border border-red-200 text-red-700 rounded-md">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-                    <div class="mb-4">
-                        <h3 class="text-lg font-medium">Tenant Requests</h3>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">Tenant Management</h4>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Tenants List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="tenants-table" class="display table table-striped table-hover">
+                            <thead>
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pageant Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th>Pageant Name</th>
+                                    <th>Slug</th>
+                                    <th>Owner</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($tenants as $tenant)
+                            <tbody>
+                                @foreach($tenants as $tenant)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $tenant->pageant_name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                Slug: {{ $tenant->slug }}
-                                            </div>
+                                        <td>{{ $tenant->pageant_name }}</td>
+                                        <td>{{ $tenant->slug }}</td>
+                                        <td>{{ $tenant->users->where('role', 'owner')->first()->name ?? 'N/A' }}</td>
+                                        <td>
+                                            @if($tenant->status === 'approved')
+                                                <span class="badge bg-success text-white">Approved</span>
+                                            @elseif($tenant->status === 'pending')
+                                                <span class="badge bg-warning text-white">Pending</span>
+                                            @elseif($tenant->status === 'rejected')
+                                                <span class="badge bg-danger text-white">Rejected</span>
+                                            @endif
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $tenant->users->where('role', 'owner')->first()->name ?? 'N/A' }}</div>
-                                            <div class="text-sm text-gray-500">{{ $tenant->users->where('role', 'owner')->first()->email ?? 'N/A' }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $tenant->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                                {{ $tenant->status === 'approved' ? 'bg-green-100 text-green-800' : '' }}
-                                                {{ $tenant->status === 'rejected' ? 'bg-red-100 text-red-800' : '' }}">
-                                                {{ ucfirst($tenant->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $tenant->created_at->format('M d, Y H:i') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2">
-                                                <a href="{{ route('admin.tenants.show', $tenant) }}" 
-                                                   class="btn btn-info btn-round btn-sm">
+                                        <td>{{ $tenant->created_at->format('M d, Y H:i A') }}</td>
+                                        <td>
+                                            <div class="form-button-action">
+                                                <a href="{{ route('admin.tenants.show', $tenant) }}" class="btn btn-info btn-round btn-sm" data-toggle="tooltip" title="View">
                                                     <span class="btn-label">
                                                         <i class="fa fa-eye"></i>
                                                     </span>
                                                     View
                                                 </a>
-                                                
+
                                                 @if($tenant->status === 'pending')
-                                                    <form class="inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
+                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-round btn-sm">
+                                                        <button type="submit" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Approve">
                                                             <span class="btn-label">
                                                                 <i class="fa fa-check"></i>
                                                             </span>
@@ -80,10 +61,10 @@
                                                         </button>
                                                     </form>
 
-                                                    <form class="inline" method="POST" action="{{ route('admin.tenants.reject', $tenant) }}">
+                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.reject', $tenant) }}">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" class="btn btn-danger btn-round btn-sm">
+                                                        <button type="submit" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Reject">
                                                             <span class="btn-label">
                                                                 <i class="fa fa-times"></i>
                                                             </span>
@@ -94,13 +75,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                            No tenant requests found.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -108,4 +83,26 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tenants-table').DataTable({
+            "pageLength": 10,
+            "order": [[4, "desc"]], // Sort by Created At column by default
+            "responsive": true,
+            "language": {
+                "paginate": {
+                    "previous": "<",
+                    "next": ">"
+                }
+            }
+        });
+
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+@endpush

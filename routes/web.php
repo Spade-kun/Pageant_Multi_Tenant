@@ -59,9 +59,9 @@ Route::group([], function () {
         // TENANT ROUTES (Port 8000)
         
         // Tenant Registration - Available to guests
-        Route::get('/register', [TenantController::class, 'showRegistrationForm'])->name('register');
-        Route::post('/register', [TenantController::class, 'register']);
-        Route::get('/register/success', [TenantController::class, 'registrationSuccess'])->name('register.success');
+        Route::get('tenant/register', [TenantController::class, 'showRegistrationForm'])->name('register');
+        Route::post('tenant/register', [TenantController::class, 'register']);
+        Route::get('tenant/register/success', [TenantController::class, 'registrationSuccess'])->name('register.success');
         
         // Tenant Authentication
         Route::middleware('guest:tenant')->group(function () {

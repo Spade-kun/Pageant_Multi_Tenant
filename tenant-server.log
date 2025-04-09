@@ -1012,3 +1012,69 @@
   2025-04-09 20:54:51 /build/assets/app-DbTWgVAB.css ......................... ~ 0.26ms
   2025-04-09 20:54:51 /build/assets/app-Bo-u61x1.js .......................... ~ 1.69ms
   2025-04-09 20:54:51 /favicon.ico ........................................... ~ 0.17ms
+  2025-04-09 20:56:23 /tenant/login .............................................. ~ 1s
+  2025-04-09 20:56:24 /build/assets/app-DbTWgVAB.css ......................... ~ 0.33ms
+  2025-04-09 20:56:24 /build/assets/app-Bo-u61x1.js .......................... ~ 2.00ms
+  2025-04-09 20:56:25 /favicon.ico ........................................... ~ 0.31ms
+  2025-04-09 20:56:36 /tenant/login .............................................. ~ 2s
+  2025-04-09 20:56:38 /malaybalay-pageant/dashboard .............................. ~ 1s
+  2025-04-09 20:56:40 /assets/css/bootstrap.min.css .......................... ~ 0.65ms
+  2025-04-09 20:56:40 /assets/css/demo.css ................................... ~ 2.62ms
+  2025-04-09 20:56:40 /assets/js/plugin/webfont/webfont.min.js ............... ~ 8.86ms
+  2025-04-09 20:56:40 /assets/css/plugins.min.css ........................... ~ 10.48ms
+  2025-04-09 20:56:40 /assets/css/kaiadmin.min.css .......................... ~ 12.47ms
+  2025-04-09 20:56:40 /assets/img/kaiadmin/logo_light.svg .................... ~ 0.27ms
+  2025-04-09 20:56:40 /assets/img/jm_denis.jpg ............................... ~ 1.81ms
+  2025-04-09 20:56:40 /assets/img/chadengle.jpg .............................. ~ 0.19ms
+  2025-04-09 20:56:40 /assets/img/mlane.jpg .................................. ~ 0.23ms
+  2025-04-09 20:56:40 /assets/js/core/jquery-3.7.1.min.js .................... ~ 2.02ms
+  2025-04-09 20:56:40 /assets/css/fonts.min.css .............................. ~ 0.17ms
+  2025-04-09 20:56:40 /assets/js/core/popper.min.js .......................... ~ 0.43ms
+  2025-04-09 20:56:40 /assets/js/core/bootstrap.min.js ....................... ~ 1.89ms
+  2025-04-09 20:56:40 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js  ~ 3.22ms
+  2025-04-09 20:56:40 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js  ~ 3.51ms
+  2025-04-09 20:56:40 /assets/js/plugin/chart.js/chart.min.js ................ ~ 3.96ms
+  2025-04-09 20:56:40 /assets/js/plugin/chart-circle/circles.min.js .......... ~ 0.42ms
+  2025-04-09 20:56:40 /assets/js/plugin/datatables/datatables.min.js ......... ~ 1.93ms
+  2025-04-09 20:56:40 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js  ~ 2.75ms
+  2025-04-09 20:56:40 /assets/js/plugin/jsvectormap/jsvectormap.min.js ....... ~ 3.06ms
+  2025-04-09 20:56:40 /assets/js/plugin/jsvectormap/world.js ................. ~ 2.29ms
+  2025-04-09 20:56:40 /assets/js/plugin/sweetalert/sweetalert.min.js ......... ~ 3.37ms
+  2025-04-09 20:56:40 /assets/js/kaiadmin.min.js ............................. ~ 1.20ms
+  2025-04-09 20:56:40 /assets/js/setting-demo.js ............................. ~ 1.99ms
+  2025-04-09 20:56:40 /assets/js/demo.js ..................................... ~ 3.57ms
+  2025-04-09 20:56:40 /assets/img/talha.jpg .................................. ~ 7.31ms
+  2025-04-09 20:56:40 /assets/img/profile2.jpg .............................. ~ 11.04ms
+  2025-04-09 20:56:40 /assets/img/profile.jpg ................................ ~ 2.49ms
+  2025-04-09 20:56:40 /assets/fonts/fontawesome/fa-solid-900.woff2 ........... ~ 0.25ms
+  2025-04-09 20:56:40 /assets/fonts/fontawesome/fa-regular-400.woff2 ......... ~ 1.08ms
+  2025-04-09 20:56:40 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.31ms
+  2025-04-09 20:56:40 /assets/fonts/fontawesome/fa-brands-400.woff2 .......... ~ 0.18ms
+  2025-04-09 20:56:41 /assets/img/kaiadmin/favicon.ico ....................... ~ 0.61ms
+  2025-04-09 20:56:42 /malaybalay-pageant/logout ................................. ~ 1s
+  2025-04-09 20:56:43 /tenant/login ........................................ ~ 512.85ms
+  2025-04-09 20:56:44 /build/assets/app-DbTWgVAB.css ......................... ~ 0.32ms
+  2025-04-09 20:56:44 /build/assets/app-Bo-u61x1.js .......................... ~ 2.36ms
+  2025-04-09 20:56:44 /favicon.ico ........................................... ~ 0.31ms
+  2025-04-09 21:01:07 /register ................................................. ~ 11s
+  2025-04-09 21:01:19 /build/assets/app-DbTWgVAB.css ......................... ~ 0.19ms
+  2025-04-09 21:01:19 /build/assets/app-Bo-u61x1.js .......................... ~ 1.32ms
+  2025-04-09 21:01:19 /favicon.ico ........................................... ~ 0.14ms
+  2025-04-09 21:01:27 /favicon.ico ........................................... ~ 0.33ms
+  2025-04-09 21:01:52 /tenant/login .............................................. ~ 1s
+  2025-04-09 21:01:54 /build/assets/app-DbTWgVAB.css ......................... ~ 0.25ms
+  2025-04-09 21:01:54 /build/assets/app-Bo-u61x1.js .......................... ~ 1.72ms
+  2025-04-09 21:01:54 /favicon.ico ........................................... ~ 0.19ms
+  2025-04-09 21:01:56 /tenant/register ........................................... ~ 1s
+  2025-04-09 21:01:57 /build/assets/app-DbTWgVAB.css ......................... ~ 0.49ms
+  2025-04-09 21:01:57 /build/assets/app-Bo-u61x1.js .......................... ~ 4.71ms
+  2025-04-09 21:01:57 /favicon.ico ........................................... ~ 0.25ms
+  2025-04-09 21:02:22 /tenant/register ........................................... ~ 2s
+  2025-04-09 21:02:24 /tenant/register/success ................................... ~ 2s
+  2025-04-09 21:02:26 /build/assets/app-DbTWgVAB.css ......................... ~ 0.22ms
+  2025-04-09 21:02:26 /build/assets/app-Bo-u61x1.js .......................... ~ 1.45ms
+  2025-04-09 21:02:26 /favicon.ico ........................................... ~ 0.14ms
+  2025-04-09 21:02:32 /tenant/login .............................................. ~ 1s
+  2025-04-09 21:02:33 /build/assets/app-DbTWgVAB.css ......................... ~ 0.22ms
+  2025-04-09 21:02:33 /build/assets/app-Bo-u61x1.js .......................... ~ 1.80ms
+  2025-04-09 21:02:33 /favicon.ico ........................................... ~ 0.17ms
