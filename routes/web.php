@@ -47,9 +47,12 @@ Route::group([], function () {
             Route::prefix('admin')->group(function () {
                 // Tenant Management
                 Route::get('/tenants', [TenantManagementController::class, 'index'])->name('admin.tenants.index');
+                Route::get('/tenants/access', [TenantManagementController::class, 'access'])->name('admin.tenants.access');
                 Route::get('/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('admin.tenants.show');
-                Route::post('/tenants/{tenant}/approve', [TenantManagementController::class, 'approve'])->name('admin.tenants.approve');
-                Route::post('/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
+                Route::put('/tenants/{tenant}/approve', [TenantManagementController::class, 'approve'])->name('admin.tenants.approve');
+                Route::put('/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
+                Route::put('/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');
+                Route::put('/tenants/{tenant}/disable', [TenantManagementController::class, 'disable'])->name('admin.tenants.disable');
             });
             
             // Logout

@@ -3,32 +3,24 @@
 @section('content')
 <div class="page-inner">
     <div class="page-header">
-        <h4 class="page-title">Tenant Management</h4>
+        <h4 class="page-title">Tenant Access Management</h4>
     </div>
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="card-title">Tenants List</h4>
-                        <a href="{{ route('admin.tenants.access') }}" class="btn btn-primary btn-round ml-auto">
-                            <span class="btn-label">
-                                <i class="fa fa-toggle-on"></i>
-                            </span>
-                            Access Management
-                        </a>
-                    </div>
+                    <h4 class="card-title">Tenant Access Control</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="tenants-table" class="display table table-striped table-hover">
+                        <table id="tenant-access-table" class="display table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Pageant Name</th>
                                     <th>Slug</th>
-                                    <th>Owner</th>
                                     <th>Status</th>
-                                    <th>Created At</th>
+                                    <th>Access Status</th>
+                                    <th>Last Updated</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -37,7 +29,6 @@
                                     <tr>
                                         <td>{{ $tenant->pageant_name }}</td>
                                         <td>{{ $tenant->slug }}</td>
-                                        <td>{{ $tenant->users->where('role', 'owner')->first()->email ?? 'N/A' }}</td>
                                         <td>
                                             @if($tenant->status === 'approved')
                                                 <span class="badge bg-success text-white">Approved</span>
@@ -47,36 +38,36 @@
                                                 <span class="badge bg-danger text-white">Rejected</span>
                                             @endif
                                         </td>
-                                        <td>{{ $tenant->created_at->format('M d, Y H:i A') }}</td>
+                                        <td>
+                                            @if($tenant->is_active)
+                                                <span class="badge bg-success text-white">Enabled</span>
+                                            @else
+                                                <span class="badge bg-danger text-white">Disabled</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $tenant->updated_at->format('M d, Y H:i A') }}</td>
                                         <td>
                                             <div class="form-button-action">
-                                                <a href="{{ route('admin.tenants.show', $tenant) }}" class="btn btn-info btn-round btn-sm" data-toggle="tooltip" title="View">
-                                                    <span class="btn-label">
-                                                        <i class="fa fa-eye"></i>
-                                                    </span>
-                                                    View
-                                                </a>
-
-                                                @if($tenant->status === 'pending')
-                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
+                                                @if($tenant->is_active)
+                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.disable', $tenant) }}">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Approve">
+                                                        <button type="submit" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Disable Access">
                                                             <span class="btn-label">
-                                                                <i class="fa fa-check"></i>
+                                                                <i class="fa fa-ban"></i>
                                                             </span>
-                                                            Approve
+                                                            Disable
                                                         </button>
                                                     </form>
-
-                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.reject', $tenant) }}">
+                                                @else
+                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.enable', $tenant) }}">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Reject">
+                                                        <button type="submit" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Enable Access">
                                                             <span class="btn-label">
-                                                                <i class="fa fa-times"></i>
+                                                                <i class="fa fa-check-circle"></i>
                                                             </span>
-                                                            Reject
+                                                            Enable
                                                         </button>
                                                     </form>
                                                 @endif
@@ -97,9 +88,9 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#tenants-table').DataTable({
+        $('#tenant-access-table').DataTable({
             "pageLength": 10,
-            "order": [[4, "desc"]], // Sort by Created At column by default
+            "order": [[4, "desc"]], // Sort by Last Updated column by default
             "responsive": true,
             "language": {
                 "paginate": {
@@ -111,6 +102,17 @@
 
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
+
+        // Add confirmation dialogs
+        $('form').on('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const action = $(this).find('button[type="submit"]').text().trim().toLowerCase();
+            
+            if(confirm(`Are you sure you want to ${action} this tenant's access?`)) {
+                form.submit();
+            }
+        });
     });
 </script>
-@endpush
+@endpush 

@@ -158,4 +158,31 @@ class TenantManagementController extends Controller
         
         return back()->with('success', 'Tenant rejected successfully.');
     }
+
+    /**
+     * Display the tenant access management page.
+     */
+    public function access()
+    {
+        $tenants = Tenant::all();
+        return view('admin.tenants.access', compact('tenants'));
+    }
+
+    /**
+     * Enable access for the specified tenant.
+     */
+    public function enable(Tenant $tenant)
+    {
+        $tenant->update(['is_active' => true]);
+        return redirect()->back()->with('success', 'Tenant access has been enabled.');
+    }
+
+    /**
+     * Disable access for the specified tenant.
+     */
+    public function disable(Tenant $tenant)
+    {
+        $tenant->update(['is_active' => false]);
+        return redirect()->back()->with('success', 'Tenant access has been disabled.');
+    }
 } 

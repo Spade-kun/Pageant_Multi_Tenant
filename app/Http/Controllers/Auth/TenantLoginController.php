@@ -46,6 +46,13 @@ class TenantLoginController extends Controller
                 'email' => 'Your tenant account is not yet approved. Please wait for admin approval.',
             ])->onlyInput('email');
         }
+
+        // Check if the tenant is active
+        if (!$tenant->is_active) {
+            return back()->withErrors([
+                'email' => 'Access to this tenant is currently disabled. Please contact the administrator for assistance.',
+            ])->onlyInput('email');
+        }
         
         // Attempt to log in
         if (Auth::guard('tenant')->attempt(['email' => $request->email, 'password' => $request->password])) {

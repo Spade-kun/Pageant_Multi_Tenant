@@ -22,6 +22,7 @@ class Tenant extends Model
         'owner_id',
         'status',
         'database_name',
+        'is_active'
     ];
 
     /**
