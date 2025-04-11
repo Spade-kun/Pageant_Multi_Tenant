@@ -1,63 +1,179 @@
 @extends('layouts.DashboardTemplate')
 
 @section('content')
-<div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-semibold mb-4">{{ __('Welcome to your Pageant Dashboard') }}</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-blue-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Contestants') }}</h4>
-                            <p class="text-sm mb-4">{{ __('Manage contestants participating in your pageant.') }}</p>
-                            <a href="#" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('View Contestants') }}
-                            </a>
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">{{ __('Welcome to your Pageant Dashboard') }}</h4>
+    </div>
+    
+    <div class="row">
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                <i class="fas fa-users"></i>
+                            </div>
                         </div>
-                        
-                        <div class="bg-green-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Events') }}</h4>
-                            <p class="text-sm mb-4">{{ __('Schedule and manage pageant events.') }}</p>
-                            <a href="#" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('View Events') }}
-                            </a>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Contestants') }}</p>
+                                <h4 class="card-title">{{ __('Manage contestants participating in your pageant.') }}</h4>
+                            </div>
                         </div>
-                        
-                        <div class="bg-purple-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Judges') }}</h4>
-                            <p class="text-sm mb-4">{{ __('Manage judges and scoring for your pageant.') }}</p>
-                            <a href="#" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('View Judges') }}
-                            </a>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-primary btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {{ __('View Contestants') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
                         </div>
-                        
-                        <div class="bg-yellow-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Scoring Criteria') }}</h4>
-                            <p class="text-sm mb-4">{{ __('Define the criteria and weights for judging.') }}</p>
-                            <a href="#" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('Manage Criteria') }}
-                            </a>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Events') }}</p>
+                                <h4 class="card-title">{{ __('Schedule and manage pageant events.') }}</h4>
+                            </div>
                         </div>
-                        
-                        <div class="bg-red-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Scores') }}</h4>
-                            <p class="text-sm mb-4">{{ __('View and manage scores from judges.') }}</p>
-                            <a href="#" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('View Scores') }}
-                            </a>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-success btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {{ __('View Events') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                                <i class="fas fa-gavel"></i>
+                            </div>
                         </div>
-                        
-                        <div class="bg-indigo-100 p-4 rounded-lg shadow">
-                            <h4 class="font-semibold mb-2">{{ __('Reports') }}</h4>
-                            <p class="text-sm mb-4">{{ __('Generate reports and insights for your pageant.') }}</p>
-                            <a href="#" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('View Reports') }}
-                            </a>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Judges') }}</p>
+                                <h4 class="card-title">{{ __('Manage judges and scoring for your pageant.') }}</h4>
+                            </div>
                         </div>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-info btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {{ __('View Judges') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-warning bubble-shadow-small">
+                                <i class="fas fa-list-alt"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Scoring Criteria') }}</p>
+                                <h4 class="card-title">{{ __('Define the criteria and weights for judging.') }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-warning btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-cog"></i>
+                            </span>
+                            {{ __('Manage Criteria') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-danger bubble-shadow-small">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Scores') }}</p>
+                                <h4 class="card-title">{{ __('View and manage scores from judges.') }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-danger btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {{ __('View Scores') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ml-3 ml-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">{{ __('Reports') }}</p>
+                                <h4 class="card-title">{{ __('Generate reports and insights for your pageant.') }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action mt-3">
+                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-secondary btn-round">
+                            <span class="btn-label">
+                                <i class="fas fa-file-alt"></i>
+                            </span>
+                            {{ __('View Reports') }}
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection

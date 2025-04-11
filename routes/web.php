@@ -83,6 +83,22 @@ Route::group([], function () {
                 ->name('tenant.subscription.plans');
             Route::put('/{slug}/subscription/update', [App\Http\Controllers\Tenant\SubscriptionController::class, 'update'])
                 ->name('tenant.subscription.update');
+
+            // Contestant Routes
+            Route::get('/{slug}/contestants', [App\Http\Controllers\Tenant\ContestantController::class, 'index'])
+                ->name('tenant.contestants.index');
+            Route::get('/{slug}/contestants/create', [App\Http\Controllers\Tenant\ContestantController::class, 'create'])
+                ->name('tenant.contestants.create');
+            Route::get('/{slug}/contestants/{id}', [App\Http\Controllers\Tenant\ContestantController::class, 'show'])
+                ->name('tenant.contestants.show');
+            Route::post('/{slug}/contestants', [App\Http\Controllers\Tenant\ContestantController::class, 'store'])
+                ->name('tenant.contestants.store');
+            Route::get('/{slug}/contestants/{id}/edit', [App\Http\Controllers\Tenant\ContestantController::class, 'edit'])
+                ->name('tenant.contestants.edit');
+            Route::put('/{slug}/contestants/{id}', [App\Http\Controllers\Tenant\ContestantController::class, 'update'])
+                ->name('tenant.contestants.update');
+            Route::delete('/{slug}/contestants/{id}', [App\Http\Controllers\Tenant\ContestantController::class, 'destroy'])
+                ->name('tenant.contestants.destroy');
             
             // Logout
             Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');

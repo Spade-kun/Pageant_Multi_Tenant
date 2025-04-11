@@ -114,8 +114,8 @@
                 <a href="{{ route('tenant.dashboard', ['slug' => request()->route('slug')]) }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
-                </a>
-              </li>
+                      </a>
+                    </li>
               @if(auth()->guard('tenant')->user()->isOwner())
               <li class="nav-item">
                 <a href="{{ route('tenant.subscription.plans', ['slug' => request()->route('slug')]) }}">
@@ -124,8 +124,8 @@
                   @if(session('trial_days_left'))
                     <span class="badge badge-warning">Trial: {{ session('trial_days_left') }} days left</span>
                   @endif
-                </a>
-              </li>
+                      </a>
+                    </li>
               @endif
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#pageantManagement">
@@ -137,12 +137,12 @@
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="#">
-                        <span class="sub-item">Contestants</span>
+                        <span class="sub-item">Categories</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
-                        <span class="sub-item">Categories</span>
+                      <a href="{{ route('tenant.contestants.index', ['slug' => request()->route('slug')]) }}">
+                        <span class="sub-item">Contestants</span>
                       </a>
                     </li>
                     <li>
