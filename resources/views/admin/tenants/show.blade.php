@@ -1,7 +1,7 @@
 @extends('layouts.DashboardTemplate')
 
 @section('content')
-<div class="py-12">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -25,11 +25,11 @@
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Pageant Name</dt>
                                     <dd class="mt-1 text-sm text-gray-900">{{ $tenant->pageant_name }}</dd>
-                                </div>
+                            </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Slug</dt>
                                     <dd class="mt-1 text-sm text-gray-900">{{ $tenant->slug }}</dd>
-                                </div>
+                            </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Database Name</dt>
                                     <dd class="mt-1 text-sm text-gray-900">{{ $tenant->database_name }}</dd>
@@ -44,14 +44,14 @@
                                             {{ ucfirst($tenant->status) }}
                                         </span>
                                     </dd>
-                                </div>
-                                <div>
+                            </div>
+                            <div>
                                     <dt class="text-sm font-medium text-gray-500">Created At</dt>
                                     <dd class="mt-1 text-sm text-gray-900">{{ $tenant->created_at->format('M d, Y H:i') }}</dd>
-                                </div>
+                            </div>
                             </dl>
                         </div>
-
+                        
                         <!-- Owner Information -->
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                             <h3 class="text-lg font-medium mb-4">Owner Information</h3>
@@ -60,23 +60,23 @@
                                     <div>
                                         <dt class="text-sm font-medium text-gray-500">Name</dt>
                                         <dd class="mt-1 text-sm text-gray-900">{{ $tenant->owner->name }}</dd>
-                                    </div>
+                            </div>
                                     <div>
                                         <dt class="text-sm font-medium text-gray-500">Email</dt>
                                         <dd class="mt-1 text-sm text-gray-900">{{ $tenant->owner->email }}</dd>
-                                    </div>
+                            </div>
                                     <div>
                                         <dt class="text-sm font-medium text-gray-500">Age</dt>
                                         <dd class="mt-1 text-sm text-gray-900">{{ $tenant->owner->age }}</dd>
-                                    </div>
+                            </div>
                                     <div>
                                         <dt class="text-sm font-medium text-gray-500">Gender</dt>
                                         <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($tenant->owner->gender) }}</dd>
-                                    </div>
-                                    <div>
+                            </div>
+                            <div>
                                         <dt class="text-sm font-medium text-gray-500">Address</dt>
                                         <dd class="mt-1 text-sm text-gray-900">{{ $tenant->owner->address }}</dd>
-                                    </div>
+                            </div>
                                 </dl>
                             @else
                                 <p class="text-sm text-gray-500">No owner information available.</p>

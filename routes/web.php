@@ -78,6 +78,12 @@ Route::group([], function () {
                 return view('tenant.dashboard', ['slug' => $slug]);
             })->name('tenant.dashboard');
             
+            // Subscription Routes
+            Route::get('/{slug}/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'showPlans'])
+                ->name('tenant.subscription.plans');
+            Route::put('/{slug}/subscription/update', [App\Http\Controllers\Tenant\SubscriptionController::class, 'update'])
+                ->name('tenant.subscription.update');
+            
             // Logout
             Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
         });
