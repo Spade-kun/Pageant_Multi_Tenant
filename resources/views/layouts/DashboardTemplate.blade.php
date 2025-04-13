@@ -151,7 +151,7 @@
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.events.index', ['slug' => request()->route('slug')]) }}">
                         <span class="sub-item">Events</span>
                       </a>
                     </li>

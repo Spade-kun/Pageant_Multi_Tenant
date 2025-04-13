@@ -45,6 +45,14 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <div class="form-group">
+                                    <label for="representing">Representing (City/Province) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('representing') is-invalid @enderror" id="representing" name="representing" value="{{ old('representing', $contestant->representing) }}" required>
+                                    @error('representing')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">

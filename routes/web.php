@@ -100,6 +100,22 @@ Route::group([], function () {
             Route::delete('/{slug}/contestants/{id}', [App\Http\Controllers\Tenant\ContestantController::class, 'destroy'])
                 ->name('tenant.contestants.destroy');
             
+            // Event Routes
+            Route::get('/{slug}/events', [App\Http\Controllers\Tenant\EventController::class, 'index'])
+                ->name('tenant.events.index');
+            Route::get('/{slug}/events/create', [App\Http\Controllers\Tenant\EventController::class, 'create'])
+                ->name('tenant.events.create');
+            Route::post('/{slug}/events', [App\Http\Controllers\Tenant\EventController::class, 'store'])
+                ->name('tenant.events.store');
+            Route::get('/{slug}/events/{event}', [App\Http\Controllers\Tenant\EventController::class, 'show'])
+                ->name('tenant.events.show');
+            Route::get('/{slug}/events/{event}/edit', [App\Http\Controllers\Tenant\EventController::class, 'edit'])
+                ->name('tenant.events.edit');
+            Route::put('/{slug}/events/{event}', [App\Http\Controllers\Tenant\EventController::class, 'update'])
+                ->name('tenant.events.update');
+            Route::delete('/{slug}/events/{event}', [App\Http\Controllers\Tenant\EventController::class, 'destroy'])
+                ->name('tenant.events.destroy');
+            
             // Logout
             Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
         });

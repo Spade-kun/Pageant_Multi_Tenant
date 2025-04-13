@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('pageant_name');
             $table->string('slug')->unique();
-            $table->unsignedBigInteger('owner_id')->default(0);
+            $table->unsignedBigInteger('owner_id')->nullable();
             $table->string('status')->default('pending'); // pending, approved, rejected
+            $table->boolean('is_active')->default(true);
             $table->string('database_name')->nullable();
             $table->timestamps();
         });

@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     <div class="card-action mt-3">
-                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-success btn-round">
+                        <a href="{{ route('tenant.events.index', ['slug' => $slug]) }}" class="btn btn-success btn-round">
                             <span class="btn-label">
                                 <i class="fas fa-eye"></i>
                             </span>

@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tenants', function (Blueprint $table) {
-            $table->string('subscription_plan')->nullable();
-            $table->timestamp('subscription_ends_at')->nullable();
+        Schema::table('contestants', function (Blueprint $table) {
+            $table->string('representing')->nullable()->after('gender');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tenants', function (Blueprint $table) {
-            $table->dropColumn(['subscription_plan', 'subscription_ends_at']);
+        Schema::table('contestants', function (Blueprint $table) {
+            $table->dropColumn('representing');
         });
     }
 }; 
