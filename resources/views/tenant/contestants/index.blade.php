@@ -39,6 +39,7 @@
                                     <th>Name</th>
                                     <th>Age</th>
                                     <th>Gender</th>
+                                    <th>Representing</th>
                                     <th>Score</th>
                                     <th>Actions</th>
                                 </tr>
@@ -57,6 +58,7 @@
                                     <td>{{ $contestant->name }}</td>
                                     <td>{{ $contestant->age }}</td>
                                     <td>{{ $contestant->gender }}</td>
+                                    <td>{{ $contestant->representing }}</td>
                                     <td>{{ $contestant->score ?? 'N/A' }}</td>
                                     <td>
                                         <div class="form-button-action">

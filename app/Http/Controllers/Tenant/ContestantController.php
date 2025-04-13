@@ -72,6 +72,7 @@ class ContestantController extends Controller
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1|max:150',
             'gender' => 'required|string|in:Male,Female',
+            'representing' => 'required|string|max:255',
             'bio' => 'required|string',
             'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048'
         ]);
@@ -86,6 +87,7 @@ class ContestantController extends Controller
             'name' => $validated['name'],
             'age' => $validated['age'],
             'gender' => $validated['gender'],
+            'representing' => $validated['representing'],
             'bio' => $validated['bio'],
             'photo' => $validated['photo'],
             'score' => 0,
@@ -113,6 +115,7 @@ class ContestantController extends Controller
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1|max:150',
             'gender' => 'required|string|in:Male,Female',
+            'representing' => 'required|string|max:255',
             'bio' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
@@ -121,6 +124,7 @@ class ContestantController extends Controller
             'name' => $validated['name'],
             'age' => $validated['age'],
             'gender' => $validated['gender'],
+            'representing' => $validated['representing'],
             'bio' => $validated['bio'],
             'updated_at' => now()
         ];

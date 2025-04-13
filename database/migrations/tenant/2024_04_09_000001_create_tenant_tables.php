@@ -41,6 +41,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('age');
             $table->string('gender');
+            $table->string('representing')->nullable();
             $table->text('bio')->nullable();
             $table->string('photo')->nullable();
             $table->integer('score')->default(0);

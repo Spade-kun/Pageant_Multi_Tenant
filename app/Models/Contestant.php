@@ -13,6 +13,7 @@ class Contestant extends Model
         'name',
         'age',
         'gender',
+        'representing',
         'bio',
         'photo',
         'score'
