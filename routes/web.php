@@ -99,7 +99,21 @@ Route::group([], function () {
                 ->name('tenant.contestants.update');
             Route::delete('/{slug}/contestants/{id}', [App\Http\Controllers\Tenant\ContestantController::class, 'destroy'])
                 ->name('tenant.contestants.destroy');
-            
+
+            // Categories Routes
+            Route::get('/{slug}/categories', [App\Http\Controllers\Tenant\CategoryController::class, 'index'])
+                ->name('tenant.categories.index');
+            Route::get('/{slug}/categories/create', [App\Http\Controllers\Tenant\CategoryController::class, 'create'])
+                ->name('tenant.categories.create');
+            Route::post('/{slug}/categories', [App\Http\Controllers\Tenant\CategoryController::class, 'store'])
+                ->name('tenant.categories.store');
+            Route::get('/{slug}/categories/{id}/edit', [App\Http\Controllers\Tenant\CategoryController::class, 'edit'])
+                ->name('tenant.categories.edit');
+            Route::put('/{slug}/categories/{id}', [App\Http\Controllers\Tenant\CategoryController::class, 'update'])
+                ->name('tenant.categories.update');
+            Route::delete('/{slug}/categories/{id}', [App\Http\Controllers\Tenant\CategoryController::class, 'destroy'])
+                ->name('tenant.categories.destroy');
+
             // Event Routes
             Route::get('/{slug}/events', [App\Http\Controllers\Tenant\EventController::class, 'index'])
                 ->name('tenant.events.index');

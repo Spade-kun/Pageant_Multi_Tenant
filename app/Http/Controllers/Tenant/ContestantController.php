@@ -64,39 +64,47 @@ class ContestantController extends Controller
         return view('tenant.contestants.show', compact('contestant', 'slug', 'scoringHistory'));
     }
 
-    public function store(Request $request, $slug)
+    public function store(Request $request)
     {
-        $this->setTenantConnection($slug);
+        $this->setTenantConnection($request->slug);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:1|max:150',
+            'age' => 'required|integer|min:18',
             'gender' => 'required|string|in:Male,Female',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'representing' => 'required|string|max:255',
-            'bio' => 'required|string',
-            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'is_active' => 'boolean',
+            'registration_date' => 'required|date'
         ]);
 
-        if ($request->hasFile('photo')) {
-            $photo = $request->file('photo');
-            $photoPath = $photo->store('contestants', 'public');
-            $validated['photo'] = $photoPath;
+        try {
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('contestants', 'public');
+                $validated['photo'] = $path;
+            }
+
+            DB::connection('tenant')->table('contestants')->insert([
+                'name' => $validated['name'],
+                'age' => $validated['age'],
+                'gender' => $validated['gender'],
+                'bio' => $validated['bio'],
+                'photo' => $validated['photo'] ?? null,
+                'representing' => $validated['representing'],
+                'is_active' => $validated['is_active'] ?? true,
+                'registration_date' => \Carbon\Carbon::parse($validated['registration_date'])->format('Y-m-d'),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return redirect()->route('tenant.contestants.index', ['slug' => $request->slug])
+                ->with('success', 'Contestant created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage())
+                ->withInput();
         }
-
-        DB::connection('tenant')->table('contestants')->insert([
-            'name' => $validated['name'],
-            'age' => $validated['age'],
-            'gender' => $validated['gender'],
-            'representing' => $validated['representing'],
-            'bio' => $validated['bio'],
-            'photo' => $validated['photo'],
-            'score' => 0,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        return redirect()->route('tenant.contestants.index', ['slug' => $slug])
-            ->with('success', 'Contestant added successfully');
     }
 
     public function edit($slug, $id)
@@ -113,39 +121,45 @@ class ContestantController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:1|max:150',
+            'age' => 'required|integer|min:18',
             'gender' => 'required|string|in:Male,Female',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'representing' => 'required|string|max:255',
-            'bio' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'is_active' => 'boolean',
+            'registration_date' => 'required|date'
         ]);
 
-        $updateData = [
-            'name' => $validated['name'],
-            'age' => $validated['age'],
-            'gender' => $validated['gender'],
-            'representing' => $validated['representing'],
-            'bio' => $validated['bio'],
-            'updated_at' => now()
-        ];
-
-        if ($request->hasFile('photo')) {
-            // Delete old photo
-            $contestant = DB::connection('tenant')->table('contestants')->find($id);
-            if ($contestant->photo) {
-                Storage::disk('public')->delete($contestant->photo);
+        try {
+            if ($request->hasFile('photo')) {
+                // Delete old photo if exists
+                $contestant = DB::connection('tenant')->table('contestants')->find($id);
+                if ($contestant->photo) {
+                    Storage::disk('public')->delete($contestant->photo);
+                }
+                $path = $request->file('photo')->store('contestants', 'public');
+                $validated['photo'] = $path;
             }
-            
-            // Store new photo
-            $photo = $request->file('photo');
-            $photoPath = $photo->store('contestants', 'public');
-            $updateData['photo'] = $photoPath;
+
+            DB::connection('tenant')->table('contestants')->where('id', $id)->update([
+                'name' => $validated['name'],
+                'age' => $validated['age'],
+                'gender' => $validated['gender'],
+                'bio' => $validated['bio'],
+                'photo' => $validated['photo'] ?? null,
+                'representing' => $validated['representing'],
+                'is_active' => $validated['is_active'] ?? true,
+                'registration_date' => \Carbon\Carbon::parse($validated['registration_date'])->format('Y-m-d'),
+                'updated_at' => now()
+            ]);
+
+            return redirect()->route('tenant.contestants.index', ['slug' => $slug])
+                ->with('success', 'Contestant updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage())
+                ->withInput();
         }
-
-        DB::connection('tenant')->table('contestants')->where('id', $id)->update($updateData);
-
-        return redirect()->route('tenant.contestants.index', ['slug' => $slug])
-            ->with('success', 'Contestant updated successfully');
     }
 
     public function destroy($slug, $id)

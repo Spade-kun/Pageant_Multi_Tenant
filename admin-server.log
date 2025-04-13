@@ -114,3 +114,153 @@
   2025-04-13 16:11:51 /assets/img/talha.jpg ............................................. ~ 3.71ms
   2025-04-13 16:11:51 /assets/img/profile2.jpg .......................................... ~ 0.20ms
   2025-04-13 16:11:51 /assets/img/profile.jpg ........................................... ~ 0.35ms
+  2025-04-13 16:16:55 /admin/tenants ........................................................ ~ 2s
+  2025-04-13 16:16:55 /assets/js/plugin/webfont/webfont.min.js .............................. ~ 2s
+  2025-04-13 16:16:57 /assets/css/bootstrap.min.css ..................................... ~ 6.42ms
+  2025-04-13 16:16:57 /assets/css/plugins.min.css ...................................... ~ 10.65ms
+  2025-04-13 16:16:57 /assets/css/kaiadmin.min.css ...................................... ~ 1.60ms
+  2025-04-13 16:16:58 /assets/css/demo.css .............................................. ~ 2.82ms
+  2025-04-13 16:16:58 /assets/img/kaiadmin/logo_light.svg ............................... ~ 3.05ms
+  2025-04-13 16:16:58 /assets/img/jm_denis.jpg .......................................... ~ 4.87ms
+  2025-04-13 16:16:58 /assets/img/chadengle.jpg ......................................... ~ 0.57ms
+  2025-04-13 16:16:58 /assets/img/mlane.jpg ............................................. ~ 0.20ms
+  2025-04-13 16:16:58 /assets/css/fonts.min.css ......................................... ~ 0.26ms
+  2025-04-13 16:16:58 /assets/js/core/jquery-3.7.1.min.js ............................... ~ 0.35ms
+  2025-04-13 16:16:58 /assets/js/core/popper.min.js ..................................... ~ 0.15ms
+  2025-04-13 16:16:58 /assets/js/core/bootstrap.min.js .................................. ~ 0.14ms
+  2025-04-13 16:16:58 /assets/fonts/fontawesome/fa-solid-900.woff2 ...................... ~ 0.32ms
+  2025-04-13 16:16:58 /assets/fonts/fontawesome/fa-regular-400.woff2 .................... ~ 1.61ms
+  2025-04-13 16:16:58 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ........ ~ 0.81ms
+  2025-04-13 16:16:58 /assets/js/plugin/chart.js/chart.min.js ........................... ~ 4.55ms
+  2025-04-13 16:16:58 /assets/fonts/fontawesome/fa-brands-400.woff2 ..................... ~ 0.22ms
+  2025-04-13 16:16:58 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ... ~ 0.19ms
+  2025-04-13 16:16:58 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js ........ ~ 0.33ms
+  2025-04-13 16:16:58 /assets/js/plugin/chart-circle/circles.min.js ..................... ~ 0.19ms
+  2025-04-13 16:16:58 /assets/js/plugin/datatables/datatables.min.js .................... ~ 0.28ms
+  2025-04-13 16:16:58 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js ........ ~ 1.61ms
+  2025-04-13 16:16:58 /assets/js/plugin/jsvectormap/jsvectormap.min.js .................. ~ 0.20ms
+  2025-04-13 16:16:58 /assets/js/plugin/jsvectormap/world.js ............................ ~ 0.23ms
+  2025-04-13 16:16:58 /assets/js/plugin/sweetalert/sweetalert.min.js .................... ~ 0.19ms
+  2025-04-13 16:16:58 /assets/js/kaiadmin.min.js ........................................ ~ 0.18ms
+  2025-04-13 16:16:58 /assets/js/setting-demo.js ........................................ ~ 0.34ms
+  2025-04-13 16:16:58 /assets/js/demo.js ............................................... ~ 13.53ms
+  2025-04-13 16:16:58 /assets/img/talha.jpg ............................................. ~ 1.13ms
+  2025-04-13 16:16:58 /assets/img/profile2.jpg .......................................... ~ 0.32ms
+  2025-04-13 16:16:58 /assets/img/profile.jpg ........................................... ~ 2.93ms
+  2025-04-13 16:16:59 /assets/img/kaiadmin/favicon.ico .................................. ~ 0.20ms
+  2025-04-13 16:17:04 /admin/tenants/2/approve .............................................. ~ 3s
+  2025-04-13 16:17:04 /admin/tenants ........................................................ ~ 4s
+  2025-04-13 16:17:09 /assets/js/plugin/webfont/webfont.min.js .......................... ~ 0.21ms
+  2025-04-13 16:17:09 /assets/css/bootstrap.min.css .................................... ~ 33.07ms
+  2025-04-13 16:17:09 /assets/css/plugins.min.css ....................................... ~ 8.24ms
+  2025-04-13 16:17:09 /assets/css/kaiadmin.min.css ...................................... ~ 0.24ms
+  2025-04-13 16:17:09 /assets/css/demo.css .............................................. ~ 4.82ms
+  2025-04-13 16:17:09 /assets/img/kaiadmin/logo_light.svg .............................. ~ 15.92ms
+  2025-04-13 16:17:09 /assets/img/jm_denis.jpg ......................................... ~ 18.02ms
+  2025-04-13 16:17:09 /assets/css/fonts.min.css ......................................... ~ 0.24ms
+  2025-04-13 16:17:09 /assets/img/chadengle.jpg ......................................... ~ 2.39ms
+  2025-04-13 16:17:09 /assets/img/mlane.jpg ............................................. ~ 0.47ms
+  2025-04-13 16:17:09 /assets/js/core/jquery-3.7.1.min.js ............................. ~ 503.04ms
+  2025-04-13 16:17:09 /assets/js/core/popper.min.js ................................... ~ 504.77ms
+  2025-04-13 16:17:09 /assets/js/core/bootstrap.min.js ................................ ~ 506.63ms
+  2025-04-13 16:17:09 /assets/fonts/fontawesome/fa-solid-900.woff2 ...................... ~ 0.27ms
+  2025-04-13 16:17:09 /assets/fonts/fontawesome/fa-regular-400.woff2 .................... ~ 0.19ms
+  2025-04-13 16:17:09 /assets/fonts/fontawesome/fa-brands-400.woff2 ..................... ~ 3.99ms
+  2025-04-13 16:17:09 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ........ ~ 6.46ms
+  2025-04-13 16:17:09 /assets/js/plugin/chart.js/chart.min.js ........................... ~ 3.50ms
+  2025-04-13 16:17:09 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ... ~ 0.11ms
+  2025-04-13 16:17:09 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js ........ ~ 0.14ms
+  2025-04-13 16:17:09 /assets/js/plugin/chart-circle/circles.min.js ..................... ~ 0.15ms
+  2025-04-13 16:17:09 /assets/js/plugin/datatables/datatables.min.js .................... ~ 0.14ms
+  2025-04-13 16:17:09 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js ........ ~ 0.22ms
+  2025-04-13 16:17:09 /assets/js/plugin/jsvectormap/jsvectormap.min.js .................. ~ 0.17ms
+  2025-04-13 16:17:09 /assets/js/plugin/jsvectormap/world.js ............................ ~ 0.18ms
+  2025-04-13 16:17:10 /assets/js/plugin/sweetalert/sweetalert.min.js .................... ~ 0.13ms
+  2025-04-13 16:17:10 /assets/js/kaiadmin.min.js ........................................ ~ 0.11ms
+  2025-04-13 16:17:10 /assets/js/setting-demo.js ........................................ ~ 0.21ms
+  2025-04-13 16:17:10 /assets/js/demo.js ................................................ ~ 0.27ms
+  2025-04-13 16:17:10 /assets/img/talha.jpg ............................................. ~ 0.24ms
+  2025-04-13 16:17:10 /assets/img/profile2.jpg .......................................... ~ 2.54ms
+  2025-04-13 16:17:10 /assets/img/profile.jpg ........................................... ~ 2.64ms
+  2025-04-13 16:28:27 /admin/tenants ........................................................ ~ 1s
+  2025-04-13 16:28:27 /assets/js/plugin/webfont/webfont.min.js .............................. ~ 1s
+  2025-04-13 16:28:29 /assets/css/bootstrap.min.css ..................................... ~ 5.17ms
+  2025-04-13 16:28:29 /assets/css/plugins.min.css ....................................... ~ 0.29ms
+  2025-04-13 16:28:29 /assets/css/kaiadmin.min.css ...................................... ~ 0.54ms
+  2025-04-13 16:28:29 /assets/css/demo.css .............................................. ~ 0.19ms
+  2025-04-13 16:28:29 /assets/img/kaiadmin/logo_light.svg ............................... ~ 5.82ms
+  2025-04-13 16:28:29 /assets/img/jm_denis.jpg ......................................... ~ 10.14ms
+  2025-04-13 16:28:29 /assets/img/chadengle.jpg ......................................... ~ 1.09ms
+  2025-04-13 16:28:29 /assets/img/mlane.jpg ............................................. ~ 0.28ms
+  2025-04-13 16:28:29 /assets/js/core/jquery-3.7.1.min.js ............................... ~ 0.48ms
+  2025-04-13 16:28:29 /assets/css/fonts.min.css ......................................... ~ 0.20ms
+  2025-04-13 16:28:29 /assets/js/core/popper.min.js ..................................... ~ 0.71ms
+  2025-04-13 16:28:29 /assets/js/core/bootstrap.min.js .................................. ~ 6.92ms
+  2025-04-13 16:28:29 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ....... ~ 20.43ms
+  2025-04-13 16:28:29 /assets/js/plugin/chart.js/chart.min.js .......................... ~ 28.21ms
+  2025-04-13 16:28:29 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js ....... ~ 30.70ms
+  2025-04-13 16:28:29 /assets/js/plugin/chart-circle/circles.min.js ..................... ~ 0.19ms
+  2025-04-13 16:28:29 /assets/js/plugin/datatables/datatables.min.js .................... ~ 1.26ms
+  2025-04-13 16:28:29 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js ........ ~ 8.88ms
+  2025-04-13 16:28:29 /assets/js/plugin/jsvectormap/jsvectormap.min.js .................. ~ 9.44ms
+  2025-04-13 16:28:29 /assets/js/plugin/jsvectormap/world.js ........................... ~ 39.59ms
+  2025-04-13 16:28:29 /assets/js/plugin/sweetalert/sweetalert.min.js ................... ~ 51.29ms
+  2025-04-13 16:28:29 /assets/js/kaiadmin.min.js ....................................... ~ 52.41ms
+  2025-04-13 16:28:29 /assets/img/profile.jpg ........................................... ~ 0.19ms
+  2025-04-13 16:28:29 /assets/js/setting-demo.js ........................................ ~ 0.46ms
+  2025-04-13 16:28:29 /assets/js/demo.js ................................................ ~ 4.26ms
+  2025-04-13 16:28:29 /assets/img/talha.jpg ............................................. ~ 0.35ms
+  2025-04-13 16:28:29 /assets/img/profile2.jpg .......................................... ~ 3.98ms
+  2025-04-13 16:28:29 /assets/fonts/fontawesome/fa-solid-900.woff2 ...................... ~ 0.12ms
+  2025-04-13 16:28:29 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ... ~ 0.17ms
+  2025-04-13 16:28:29 /assets/fonts/fontawesome/fa-regular-400.woff2 .................... ~ 0.45ms
+  2025-04-13 16:28:29 /assets/fonts/fontawesome/fa-brands-400.woff2 ..................... ~ 2.23ms
+  2025-04-13 16:28:30 /assets/img/kaiadmin/favicon.ico .................................. ~ 0.19ms
+  2025-04-13 16:28:33 /admin/tenants/3/approve .............................................. ~ 3s
+  2025-04-13 16:28:33 /admin/tenants ........................................................ ~ 4s
+  2025-04-13 16:28:37 /assets/css/bootstrap.min.css ..................................... ~ 8.00ms
+  2025-04-13 16:28:37 /assets/js/plugin/webfont/webfont.min.js ......................... ~ 44.60ms
+  2025-04-13 16:28:37 /assets/css/plugins.min.css ...................................... ~ 49.40ms
+  2025-04-13 16:28:37 /assets/css/kaiadmin.min.css ..................................... ~ 58.15ms
+  2025-04-13 16:28:37 /assets/css/demo.css ............................................. ~ 59.98ms
+  2025-04-13 16:28:37 /assets/img/kaiadmin/logo_light.svg ............................... ~ 1.48ms
+  2025-04-13 16:28:37 /assets/img/jm_denis.jpg .......................................... ~ 9.41ms
+  2025-04-13 16:28:37 /assets/img/chadengle.jpg ......................................... ~ 0.24ms
+  2025-04-13 16:28:37 /assets/img/mlane.jpg ............................................. ~ 0.23ms
+  2025-04-13 16:28:37 /assets/css/fonts.min.css ......................................... ~ 0.27ms
+  2025-04-13 16:28:37 /assets/js/core/jquery-3.7.1.min.js ............................... ~ 0.57ms
+  2025-04-13 16:28:37 /assets/js/core/popper.min.js .................................... ~ 11.06ms
+  2025-04-13 16:28:37 /assets/js/core/bootstrap.min.js ................................. ~ 15.34ms
+  2025-04-13 16:28:37 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ....... ~ 21.19ms
+  2025-04-13 16:28:37 /assets/js/plugin/chart.js/chart.min.js .......................... ~ 32.02ms
+  2025-04-13 16:28:37 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js ........ ~ 0.20ms
+  2025-04-13 16:28:37 /assets/js/plugin/chart-circle/circles.min.js ..................... ~ 0.26ms
+  2025-04-13 16:28:37 /assets/js/plugin/datatables/datatables.min.js .................... ~ 2.44ms
+  2025-04-13 16:28:37 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js ........ ~ 0.45ms
+  2025-04-13 16:28:37 /assets/js/plugin/jsvectormap/jsvectormap.min.js .................. ~ 5.81ms
+  2025-04-13 16:28:37 /assets/js/plugin/jsvectormap/world.js ............................ ~ 0.24ms
+  2025-04-13 16:28:37 /assets/js/plugin/sweetalert/sweetalert.min.js .................... ~ 0.51ms
+  2025-04-13 16:28:37 /assets/img/profile.jpg ........................................... ~ 0.20ms
+  2025-04-13 16:28:37 /assets/js/kaiadmin.min.js ........................................ ~ 0.52ms
+  2025-04-13 16:28:37 /assets/js/setting-demo.js ....................................... ~ 10.08ms
+  2025-04-13 16:28:37 /assets/js/demo.js ............................................... ~ 12.30ms
+  2025-04-13 16:28:37 /assets/img/talha.jpg ............................................. ~ 0.42ms
+  2025-04-13 16:28:37 /assets/img/profile2.jpg .......................................... ~ 2.37ms
+  2025-04-13 16:28:37 /assets/fonts/fontawesome/fa-solid-900.woff2 ...................... ~ 1.10ms
+  2025-04-13 16:28:37 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ... ~ 0.61ms
+  2025-04-13 16:28:37 /assets/fonts/fontawesome/fa-regular-400.woff2 .................... ~ 1.28ms
+  2025-04-13 16:28:37 /assets/fonts/fontawesome/fa-brands-400.woff2 ..................... ~ 0.12ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+

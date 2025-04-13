@@ -40,7 +40,8 @@
                                     <th>Age</th>
                                     <th>Gender</th>
                                     <th>Representing</th>
-                                    <th>Score</th>
+                                    <th>Status</th>
+                                    <th>Registration Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -57,9 +58,14 @@
                                     </td>
                                     <td>{{ $contestant->name }}</td>
                                     <td>{{ $contestant->age }}</td>
-                                    <td>{{ $contestant->gender }}</td>
+                                    <td>{{ ucfirst($contestant->gender) }}</td>
                                     <td>{{ $contestant->representing }}</td>
-                                    <td>{{ $contestant->score ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ $contestant->is_active ? 'success' : 'danger' }}">
+                                            {{ $contestant->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ \Carbon\Carbon::parse($contestant->registration_date)->format('M d, Y') }}</td>
                                     <td>
                                         <div class="form-button-action">
                                             <a href="{{ route('tenant.contestants.show', ['slug' => $slug, 'id' => $contestant->id]) }}" 

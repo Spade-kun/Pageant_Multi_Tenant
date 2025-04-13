@@ -41,10 +41,22 @@ return new class extends Migration
             $table->string('name');
             $table->integer('age');
             $table->string('gender');
-            $table->string('representing')->nullable();
+            $table->string('representing');
             $table->text('bio')->nullable();
             $table->string('photo')->nullable();
-            $table->integer('score')->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->date('registration_date')->default(now());
+            $table->timestamps();
+        });
+        
+        // Pageant categories table
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->decimal('percentage', 5, 2); // e.g., 25.00 for 25%
+            $table->boolean('is_active')->default(true);
+            $table->integer('display_order')->default(0);
             $table->timestamps();
         });
         
@@ -106,6 +118,7 @@ return new class extends Migration
         Schema::dropIfExists('criterias');
         Schema::dropIfExists('judges');
         Schema::dropIfExists('events');
+        Schema::dropIfExists('categories');
         Schema::dropIfExists('contestants');
         Schema::dropIfExists('user_profiles');
         Schema::dropIfExists('users');

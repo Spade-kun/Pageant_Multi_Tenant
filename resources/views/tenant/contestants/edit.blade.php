@@ -47,10 +47,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="representing">Representing (City/Province) <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('representing') is-invalid @enderror" id="representing" name="representing" value="{{ old('representing', $contestant->representing) }}" required>
+                                    <label for="representing">Representing <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('representing') is-invalid @enderror" 
+                                           id="representing" name="representing" value="{{ old('representing', $contestant->representing) }}" required>
                                     @error('representing')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
@@ -76,6 +77,32 @@
                                     <textarea class="form-control @error('bio') is-invalid @enderror" id="bio" name="bio" rows="5" required>{{ old('bio', $contestant->bio) }}</textarea>
                                     @error('bio')
                                         <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="is_active">Status</label>
+                                    <select class="form-control @error('is_active') is-invalid @enderror" 
+                                            id="is_active" name="is_active">
+                                        <option value="1" {{ old('is_active', $contestant->is_active) ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ !old('is_active', $contestant->is_active) ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                    @error('is_active')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="registration_date">Registration Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('registration_date') is-invalid @enderror" 
+                                           id="registration_date" name="registration_date" 
+                                           value="{{ old('registration_date', $contestant->registration_date->format('Y-m-d')) }}" required>
+                                    @error('registration_date')
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
