@@ -40,6 +40,28 @@
                                 {{ __('Settings') }}
                             </a>
                         </div>
+
+                        <div class="bg-yellow-100 p-4 rounded-lg shadow">
+                            <h4 class="font-semibold mb-2">{{ __('Subscription Plans') }}</h4>
+                            <p class="text-sm mb-4">{{ __('Manage tenant subscription plans and billing.') }}</p>
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-warning btn-round">
+                                <span class="btn-label">
+                                    <i class="fa fa-credit-card"></i>
+                                </span>
+                                {{ __('View Plans') }}
+                            </a>
+                        </div>
+
+                        <div class="bg-red-100 p-4 rounded-lg shadow">
+                            <h4 class="font-semibold mb-2">{{ __('Plan Requests') }}</h4>
+                            <p class="text-sm mb-4">{{ __('Review and manage tenant plan requests.') }}</p>
+                            <a href="{{ route('admin.requests.index') }}" class="btn btn-danger btn-round">
+                                <span class="btn-label">
+                                    <i class="fa fa-tasks"></i>
+                                </span>
+                                {{ __('View Requests') }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\TenantManagementController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -53,6 +54,23 @@ Route::group([], function () {
                 Route::put('/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
                 Route::put('/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');
                 Route::put('/tenants/{tenant}/disable', [TenantManagementController::class, 'disable'])->name('admin.tenants.disable');
+                
+                // Admin Plan Management Routes
+                Route::get('/plans', [App\Http\Controllers\Admin\PlanController::class, 'index'])->name('admin.plans.index');
+                Route::get('/plans/create', [App\Http\Controllers\Admin\PlanController::class, 'create'])->name('admin.plans.create');
+                Route::post('/plans', [App\Http\Controllers\Admin\PlanController::class, 'store'])->name('admin.plans.store');
+                Route::get('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'show'])->name('admin.plans.show');
+                Route::get('/plans/{plan}/edit', [App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('admin.plans.edit');
+                Route::put('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'update'])->name('admin.plans.update');
+                Route::delete('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'destroy'])->name('admin.plans.destroy');
+
+                // Plan Requests Routes
+                Route::get('/requests', [App\Http\Controllers\Admin\PlanRequestController::class, 'index'])->name('admin.requests.index');
+                Route::get('/requests/{request}', [App\Http\Controllers\Admin\PlanRequestController::class, 'show'])->name('admin.requests.show');
+                Route::put('/requests/{request}/approve', [App\Http\Controllers\Admin\PlanRequestController::class, 'approve'])->name('admin.requests.approve');
+                Route::put('/requests/{request}/reject', [App\Http\Controllers\Admin\PlanRequestController::class, 'reject'])->name('admin.requests.reject');
+                Route::get('/requests/{tenant}/change-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'showChangePlan'])->name('admin.requests.change-plan');
+                Route::put('/requests/{tenant}/update-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'updatePlan'])->name('admin.requests.update-plan');
             });
             
             // Logout
@@ -83,6 +101,8 @@ Route::group([], function () {
                 ->name('tenant.subscription.plans');
             Route::put('/{slug}/subscription/update', [App\Http\Controllers\Tenant\SubscriptionController::class, 'update'])
                 ->name('tenant.subscription.update');
+            Route::post('/{slug}/subscription/request', [App\Http\Controllers\Tenant\SubscriptionController::class, 'requestPlan'])
+                ->name('tenant.subscription.request');
 
             // Contestant Routes
             Route::get('/{slug}/contestants', [App\Http\Controllers\Tenant\ContestantController::class, 'index'])

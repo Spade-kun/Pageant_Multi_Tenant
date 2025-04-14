@@ -19,12 +19,22 @@ class Tenant extends Model
     protected $fillable = [
         'pageant_name',
         'slug',
-        'owner_id',
-        'status',
-        'database_name',
+        'email',
+        'phone',
+        'address',
+        'subscription_plan_id',
+        'subscription_expires_at',
         'is_active',
-        'subscription_plan',
-        'subscription_ends_at'
+        'name',
+        'domain',
+        'database',
+        'plan_id',
+        'status'
+    ];
+
+    protected $casts = [
+        'subscription_expires_at' => 'datetime',
+        'is_active' => 'boolean'
     ];
 
     /**
@@ -65,5 +75,15 @@ class Tenant extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function planRequests()
+    {
+        return $this->hasMany(PlanRequest::class);
     }
 } 
