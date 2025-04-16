@@ -150,10 +150,22 @@ Route::group([], function () {
             Route::delete('/{slug}/events/{event}', [App\Http\Controllers\Tenant\EventController::class, 'destroy'])
                 ->name('tenant.events.destroy');
             
+            // Tenant User Management Routes (requires auth)
+            Route::get('/{slug}/users', [App\Http\Controllers\Tenant\UserController::class, 'index'])
+                ->name('tenant.users.index');
+            
             // Logout
             Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
         });
     }
+});
+
+// Tenant Registration Routes (accessible without auth)
+Route::middleware(['web'])->group(function () {
+    Route::get('/{slug}/register', [App\Http\Controllers\Tenant\RegisterController::class, 'showRegistrationForm'])
+        ->name('tenant.register.form');
+    Route::post('/{slug}/register', [App\Http\Controllers\Tenant\RegisterController::class, 'register'])
+        ->name('tenant.register');
 });
 
 // Auth routes (these will be for admin authentication through the default routes file)
