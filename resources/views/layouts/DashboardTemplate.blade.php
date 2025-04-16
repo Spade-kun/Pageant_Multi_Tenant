@@ -116,7 +116,7 @@
                   <p>Dashboard</p>
                       </a>
                     </li>
-              @if(auth()->guard('tenant')->user()->isOwner())
+              @if(auth()->guard('tenant')->user()->role === 'owner')
               <li class="nav-item">
                 <a href="{{ route('tenant.subscription.plans', ['slug' => request()->route('slug')]) }}">
                   <i class="fas fa-crown"></i>

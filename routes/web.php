@@ -7,6 +7,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 // Default route with automatic redirect based on port
 Route::get('/', function (Request $request) {
@@ -91,10 +92,19 @@ Route::group([], function () {
         });
         
         // Tenant Dashboard with tenant slug
-        Route::middleware('auth:tenant')->group(function () {
+        Route::middleware(['auth:tenant'])->group(function () {
+            // Owner Dashboard
             Route::get('/{slug}/dashboard', function ($slug) {
-                return view('tenant.dashboard', ['slug' => $slug]);
+                if (Auth::guard('tenant')->user()->role === 'owner') {
+                    return view('tenant.dashboard', ['slug' => $slug]);
+                }
+                return redirect()->route('tenant.user.dashboard', ['slug' => $slug]);
             })->name('tenant.dashboard');
+            
+            // User Dashboard
+            Route::get('/{slug}/user-dashboard', function ($slug) {
+                return view('tenant.user-dashboard', ['slug' => $slug]);
+            })->name('tenant.user.dashboard');
             
             // Subscription Routes
             Route::get('/{slug}/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'showPlans'])

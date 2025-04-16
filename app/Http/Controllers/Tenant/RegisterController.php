@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 class RegisterController extends Controller
 {
@@ -31,28 +33,41 @@ class RegisterController extends Controller
         // Generate temporary password
         $tempPassword = Str::random(10);
 
-        // Create user
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($tempPassword),
-            'phone' => $request->phone,
-            'tenant_id' => $tenant->id,
+        // Switch to tenant database
+        $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+        
+        // Set the complete tenant database connection
+        Config::set('database.connections.tenant', [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => $databaseName,
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
         ]);
 
-        // Send welcome email with credentials
-        $data = [
-            'user' => $user,
-            'tenant' => $tenant,
-            'tempPassword' => $tempPassword,
-        ];
+        DB::purge('tenant');
+        DB::reconnect('tenant');
 
-        Mail::send('emails.tenant-welcome', $data, function($message) use ($user, $tenant) {
-            $message->to($user->email)
-                   ->subject('Welcome to ' . $tenant->name);
-        });
+        // Create user in tenant database
+        $user = DB::connection('tenant')->table('users')->insert([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($tempPassword),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-        return redirect()->route('tenant.login')
-            ->with('success', 'Registration successful! Please check your email for login credentials.');
+        // Send email with temporary password
+        Mail::to($request->email)->send(new \App\Mail\WelcomeEmail($request->name, $tempPassword));
+
+        return redirect()->route('tenant.login')->with('success', 'Registration successful! Please check your email for your temporary password.');
     }
 } 

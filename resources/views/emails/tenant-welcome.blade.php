@@ -19,8 +19,8 @@
             border-radius: 5px 5px 0 0;
         }
         .content {
-            background-color: #f9f9f9;
             padding: 20px;
+            background-color: #f9f9f9;
             border-radius: 0 0 5px 5px;
         }
         .credentials {
@@ -53,24 +53,25 @@
     </div>
     
     <div class="content">
-        <p>Hello {{ $user->name }},</p>
+        <p>Hello {{ $name }},</p>
         
-        <p>Thank you for registering with {{ $tenant->name }}. Your account has been successfully created.</p>
+        <p>Welcome to CLAM Agency! We're excited to have you on board.</p>
         
         <div class="credentials">
-            <h3>Your Login Credentials:</h3>
-            <p><strong>Email:</strong> {{ $user->email }}</p>
-            <p><strong>Temporary Password:</strong> {{ $tempPassword }}</p>
+            <p><strong>Your temporary password is:</strong> {{ $tempPassword }}</p>
+            <p>Please use this password to log in to your account. We strongly recommend changing your password after your first login.</p>
         </div>
         
-        <p>Please use these credentials to log in to your account. For security reasons, we strongly recommend changing your password after your first login.</p>
+        <p>To get started, please log in to your account using your email address and the temporary password provided above.</p>
         
-        <a href="{{ route('tenant.login') }}" class="button">Login to Your Account</a>
+        <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
         
-        <div class="footer">
-            <p>This is an automated message, please do not reply to this email.</p>
-            <p>If you did not request this registration, please ignore this email.</p>
-        </div>
+        <p>Best regards,<br>
+        The Clam Agency Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>This is an automated message, please do not reply to this email.</p>
     </div>
 </body>
 </html> 

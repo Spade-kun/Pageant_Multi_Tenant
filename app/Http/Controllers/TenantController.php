@@ -57,7 +57,7 @@ class TenantController extends Controller
             }
 
             // Generate a database name (ensure it's lowercase and only contains valid characters)
-            $databaseName = 'tenant_' . Str::lower(preg_replace('/[^a-zA-Z0-9-]/', '', $slug));
+            $databaseName = 'tenant_' . Str::lower(str_replace('-', '_', preg_replace('/[^a-zA-Z0-9-]/', '', $slug)));
 
             // Log the generated slug and database name
             \Log::info('Generated slug and database name', [
