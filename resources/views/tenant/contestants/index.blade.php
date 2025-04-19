@@ -4,6 +4,11 @@
 <div class="page-inner">
     <div class="page-header">
         <h4 class="page-title">Contestants</h4>
+        <div class="ml-auto">
+            <a href="{{ route('tenant.contestants.create', ['slug' => $slug]) }}" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Add New Contestant
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -24,10 +29,6 @@
                 <div class="card-header">
                     <div class="d-flex align-items-center">
                         <h4 class="card-title">Contestants List</h4>
-                        <a href="{{ route('tenant.contestants.create', ['slug' => $slug]) }}" class="btn btn-primary btn-round ml-auto">
-                            <i class="fa fa-plus"></i>
-                            Add Contestant
-                        </a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -46,24 +47,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($contestants as $contestant)
+                                @forelse($contestants as $contestant)
                                 <tr>
-                                    <td>
-                                        <img src="{{ asset('storage/' . $contestant->photo) }}" 
-                                             alt="Contestant Photo" 
-                                             class="rounded-circle"
-                                             width="50" 
-                                             height="50"
-                                             style="object-fit: cover;">
+                                    <td style="width: 100px;">
+                                        @if($contestant->photo)
+                                            <img src="{{ asset('storage/' . $contestant->photo) }}" 
+                                                 alt="{{ $contestant->name }}" 
+                                                 class="img-fluid rounded"
+                                                 style="max-width: 50px; height: 50px; object-fit: cover;">
+                                        @else
+                                            <div class="avatar avatar-sm">
+                                                <span class="avatar-title rounded-circle border border-secondary bg-light">
+                                                    <i class="fa fa-user text-secondary"></i>
+                                                </span>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td>{{ $contestant->name }}</td>
                                     <td>{{ $contestant->age }}</td>
                                     <td>{{ ucfirst($contestant->gender) }}</td>
                                     <td>{{ $contestant->representing }}</td>
                                     <td>
-                                        <span class="badge badge-{{ $contestant->is_active ? 'success' : 'danger' }}">
-                                            {{ $contestant->is_active ? 'Active' : 'Inactive' }}
-                                        </span>
+                                        @if($contestant->is_active)
+                                            <span class="badge badge-success">Active</span>
+                                        @else
+                                            <span class="badge badge-danger">Inactive</span>
+                                        @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($contestant->registration_date)->format('M d, Y') }}</td>
                                     <td>
@@ -90,7 +99,11 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">No contestants found.</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

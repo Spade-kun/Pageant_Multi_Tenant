@@ -3,48 +3,59 @@
 @section('content')
 <div class="page-inner">
     <div class="page-header">
-        <h4 class="page-title">Add New Contestant</h4>
+        <h4 class="page-title">Create Contestant</h4>
     </div>
 
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Contestant Information</div>
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title">Add New Contestant</h4>
+                    </div>
                 </div>
-                <form method="POST" action="{{ route('tenant.contestants.store', ['slug' => $slug]) }}" enctype="multipart/form-data">
-                    @csrf
-                    <div class="card-body">
+                <div class="card-body">
+                    <form action="{{ route('tenant.contestants.store', ['slug' => $slug]) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="name">Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                           id="name" name="name" value="{{ old('name') }}" required>
                                     @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-
+                            </div>
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="age">Age <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('age') is-invalid @enderror" id="age" name="age" value="{{ old('age') }}" required min="1" max="150">
+                                    <input type="number" class="form-control @error('age') is-invalid @enderror" 
+                                           id="age" name="age" value="{{ old('age') }}" required>
                                     @error('age')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                            </div>
+                        </div>
 
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="gender">Gender <span class="text-danger">*</span></label>
-                                    <select class="form-control @error('gender') is-invalid @enderror" id="gender" name="gender" required>
+                                    <select class="form-control @error('gender') is-invalid @enderror" 
+                                            id="gender" name="gender" required>
                                         <option value="">Select Gender</option>
-                                        <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
-                                        <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
                                     </select>
                                     @error('gender')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-
+                            </div>
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="representing">Representing <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('representing') is-invalid @enderror" 
@@ -54,38 +65,25 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="photo">Photo <span class="text-danger">*</span></label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input @error('photo') is-invalid @enderror" id="photo" name="photo" accept="image/*" required>
-                                        <label class="custom-file-label" for="photo">Choose file</label>
-                                        @error('photo')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div id="preview" class="mt-2"></div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="bio">Bio <span class="text-danger">*</span></label>
-                                    <textarea class="form-control @error('bio') is-invalid @enderror" id="bio" name="bio" rows="5" required>{{ old('bio') }}</textarea>
-                                    @error('bio')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="bio">Bio</label>
+                            <textarea class="form-control @error('bio') is-invalid @enderror" 
+                                      id="bio" name="bio" rows="3">{{ old('bio') }}</textarea>
+                            @error('bio')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="is_active">Status</label>
-                                    <select class="form-control @error('is_active') is-invalid @enderror" 
-                                            id="is_active" name="is_active">
-                                        <option value="1" {{ old('is_active', true) ? 'selected' : '' }}>Active</option>
-                                        <option value="0" {{ !old('is_active', true) ? 'selected' : '' }}>Inactive</option>
-                                    </select>
-                                    @error('is_active')
+                                    <label for="photo">Photo</label>
+                                    <input type="file" class="form-control @error('photo') is-invalid @enderror" 
+                                           id="photo" name="photo" accept="image/*">
+                                    <small class="form-text text-muted">Accepted formats: JPEG, PNG, JPG. Max size: 2MB</small>
+                                    @error('photo')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -94,49 +92,54 @@
                                 <div class="form-group">
                                     <label for="registration_date">Registration Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control @error('registration_date') is-invalid @enderror" 
-                                           id="registration_date" name="registration_date" 
-                                           value="{{ old('registration_date', now()->format('Y-m-d')) }}" required>
+                                           id="registration_date" name="registration_date" value="{{ old('registration_date', date('Y-m-d')) }}" required>
                                     @error('registration_date')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-action">
-                        <button type="submit" class="btn btn-success">Submit</button>
-                        <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-danger">Cancel</a>
-                    </div>
-                </form>
+
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" 
+                                       {{ old('is_active') ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="is_active">Active Status</label>
+                            </div>
+                        </div>
+
+                        <div class="card-action">
+                            <button type="submit" class="btn btn-primary">Create Contestant</button>
+                            <a href="{{ route('tenant.contestants.index', ['slug' => $slug]) }}" class="btn btn-danger">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-    // Preview uploaded image
+    // Preview uploaded photo
     document.getElementById('photo').addEventListener('change', function(e) {
-        const preview = document.getElementById('preview');
-        preview.innerHTML = '';
-        
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
+        if (this.files && this.files[0]) {
+            let reader = new FileReader();
             reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'img-fluid rounded';
-                img.style.maxHeight = '200px';
-                preview.appendChild(img);
+                let preview = document.createElement('img');
+                preview.src = e.target.result;
+                preview.style.maxWidth = '200px';
+                preview.style.marginTop = '10px';
+                let container = document.getElementById('photo').parentNode;
+                let oldPreview = container.querySelector('img');
+                if (oldPreview) {
+                    container.removeChild(oldPreview);
+                }
+                container.appendChild(preview);
             }
-            reader.readAsDataURL(file);
-            
-            // Update file input label
-            const label = document.querySelector('.custom-file-label');
-            label.textContent = file.name;
+            reader.readAsDataURL(this.files[0]);
         }
     });
 </script>
-@endpush
-@endsection 
+@endpush 

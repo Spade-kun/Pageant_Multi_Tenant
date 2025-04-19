@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ContestantController extends Controller
 {
@@ -53,19 +54,38 @@ class ContestantController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1',
-            'height' => 'required|numeric',
-            'weight' => 'required|numeric',
-            'measurements' => 'required|string',
-            'description' => 'nullable|string',
+            'gender' => 'required|in:male,female',
+            'representing' => 'required|string|max:255',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'registration_date' => 'required|date'
         ]);
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . str_replace(' ', '_', $photo->getClientOriginalName());
+            
+            // Ensure storage directory exists
+            $storage_path = storage_path('app/public/contestants');
+            if (!file_exists($storage_path)) {
+                mkdir($storage_path, 0755, true);
+            }
+            
+            // Store the file
+            $photo->move($storage_path, $photoName);
+            $photoPath = 'contestants/' . $photoName;
+        }
 
         DB::connection('tenant')->table('contestants')->insert([
             'name' => $validated['name'],
             'age' => $validated['age'],
-            'height' => $validated['height'],
-            'weight' => $validated['weight'],
-            'measurements' => $validated['measurements'],
-            'description' => $validated['description'],
+            'gender' => $validated['gender'],
+            'representing' => $validated['representing'],
+            'bio' => $validated['bio'],
+            'photo' => $photoPath,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+            'registration_date' => $validated['registration_date'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -95,23 +115,51 @@ class ContestantController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1',
-            'height' => 'required|numeric',
-            'weight' => 'required|numeric',
-            'measurements' => 'required|string',
-            'description' => 'nullable|string',
+            'gender' => 'required|in:male,female',
+            'representing' => 'required|string|max:255',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'registration_date' => 'required|date'
         ]);
+
+        $updateData = [
+            'name' => $validated['name'],
+            'age' => $validated['age'],
+            'gender' => $validated['gender'],
+            'representing' => $validated['representing'],
+            'bio' => $validated['bio'],
+            'is_active' => $request->has('is_active') ? 1 : 0,
+            'registration_date' => $validated['registration_date'],
+            'updated_at' => now(),
+        ];
+
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . str_replace(' ', '_', $photo->getClientOriginalName());
+            
+            // Ensure storage directory exists
+            $storage_path = storage_path('app/public/contestants');
+            if (!file_exists($storage_path)) {
+                mkdir($storage_path, 0755, true);
+            }
+            
+            // Store the new file
+            $photo->move($storage_path, $photoName);
+            $updateData['photo'] = 'contestants/' . $photoName;
+
+            // Delete old photo if exists
+            $contestant = DB::connection('tenant')->table('contestants')->find($id);
+            if ($contestant->photo) {
+                $old_photo_path = storage_path('app/public/' . $contestant->photo);
+                if (file_exists($old_photo_path)) {
+                    unlink($old_photo_path);
+                }
+            }
+        }
 
         DB::connection('tenant')->table('contestants')
             ->where('id', $id)
-            ->update([
-                'name' => $validated['name'],
-                'age' => $validated['age'],
-                'height' => $validated['height'],
-                'weight' => $validated['weight'],
-                'measurements' => $validated['measurements'],
-                'description' => $validated['description'],
-                'updated_at' => now(),
-            ]);
+            ->update($updateData);
 
         return redirect()->route('tenant.contestants.index', ['slug' => $slug])
             ->with('success', 'Contestant updated successfully.');
@@ -120,6 +168,16 @@ class ContestantController extends Controller
     public function destroy($slug, $id)
     {
         $this->setTenantConnection($slug);
+        
+        // Delete photo if exists
+        $contestant = DB::connection('tenant')->table('contestants')->find($id);
+        if ($contestant && $contestant->photo) {
+            $photo_path = storage_path('app/public/' . $contestant->photo);
+            if (file_exists($photo_path)) {
+                unlink($photo_path);
+            }
+        }
+        
         DB::connection('tenant')->table('contestants')->delete($id);
         return redirect()->route('tenant.contestants.index', ['slug' => $slug])
             ->with('success', 'Contestant deleted successfully.');
