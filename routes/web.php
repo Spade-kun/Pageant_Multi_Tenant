@@ -8,6 +8,8 @@ use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 // Default route with automatic redirect based on port
 Route::get('/', function (Request $request) {
@@ -95,14 +97,75 @@ Route::group([], function () {
         Route::middleware(['auth:tenant'])->group(function () {
             // Owner Dashboard
             Route::get('/{slug}/dashboard', function ($slug) {
-                if (Auth::guard('tenant')->user()->role === 'owner') {
-                    return view('tenant.dashboard', ['slug' => $slug]);
+                // Verify tenant exists
+                $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+                
+                // Get user from tenant database
+                $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+                Config::set('database.connections.tenant', [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST', '127.0.0.1'),
+                    'port' => env('DB_PORT', '3306'),
+                    'database' => $databaseName,
+                    'username' => env('DB_USERNAME', 'forge'),
+                    'password' => env('DB_PASSWORD', ''),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'prefix_indexes' => true,
+                    'strict' => true,
+                    'engine' => null,
+                ]);
+
+                DB::purge('tenant');
+                DB::reconnect('tenant');
+
+                $user = DB::connection('tenant')
+                    ->table('users')
+                    ->where('id', auth()->guard('tenant')->id())
+                    ->first();
+
+                if (!$user || $user->role !== 'owner') {
+                    return redirect()->route('tenant.user.dashboard', ['slug' => $slug]);
                 }
-                return redirect()->route('tenant.user.dashboard', ['slug' => $slug]);
+
+                return view('tenant.dashboard', ['slug' => $slug]);
             })->name('tenant.dashboard');
             
             // User Dashboard
             Route::get('/{slug}/user-dashboard', function ($slug) {
+                // Verify tenant exists
+                $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+                
+                // Get user from tenant database
+                $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+                Config::set('database.connections.tenant', [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST', '127.0.0.1'),
+                    'port' => env('DB_PORT', '3306'),
+                    'database' => $databaseName,
+                    'username' => env('DB_USERNAME', 'forge'),
+                    'password' => env('DB_PASSWORD', ''),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'prefix_indexes' => true,
+                    'strict' => true,
+                    'engine' => null,
+                ]);
+
+                DB::purge('tenant');
+                DB::reconnect('tenant');
+
+                $user = DB::connection('tenant')
+                    ->table('users')
+                    ->where('id', auth()->guard('tenant')->id())
+                    ->first();
+
+                if (!$user || $user->role !== 'user') {
+                    return redirect()->route('tenant.dashboard', ['slug' => $slug]);
+                }
+
                 return view('tenant.user-dashboard', ['slug' => $slug]);
             })->name('tenant.user.dashboard');
             

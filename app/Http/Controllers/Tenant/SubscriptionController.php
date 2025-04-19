@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\PlanRequest;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
-    public function showPlans()
+    public function showPlans($slug)
     {
+        $tenant = Tenant::where('slug', $slug)->firstOrFail();
         $plans = Plan::where('is_active', true)->get();
-        $tenant = auth('tenant')->user()->tenant;
         $currentPlan = $tenant->plan;
         
         // Get any pending plan request
@@ -20,7 +22,7 @@ class SubscriptionController extends Controller
             ->where('status', 'pending')
             ->first();
 
-        return view('tenant.subscription.plans', compact('plans', 'currentPlan', 'pendingRequest'));
+        return view('tenant.subscription.plans', compact('plans', 'currentPlan', 'pendingRequest', 'slug', 'tenant'));
     }
 
     public function requestPlan(Request $request, $slug)
@@ -30,7 +32,7 @@ class SubscriptionController extends Controller
             'notes' => 'nullable|string|max:500'
         ]);
 
-        $tenant = auth()->user()->tenant;
+        $tenant = Tenant::where('slug', $slug)->firstOrFail();
 
         // Check for existing pending requests
         $existingRequest = PlanRequest::where('tenant_id', $tenant->id)

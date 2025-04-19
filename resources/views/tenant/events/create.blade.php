@@ -1,66 +1,99 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Event') }}
-        </h2>
-    </x-slot>
+@extends('layouts.DashboardTemplate')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="p-6">
-                    <form action="{{ route('tenant.events.store') }}" method="POST">
+@section('content')
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">Create Event</h4>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title">Add New Event</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('tenant.events.store', ['slug' => $slug]) }}" method="POST">
                         @csrf
-
-                        <div class="mb-4">
-                            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
-                            <input type="text" name="name" id="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('name') }}" required>
-                            @error('name')
-                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Event Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                           id="name" name="name" value="{{ old('name') }}" required>
+                                    @error('name')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="venue">Venue <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('venue') is-invalid @enderror" 
+                                           id="venue" name="venue" value="{{ old('venue') }}" required>
+                                    @error('venue')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description</label>
-                            <textarea name="description" id="description" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ old('description') }}</textarea>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date">Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('date') is-invalid @enderror" 
+                                           id="date" name="date" value="{{ old('date') }}" required>
+                                    @error('date')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="time">Time <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control @error('time') is-invalid @enderror" 
+                                           id="time" name="time" value="{{ old('time') }}" required>
+                                    @error('time')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea class="form-control @error('description') is-invalid @enderror" 
+                                      id="description" name="description" rows="3">{{ old('description') }}</textarea>
                             @error('description')
-                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                                <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">Start Date</label>
-                            <input type="datetime-local" name="start_date" id="start_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('start_date') }}" required>
-                            @error('start_date')
-                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        <div class="form-group">
+                            <label for="status">Status <span class="text-danger">*</span></label>
+                            <select class="form-control @error('status') is-invalid @enderror" 
+                                    id="status" name="status" required>
+                                <option value="scheduled" {{ old('status') == 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                                <option value="ongoing" {{ old('status') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                            @error('status')
+                                <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">End Date</label>
-                            <input type="datetime-local" name="end_date" id="end_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('end_date') }}" required>
-                            @error('end_date')
-                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="location" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
-                            <input type="text" name="location" id="location" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('location') }}">
-                            @error('location')
-                                <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Create Event
-                            </button>
-                            <a href="{{ route('tenant.events.index') }}" class="text-gray-600 hover:text-gray-800">Cancel</a>
+                        <div class="card-action">
+                            <button type="submit" class="btn btn-primary">Create Event</button>
+                            <a href="{{ route('tenant.events.index', ['slug' => $slug]) }}" class="btn btn-danger">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout> 
+</div>
+@endsection 

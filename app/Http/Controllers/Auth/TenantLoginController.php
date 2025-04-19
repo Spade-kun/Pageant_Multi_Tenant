@@ -98,10 +98,18 @@ class TenantLoginController extends Controller
             DB::purge('tenant');
             DB::reconnect('tenant');
 
+            // Store the user information in the session
+            session(['tenant_user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+            ]]);
+
             // Manually log in the user
             Auth::guard('tenant')->loginUsingId($user->id);
 
-            // Redirect based on user role
+            // Redirect based on user role with proper tenant slug
             if ($user->role === 'owner') {
                 return redirect()->route('tenant.dashboard', ['slug' => $tenant->slug]);
             } else {

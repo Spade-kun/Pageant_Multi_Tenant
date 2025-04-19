@@ -538,9 +538,9 @@
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
                       @if(auth()->guard('web')->check())
-                          <span class="fw-bold">{{ auth()->guard('web')->user()->name }}</span>
+                          <span class="fw-bold">{{ auth()->guard('web')->user()->name }} (Admin)</span>
                       @elseif(auth()->guard('tenant')->check())
-                          <span class="fw-bold">{{ auth()->guard('tenant')->user()->name }}</span>
+                          <span class="fw-bold">{{ session('tenant_user.name') }}</span>
                       @endif
                     </span>
                   </a>
@@ -560,8 +560,8 @@
                                 <h4>{{ auth()->guard('web')->user()->name }} (Admin)</h4>
                                 <p class="text-muted">{{ auth()->guard('web')->user()->email }}</p>
                             @elseif(auth()->guard('tenant')->check())
-                                <h4>{{ auth()->guard('tenant')->user()->name }}</h4>
-                                <p class="text-muted">{{ auth()->guard('tenant')->user()->email }}</p>
+                                <h4>{{ session('tenant_user.name') }}</h4>
+                                <p class="text-muted">{{ session('tenant_user.email') }}</p>
                             @endif
                             <a
                               href="profile.html"
