@@ -29,7 +29,10 @@ class Tenant extends Model
         'domain',
         'database',
         'plan_id',
-        'status'
+        'status',
+        'rejection_reason',
+        'database_name',
+        'owner_id'
     ];
 
     protected $casts = [

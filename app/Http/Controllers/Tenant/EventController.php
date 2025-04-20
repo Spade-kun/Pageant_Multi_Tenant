@@ -40,8 +40,7 @@ class EventController extends Controller
         $this->setTenantConnection($slug);
         $events = DB::connection('tenant')
             ->table('events')
-            ->orderBy('date', 'desc')
-            ->orderBy('time', 'desc')
+            ->orderBy('start_date', 'desc')
             ->paginate(10);
         return view('tenant.events.index', compact('events', 'slug'));
     }
@@ -58,18 +57,18 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'venue' => 'required|string|max:255',
-            'status' => 'required|in:scheduled,ongoing,completed,cancelled',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'location' => 'required|string|max:255',
+            'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
         DB::connection('tenant')->table('events')->insert([
             'name' => $validated['name'],
             'description' => $validated['description'],
-            'date' => $validated['date'],
-            'time' => $validated['time'],
-            'venue' => $validated['venue'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'location' => $validated['location'],
             'status' => $validated['status'],
             'created_at' => now(),
             'updated_at' => now(),
@@ -79,41 +78,41 @@ class EventController extends Controller
             ->with('success', 'Event created successfully.');
     }
 
-    public function show($slug, $id)
+    public function show($slug, $event)
     {
         $this->setTenantConnection($slug);
-        $event = DB::connection('tenant')->table('events')->find($id);
+        $event = DB::connection('tenant')->table('events')->find($event);
         return view('tenant.events.show', compact('event', 'slug'));
     }
 
-    public function edit($slug, $id)
+    public function edit($slug, $event)
     {
         $this->setTenantConnection($slug);
-        $event = DB::connection('tenant')->table('events')->find($id);
+        $event = DB::connection('tenant')->table('events')->find($event);
         return view('tenant.events.edit', compact('event', 'slug'));
     }
 
-    public function update(Request $request, $slug, $id)
+    public function update(Request $request, $slug, $event)
     {
         $this->setTenantConnection($slug);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'venue' => 'required|string|max:255',
-            'status' => 'required|in:scheduled,ongoing,completed,cancelled',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'location' => 'required|string|max:255',
+            'status' => 'required|in:scheduled,ongoing,completed,cancelled'
         ]);
 
         DB::connection('tenant')->table('events')
-            ->where('id', $id)
+            ->where('id', $event)
             ->update([
                 'name' => $validated['name'],
                 'description' => $validated['description'],
-                'date' => $validated['date'],
-                'time' => $validated['time'],
-                'venue' => $validated['venue'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'location' => $validated['location'],
                 'status' => $validated['status'],
                 'updated_at' => now(),
             ]);
@@ -122,10 +121,10 @@ class EventController extends Controller
             ->with('success', 'Event updated successfully.');
     }
 
-    public function destroy($slug, $id)
+    public function destroy($slug, $event)
     {
         $this->setTenantConnection($slug);
-        DB::connection('tenant')->table('events')->delete($id);
+        DB::connection('tenant')->table('events')->delete($event);
         return redirect()->route('tenant.events.index', ['slug' => $slug])
             ->with('success', 'Event deleted successfully.');
     }

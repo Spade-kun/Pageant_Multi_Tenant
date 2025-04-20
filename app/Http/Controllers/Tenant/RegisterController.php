@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -24,19 +25,14 @@ class RegisterController extends Controller
     {
         $tenant = Tenant::where('slug', $slug)->firstOrFail();
 
-        $request->validate([
-            'email' => 'required|email|unique:users,email',
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+        // Log the attempt to help with debugging
+        Log::info('User registration attempt for tenant', [
+            'tenant_slug' => $slug,
+            'email' => $request->email
         ]);
 
-        // Generate temporary password
-        $tempPassword = Str::random(10);
-
-        // Switch to tenant database
+        // Set up tenant database connection first to validate email uniqueness
         $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-        
-        // Set the complete tenant database connection
         Config::set('database.connections.tenant', [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -55,19 +51,103 @@ class RegisterController extends Controller
         DB::purge('tenant');
         DB::reconnect('tenant');
 
+        // Check if email already exists in tenant database
+        $existingUser = DB::connection('tenant')
+            ->table('users')
+            ->where('email', $request->email)
+            ->first();
+
+        if ($existingUser) {
+            return back()->withErrors([
+                'email' => 'The email address is already registered with this pageant.'
+            ])->withInput();
+        }
+
+        $request->validate([
+            'email' => 'required|email',
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            // Generate temporary password
+            $tempPassword = Str::random(10);
+
         // Create user in tenant database
-        $user = DB::connection('tenant')->table('users')->insert([
+        $userId = DB::connection('tenant')->table('users')->insertGetId([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($tempPassword),
+            'role' => 'user',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // Send email with temporary password
-        Mail::to($request->email)->send(new \App\Mail\WelcomeEmail($request->name, $tempPassword));
+            // Log successful tenant database user creation
+            Log::info('User created in tenant database', [
+                'tenant_slug' => $slug,
+                'user_id' => $userId,
+                'email' => $request->email
+        ]);
 
-        return redirect()->route('tenant.login')->with('success', 'Registration successful! Please check your email for your temporary password.');
+        // Also create the user in the main tenant_users table
+        $tenantUser = \App\Models\TenantUser::create([
+            'tenant_id' => $tenant->id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => 'user',
+            'password' => Hash::make($tempPassword),
+        ]);
+
+            // Log successful main database user creation
+            Log::info('User created in main database', [
+                'tenant_id' => $tenant->id,
+                'tenant_user_id' => $tenantUser->id,
+                'email' => $request->email
+            ]);
+
+            // Save temp password to session for development/testing purposes
+            session(['temp_password' => $tempPassword]);
+
+        // Send email with temporary password
+            try {
+        Mail::to($request->email)->send(new \App\Mail\WelcomeEmail($request->name, $tempPassword));
+                Log::info('Welcome email sent', ['email' => $request->email]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send welcome email', [
+                    'email' => $request->email,
+                    'error' => $e->getMessage()
+                ]);
+                // Continue registration process even if email fails
+            }
+
+            return redirect()->route('tenant.register.success', ['slug' => $slug]);
+        } catch (\Exception $e) {
+            Log::error('User registration failed', [
+                'tenant_slug' => $slug,
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->withErrors([
+                'error' => 'Registration failed: ' . $e->getMessage()
+            ])->withInput();
+        }
+    }
+    
+    /**
+     * Show registration success page with temporary password (for development)
+     */
+    public function registrationSuccess($slug)
+    {
+        $tenant = Tenant::where('slug', $slug)->firstOrFail();
+        $tempPassword = session('temp_password', null);
+        
+        return view('tenant.auth.register-success', [
+            'tenant' => $tenant,
+            'tempPassword' => $tempPassword
+        ]);
     }
 } 

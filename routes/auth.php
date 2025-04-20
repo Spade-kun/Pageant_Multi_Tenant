@@ -11,16 +11,18 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// Only register these routes if we're on the admin port
+if (request()->server('SERVER_PORT') == 8001) {
 Route::middleware('guest')->group(function () {
     // Removing the register routes to avoid conflicts with tenant registration
     // Route::get('register', [RegisteredUserController::class, 'create'])
     //     ->name('register');
     // Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
-
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+        // Login routes are now in web.php
+        // Route::get('login', [AuthenticatedSessionController::class, 'create'])
+        //     ->name('login');
+        // Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -54,6 +56,8 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+        // Logout route is now in web.php
+        // Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+        //     ->name('logout');
 });
+}

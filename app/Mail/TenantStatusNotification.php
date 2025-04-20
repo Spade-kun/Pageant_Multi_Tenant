@@ -2,26 +2,29 @@
 
 namespace App\Mail;
 
+use App\Models\Tenant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WelcomeEmail extends Mailable
+class TenantStatusNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $name;
-    public $tempPassword;
+    public $tenant;
+    public $status;
+    public $rejectionReason;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $tempPassword)
+    public function __construct(Tenant $tenant, string $status, ?string $rejectionReason = null)
     {
-        $this->name = $name;
-        $this->tempPassword = $tempPassword;
+        $this->tenant = $tenant;
+        $this->status = $status;
+        $this->rejectionReason = $rejectionReason;
     }
 
     /**
@@ -29,8 +32,12 @@ class WelcomeEmail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = $this->status === 'approved' 
+            ? 'Your Pageant Registration Has Been Approved' 
+            : 'Your Pageant Registration Has Been Rejected';
+            
         return new Envelope(
-            subject: 'Welcome to CLAM Agency',
+            subject: $subject,
         );
     }
 
@@ -40,10 +47,11 @@ class WelcomeEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.tenant-welcome',
+            view: 'emails.tenant-status-notification',
             with: [
-                'name' => $this->name,
-                'tempPassword' => $this->tempPassword,
+                'tenant' => $this->tenant,
+                'status' => $this->status,
+                'rejectionReason' => $this->rejectionReason,
             ],
         );
     }

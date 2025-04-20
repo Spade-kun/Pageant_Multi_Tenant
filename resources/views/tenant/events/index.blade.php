@@ -21,8 +21,8 @@
     @if(session('error'))
     <div class="alert alert-danger">
         {{ session('error') }}
-    </div>
-    @endif
+                        </div>
+                    @endif
 
     <div class="row">
         <div class="col-md-12">
@@ -36,20 +36,20 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Venue</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Location</th>
                                     <th>Status</th>
                                     <th style="width: 10%">Actions</th>
-                                </tr>
-                            </thead>
+                            </tr>
+                        </thead>
                             <tbody>
                                 @forelse($events as $event)
                                 <tr>
                                     <td>{{ $event->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}</td>
-                                    <td>{{ $event->venue }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($event->start_date)->format('M d, Y h:i A') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($event->end_date)->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $event->location }}</td>
                                     <td>
                                         @php
                                             $statusClass = [
@@ -65,31 +65,31 @@
                                     </td>
                                     <td>
                                         <div class="form-button-action">
-                                            <a href="{{ route('tenant.events.show', ['slug' => $slug, 'id' => $event->id]) }}" class="btn btn-link btn-primary btn-lg">
+                                            <a href="{{ route('tenant.events.show', ['slug' => $slug, 'event' => $event->id]) }}" class="btn btn-link btn-primary btn-lg">
                                                 <i class="fa fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('tenant.events.edit', ['slug' => $slug, 'id' => $event->id]) }}" class="btn btn-link btn-primary btn-lg">
+                                            <a href="{{ route('tenant.events.edit', ['slug' => $slug, 'event' => $event->id]) }}" class="btn btn-link btn-primary btn-lg">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('tenant.events.destroy', ['slug' => $slug, 'id' => $event->id]) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
+                                            <form action="{{ route('tenant.events.destroy', ['slug' => $slug, 'event' => $event->id]) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
                                                 <button type="submit" class="btn btn-link btn-danger" onclick="return confirm('Are you sure you want to delete this event?')">
                                                     <i class="fa fa-times"></i>
                                                 </button>
-                                            </form>
+                                        </form>
                                         </div>
                                     </td>
                                 </tr>
-                                @empty
+                            @empty
                                 <tr>
                                     <td colspan="6" class="text-center">No events found.</td>
                                 </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                            @endforelse
+                        </tbody>
+                    </table>
                     </div>
-                    
+
                     <div class="mt-4 d-flex justify-content-center">
                         {{ $events->links() }}
                     </div>

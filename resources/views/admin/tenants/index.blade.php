@@ -59,7 +59,7 @@
 
                                                 @if($tenant->status === 'pending')
                                                     <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
-                                                @csrf
+                                                        @csrf
                                                         @method('PUT')
                                                         <button type="submit" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Approve">
                                                             <span class="btn-label">
@@ -67,22 +67,31 @@
                                                             </span>
                                                             Approve
                                                         </button>
-                                            </form>
+                                                    </form>
                                             
-                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.reject', $tenant) }}">
-                                                @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Reject">
-                                                            <span class="btn-label">
-                                                                <i class="fa fa-times"></i>
-                                                            </span>
-                                                            Reject
-                                                        </button>
-                                            </form>
+                                                    <a href="{{ route('admin.tenants.reject.form', $tenant) }}" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Reject">
+                                                        <span class="btn-label">
+                                                            <i class="fa fa-times"></i>
+                                                        </span>
+                                                        Reject
+                                                    </a>
                                                 @endif
-                                        </div>
-                                    </td>
-                                </tr>
+                                                
+                                                @if($tenant->status === 'approved')
+                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-primary btn-round btn-sm" data-toggle="tooltip" title="Send approval email">
+                                                            <span class="btn-label">
+                                                                <i class="fa fa-envelope"></i>
+                                                            </span>
+                                                            Send Email
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>

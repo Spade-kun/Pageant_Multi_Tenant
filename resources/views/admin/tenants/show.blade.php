@@ -88,6 +88,7 @@
                         <div class="mt-6 flex space-x-4">
                             <form action="{{ route('admin.tenants.approve', $tenant) }}" method="POST">
                                 @csrf
+                                @method('PUT')
                                 <button type="submit" 
                                         class="btn btn-success"
                                         onclick="return confirm('Are you sure you want to approve this tenant?')">
@@ -98,15 +99,29 @@
                                 </button>
                             </form>
 
-                            <form action="{{ route('admin.tenants.reject', $tenant) }}" method="POST">
+                            <a href="{{ route('admin.tenants.reject.form', $tenant) }}" 
+                               class="btn btn-danger"
+                               onclick="return confirm('Are you sure you want to reject this tenant?')">
+                                <span class="btn-label">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                                Reject Tenant
+                            </a>
+                        </div>
+                    @endif
+                    
+                    @if($tenant->status === 'approved')
+                        <div class="mt-6 flex space-x-4">
+                            <form action="{{ route('admin.tenants.approve', $tenant) }}" method="POST">
                                 @csrf
+                                @method('PUT')
                                 <button type="submit" 
-                                        class="btn btn-danger"
-                                        onclick="return confirm('Are you sure you want to reject this tenant?')">
+                                        class="btn btn-primary"
+                                        onclick="return confirm('Do you want to resend the approval email to the tenant owner?')">
                                     <span class="btn-label">
-                                        <i class="fa fa-times"></i>
+                                        <i class="fa fa-envelope"></i>
                                     </span>
-                                    Reject Tenant
+                                    Send Approval Email
                                 </button>
                             </form>
                         </div>

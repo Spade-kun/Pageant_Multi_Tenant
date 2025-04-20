@@ -79,8 +79,8 @@
                 <a href="{{ route('dashboard') }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
-                      </a>
-                    </li>
+                </a>
+              </li>
               <li class="nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
                 <a data-bs-toggle="collapse" href="#tenantManagement">
                   <i class="fas fa-building"></i>
@@ -103,20 +103,40 @@
                 </div>
               </li>
               <li class="nav-item">
+                <a href="{{ route('admin.plans.index') }}">
+                  <i class="fas fa-credit-card"></i>
+                  <p>Subscription Plans</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('admin.requests.index') }}">
+                  <i class="fas fa-tasks"></i>
+                  <p>Plan Requests</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-users"></i>
+                  <p>User Management</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#">
                   <i class="fas fa-cog"></i>
                   <p>System Settings</p>
-                      </a>
-                    </li>
+                </a>
+              </li>
               @elseif(auth()->guard('tenant')->check())
               <!-- Tenant Sidebar -->
               <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('tenant.dashboard', ['slug' => request()->route('slug')]) }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
-                      </a>
-                    </li>
+                </a>
+              </li>
+              
               @if(auth()->guard('tenant')->user()->role === 'owner')
+              <!-- Tenant Owner Sidebar Items -->
               <li class="nav-item">
                 <a href="{{ route('tenant.subscription.plans', ['slug' => request()->route('slug')]) }}">
                   <i class="fas fa-crown"></i>
@@ -124,9 +144,8 @@
                   @if(session('trial_days_left'))
                     <span class="badge badge-warning">Trial: {{ session('trial_days_left') }} days left</span>
                   @endif
-                      </a>
-                    </li>
-              @endif
+                </a>
+              </li>
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#pageantManagement">
                   <i class="fas fa-crown"></i>
@@ -136,7 +155,7 @@
                 <div class="collapse" id="pageantManagement">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.categories.index', ['slug' => request()->route('slug')]) }}">
                         <span class="sub-item">Categories</span>
                       </a>
                     </li>
@@ -166,31 +185,63 @@
                 </a>
                 <div class="collapse" id="scoring">
                   <ul class="nav nav-collapse">
-                          <li>
-                            <a href="#">
-                        <span class="sub-item">Score Sheets</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                        <span class="sub-item">Results</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-              <li class="nav-item">
-                            <a href="#">
-                  <i class="fas fa-users"></i>
-                  <p>User Management</p>
-                            </a>
-                          </li>
-              <li class="nav-item">
+                    <li>
                       <a href="#">
-                  <i class="fas fa-cog"></i>
-                  <p>Settings</p>
+                        <span class="sub-item">Scoring Criteria</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Score Sheets</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Results</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('tenant.users.index', ['slug' => request()->route('slug')]) }}">
+                  <i class="fas fa-users"></i>
+                  <p>User Management</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-chart-bar"></i>
+                  <p>Reports</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-cog"></i>
+                  <p>Settings</p>
+                </a>
+              </li>
+              @else
+              <!-- Regular Tenant User Sidebar Items -->
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-users"></i>
+                  <p>Contestants</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-calendar-alt"></i>
+                  <p>Events</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-star"></i>
+                  <p>Scores</p>
+                </a>
+              </li>
+              @endif
               @endif
             </ul>
           </div>

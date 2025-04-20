@@ -75,7 +75,14 @@ class TenantLoginController extends Controller
             ->where('email', $request->email)
             ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
+        }
+
+        // Check password using Hash::check
+        if (!Hash::check($request->password, $user->password)) {
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
@@ -97,7 +104,7 @@ class TenantLoginController extends Controller
         // Manually log in the user
         Auth::guard('tenant')->loginUsingId($user->id);
 
-        // Redirect based on user role with proper tenant slug
+        // Redirect based on user role
         if ($user->role === 'owner') {
             return redirect()->route('tenant.dashboard', ['slug' => $tenant->slug]);
         } else {

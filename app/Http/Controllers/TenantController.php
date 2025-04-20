@@ -160,6 +160,6 @@ class TenantController extends Controller
      */
     public function showLoginForm()
     {
-        return view('tenant.login');
+        return view('auth.tenant-login');
     }
 } 
