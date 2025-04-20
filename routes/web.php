@@ -137,9 +137,16 @@ Route::group([], function () {
                 DB::purge('tenant');
                 DB::reconnect('tenant');
 
+                // Get user from session
+                $tenantUser = session('tenant_user');
+                if (!$tenantUser) {
+                    return redirect()->route('tenant.login');
+                }
+
+                // Get user from tenant database
                 $user = DB::connection('tenant')
                     ->table('users')
-                    ->where('id', auth()->guard('tenant')->id())
+                    ->where('email', $tenantUser['email'])
                     ->first();
 
                 if (!$user || $user->role !== 'owner') {
@@ -174,9 +181,16 @@ Route::group([], function () {
                 DB::purge('tenant');
                 DB::reconnect('tenant');
 
+                // Get user from session
+                $tenantUser = session('tenant_user');
+                if (!$tenantUser) {
+                    return redirect()->route('tenant.login');
+                }
+
+                // Get user from tenant database
                 $user = DB::connection('tenant')
                     ->table('users')
-                    ->where('id', auth()->guard('tenant')->id())
+                    ->where('email', $tenantUser['email'])
                     ->first();
 
                 if (!$user || $user->role !== 'user') {

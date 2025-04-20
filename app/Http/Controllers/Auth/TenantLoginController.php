@@ -101,8 +101,8 @@ class TenantLoginController extends Controller
             'role' => $user->role
         ]]);
 
-        // Manually log in the user
-        Auth::guard('tenant')->loginUsingId($user->id);
+        // Manually log in the user using the tenant user ID from central database
+        Auth::guard('tenant')->loginUsingId($tenantUser->id);
 
         // Redirect based on user role
         if ($user->role === 'owner') {
