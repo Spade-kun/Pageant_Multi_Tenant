@@ -2,8 +2,18 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('tenant.login') }}">
+    <form method="POST" action="{{ route('tenant.login') }}" class="max-w-md mx-auto">
         @csrf
+
+        @if($errors->any())
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="text-sm text-red-600">
+                @foreach($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         <!-- Email Address -->
         <div>
@@ -38,7 +48,7 @@
             </div>
         <div class="flex items-center justify-between mt-4">
 
-            <x-primary-button class="ml-3">
+            <x-primary-button class="ml-4">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

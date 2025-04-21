@@ -69,6 +69,7 @@ return new class extends Migration
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->string('location')->nullable();
+            $table->string('status')->default('upcoming');
             $table->timestamps();
         });
         

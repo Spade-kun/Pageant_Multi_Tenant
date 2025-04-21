@@ -33,117 +33,82 @@ class TenantController extends Controller
             // Validate the request
             $validated = $request->validate([
                 'pageant_name' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', 'unique:tenants,slug', 'regex:/^[a-z0-9-]+$/'],
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:tenant_users'],
                 'age' => ['required', 'string', 'max:3'],
                 'gender' => ['required', 'string', 'max:20'],
                 'address' => ['required', 'string'],
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
             // Log successful validation
             \Log::info('Validation passed', ['pageant_name' => $request->pageant_name]);
 
-            // Create a slug based on pageant name (remove spaces and special characters)
-            $slug = Str::slug($request->pageant_name);
+            // Use the provided slug
+            $slug = $request->slug;
             
-            // Check if the slug already exists and append number if needed
-            $originalSlug = $slug;
-            $count = 1;
-            
-            while (Tenant::where('slug', $slug)->exists()) {
-                $slug = "{$originalSlug}-{$count}";
-                $count++;
+            // Check if the slug already exists
+            if (Tenant::where('slug', $slug)->exists()) {
+                return back()->withErrors(['slug' => 'This URL slug is already taken. Please choose another one.']);
             }
-
-            // Generate a database name (ensure it's lowercase and only contains valid characters)
-            $databaseName = 'tenant_' . Str::lower(str_replace('-', '_', preg_replace('/[^a-zA-Z0-9-]/', '', $slug)));
-
-            // Log the generated slug and database name
-            \Log::info('Generated slug and database name', [
-                'slug' => $slug,
-                'database_name' => $databaseName
-            ]);
 
             DB::beginTransaction();
 
-            try {
-                // First, create the tenant user
-                $tenantUser = TenantUser::create([
-                    'tenant_id' => null, // Will be updated after tenant creation
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'age' => $request->age,
-                    'gender' => $request->gender,
-                    'address' => $request->address,
-                    'role' => 'owner',
-                    'password' => Hash::make($request->password),
-                ]);
+            // Create tenant user first
+            $tenantUser = \App\Models\TenantUser::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'age' => $validated['age'],
+                'gender' => $validated['gender'],
+                'address' => $validated['address'],
+                'role' => 'owner',
+            ]);
 
-                if (!$tenantUser) {
-                    throw new \Exception('Failed to create tenant user record.');
-                }
+            // Create the tenant
+            $tenant = Tenant::create([
+                'pageant_name' => $validated['pageant_name'],
+                'slug' => $slug,
+                'status' => 'pending',
+                'owner_id' => $tenantUser->id,
+            ]);
 
-                // Log successful tenant user creation
-                \Log::info('Tenant user created', ['user_id' => $tenantUser->id]);
+            // Log successful tenant creation
+            \Log::info('Tenant created', ['tenant_id' => $tenant->id]);
 
-                // Now create the tenant with the correct owner_id
-                $tenant = Tenant::create([
-                    'pageant_name' => $request->pageant_name,
-                    'slug' => $slug,
-                    'owner_id' => $tenantUser->id, // Set the owner_id to the newly created user
-                    'status' => 'pending',
-                    'database_name' => $databaseName,
-                ]);
-
-                if (!$tenant) {
-                    throw new \Exception('Failed to create tenant record.');
-                }
-
-                // Log successful tenant creation
-                \Log::info('Tenant created', ['tenant_id' => $tenant->id]);
-
-                // Update the tenant_user with the tenant_id
-                $tenantUser->tenant_id = $tenant->id;
-                if (!$tenantUser->save()) {
-                    throw new \Exception('Failed to update tenant user with tenant ID.');
-                }
-
-                DB::commit();
-
-                // Log successful registration completion
-                \Log::info('Tenant registration completed successfully', [
-                    'tenant_id' => $tenant->id,
-                    'user_id' => $tenantUser->id
-                ]);
-
-                // Redirect to success page with tenant information
-                return redirect()->route('register.success')
-                    ->with('success', 'Registration successful! Please wait for admin approval.')
-                    ->with('tenant', [
-                        'pageant_name' => $tenant->pageant_name,
-                        'slug' => $tenant->slug
-                    ]);
-
-            } catch (\Exception $e) {
-                DB::rollback();
-                \Log::error('Tenant registration failed during database operations: ' . $e->getMessage());
-                \Log::error($e->getTraceAsString());
-                return back()
-                    ->withInput($request->except(['password', 'password_confirmation']))
-                    ->withErrors(['error' => 'Registration failed. Please try again. Error: ' . $e->getMessage()]);
+            // Update the tenant_user with the tenant_id
+            $tenantUser->tenant_id = $tenant->id;
+            if (!$tenantUser->save()) {
+                throw new \Exception('Failed to update tenant user with tenant ID.');
             }
+
+            DB::commit();
+
+            // Log successful registration completion
+            \Log::info('Tenant registration completed successfully', [
+                'tenant_id' => $tenant->id,
+                'user_id' => $tenantUser->id
+            ]);
+
+            // Redirect to success page with tenant information
+            return redirect()->route('register.success')
+                ->with('success', 'Registration successful! Please wait for admin approval.')
+                ->with('tenant', [
+                    'pageant_name' => $tenant->pageant_name,
+                    'slug' => $tenant->slug
+                ]);
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::warning('Validation failed', ['errors' => $e->errors()]);
             return back()
-                ->withInput($request->except(['password', 'password_confirmation']))
+                ->withInput($request->all())
                 ->withErrors($e->validator->errors());
         } catch (\Exception $e) {
-            \Log::error('Unexpected error in tenant registration: ' . $e->getMessage());
+            DB::rollback();
+            \Log::error('Tenant registration failed: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
             return back()
-                ->withInput($request->except(['password', 'password_confirmation']))
-                ->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+                ->withInput($request->all())
+                ->withErrors(['error' => 'Registration failed. Please try again. Error: ' . $e->getMessage()]);
         }
     }
 

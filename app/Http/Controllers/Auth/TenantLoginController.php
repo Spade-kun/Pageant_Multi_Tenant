@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class TenantLoginController extends Controller
 {
@@ -27,7 +26,6 @@ class TenantLoginController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
         ]);
 
         // Find the tenant user in the main database first
@@ -35,7 +33,7 @@ class TenantLoginController extends Controller
 
         if (!$tenantUser) {
             return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
+                'email' => 'The provided email does not match our records.',
             ])->onlyInput('email');
         }
 
@@ -69,7 +67,7 @@ class TenantLoginController extends Controller
         DB::purge('tenant');
         DB::reconnect('tenant');
 
-        // Verify credentials in tenant database
+        // Verify user exists in tenant database
         $user = DB::connection('tenant')
             ->table('users')
             ->where('email', $request->email)
@@ -77,14 +75,7 @@ class TenantLoginController extends Controller
 
         if (!$user) {
             return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-            ])->onlyInput('email');
-        }
-
-        // Check password using Hash::check
-        if (!Hash::check($request->password, $user->password)) {
-            return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
+                'email' => 'The provided email does not match our records.',
             ])->onlyInput('email');
         }
 

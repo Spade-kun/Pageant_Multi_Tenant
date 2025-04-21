@@ -115,7 +115,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#">
+                <!-- <a href="#">
                   <i class="fas fa-users"></i>
                   <p>User Management</p>
                 </a>
@@ -125,7 +125,7 @@
                   <i class="fas fa-cog"></i>
                   <p>System Settings</p>
                 </a>
-              </li>
+              </li> -->
               @elseif(auth()->guard('tenant')->check())
               <!-- Tenant Sidebar -->
               <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">

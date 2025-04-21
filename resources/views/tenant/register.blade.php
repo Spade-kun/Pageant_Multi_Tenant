@@ -12,11 +12,19 @@
         </div>
         @endif
 
-        <!-- Pageant Name -->
+        <!-- Organizer Name -->
         <div>
-            <x-input-label for="pageant_name" :value="__('Pageant Name')" />
+            <x-input-label for="pageant_name" :value="__('Organizer Name')" />
             <x-text-input id="pageant_name" class="block mt-1 w-full" type="text" name="pageant_name" :value="old('pageant_name')" required autofocus autocomplete="pageant_name" />
             <x-input-error :messages="$errors->get('pageant_name')" class="mt-2" />
+        </div>
+
+        <!-- Custom Slug -->
+        <div class="mt-4">
+            <x-input-label for="slug" :value="__('Custom URL Slug')" />
+            <x-text-input id="slug" class="block mt-1 w-full" type="text" name="slug" :value="old('slug')" required autocomplete="slug" />
+            <x-input-error :messages="$errors->get('slug')" class="mt-2" />
+            <p class="text-sm text-gray-500 mt-1">This will be used in your pageant's URL. Use only letters, numbers, and hyphens.</p>
         </div>
 
         <!-- Name -->
@@ -57,29 +65,6 @@
             <x-input-label for="address" :value="__('Address')" />
             <textarea id="address" name="address" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" rows="3">{{ old('address') }}</textarea>
             <x-input-error :messages="$errors->get('address')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end mt-4">

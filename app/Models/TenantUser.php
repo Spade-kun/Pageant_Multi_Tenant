@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class TenantUser extends Authenticatable
+class TenantUser extends Model
 {
     use HasFactory;
 
@@ -24,7 +23,6 @@ class TenantUser extends Authenticatable
         'gender',
         'address',
         'role',
-        'password',
     ];
 
     /**
@@ -33,7 +31,6 @@ class TenantUser extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -44,7 +41,6 @@ class TenantUser extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
         'tenant_id' => 'integer',
     ];
 

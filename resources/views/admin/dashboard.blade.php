@@ -30,7 +30,7 @@
                             </a>
                         </div>
                         
-                        <div class="bg-purple-100 p-4 rounded-lg shadow">
+                        <!-- <div class="bg-purple-100 p-4 rounded-lg shadow">
                             <h4 class="font-semibold mb-2">{{ __('System Settings') }}</h4>
                             <p class="text-sm mb-4">{{ __('Configure system-wide settings and preferences.') }}</p>
                             <a href="#" class="btn btn-primary btn-round">
@@ -39,9 +39,9 @@
                                 </span>
                                 {{ __('Settings') }}
                             </a>
-                        </div>
+                        </div> -->
 
-                        <div class="bg-yellow-100 p-4 rounded-lg shadow">
+                        <!-- <div class="bg-yellow-100 p-4 rounded-lg shadow">
                             <h4 class="font-semibold mb-2">{{ __('Subscription Plans') }}</h4>
                             <p class="text-sm mb-4">{{ __('Manage tenant subscription plans and billing.') }}</p>
                             <a href="{{ route('admin.plans.index') }}" class="btn btn-warning btn-round">
@@ -49,8 +49,8 @@
                                     <i class="fa fa-credit-card"></i>
                                 </span>
                                 {{ __('View Plans') }}
-                            </a>
-                        </div>
+                            </a> 
+                        </div> -->
 
                         <div class="bg-red-100 p-4 rounded-lg shadow">
                             <h4 class="font-semibold mb-2">{{ __('Plan Requests') }}</h4>
