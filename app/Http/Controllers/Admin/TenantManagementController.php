@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
 
 class TenantManagementController extends Controller
 {
@@ -34,20 +35,35 @@ class TenantManagementController extends Controller
     }
 
     /**
+     * Generate a temporary password for the tenant user
+     */
+    private function generateTemporaryPassword(): string
+    {
+        $length = 12;
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $password;
+    }
+
+    /**
      * Approve a tenant and send notification email.
      * This method handles both approving new tenants and sending/resending 
      * notification emails for already approved tenants.
      */
     public function approve(Tenant $tenant)
     {
-        // Check if tenant is already approved
-        $alreadyApproved = $tenant->isApproved();
-        
         try {
+            \Log::info('Starting tenant approval process', ['tenant_id' => $tenant->id]);
+            
             DB::beginTransaction();
+            \Log::info('Transaction started');
 
             // Get the owner user from the tenant users
             $ownerUser = $tenant->users()->where('role', 'owner')->first();
+            \Log::info('Owner user found', ['owner_id' => $ownerUser ? $ownerUser->id : null]);
             
             if (!$ownerUser) {
                 throw new \Exception('Owner user not found for tenant.');
@@ -56,156 +72,163 @@ class TenantManagementController extends Controller
             // Update owner_id if it's NULL
             if ($tenant->owner_id === null) {
                 $tenant->owner_id = $ownerUser->id;
+                \Log::info('Updated owner_id', ['owner_id' => $ownerUser->id]);
             }
 
-            // If not already approved, set up the tenant database
-            if (!$alreadyApproved) {
-                // Get the database name from the tenant and ensure it's valid
-                $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $tenant->slug);
-                
-                // Update the tenant record
-                $tenant->update([
-                    'status' => 'approved',
-                    'database_name' => $databaseName,
-                    'owner_id' => $tenant->owner_id ?? $ownerUser->id,
-                ]);
-                
-                // Create and set up the tenant database
-                $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
-            } else {
-                // Just ensure the owner_id is set if already approved
-                $tenant->update([
-                    'owner_id' => $tenant->owner_id ?? $ownerUser->id,
-                ]);
-            }
+            // Get the database name from the tenant and ensure it's valid
+            $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $tenant->slug);
+            \Log::info('Database name determined', ['database_name' => $databaseName]);
+            
+            // Update the tenant record
+            $tenant->update([
+                'status' => 'approved',
+                'database_name' => $databaseName,
+                'owner_id' => $tenant->owner_id ?? $ownerUser->id,
+            ]);
+            \Log::info('Tenant record updated');
+            
+            // Create and set up the tenant database
+            $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
+            \Log::info('Tenant database setup completed');
 
             DB::commit();
+            \Log::info('Transaction committed');
             
-            // ALWAYS send email notification to the tenant owner
-            $this->sendApprovalEmail($tenant, $ownerUser, $alreadyApproved);
+            // Send approval email to the tenant owner
+            $this->sendApprovalEmail($tenant, $ownerUser, false);
+            \Log::info('Approval email sent');
             
-            $successMessage = $alreadyApproved
-                ? 'Approval email sent successfully.'
-                : 'Tenant approved successfully. Database created and owner data transferred.';
-                
-            return back()->with('success', $successMessage);
+            return back()->with('success', 'Tenant approved successfully. Database created and approval email sent.');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to approve tenant: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            \Log::error('Failed to approve tenant', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'tenant_id' => $tenant->id
+            ]);
             return back()->with('error', 'Failed to approve tenant: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send approval email to tenant owner
+     */
+    public function sendApprovalEmail(Tenant $tenant, $ownerUser, $isNewTenant)
+    {
+        try {
+            \Log::info('Starting to send approval email', [
+                'tenant_id' => $tenant->id,
+                'owner_email' => $ownerUser->email
+            ]);
+
+            // Get the temporary password from the tenant database
+            $user = DB::connection('tenant')
+                ->table('users')
+                ->where('email', $ownerUser->email)
+                ->first();
+
+            if (!$user) {
+                throw new \Exception('User not found in tenant database.');
+            }
+
+            \Log::info('User found in tenant database', ['user_id' => $user->id]);
+
+            // Send the email
+            Mail::to($ownerUser->email)
+                ->send(new TenantStatusNotification($tenant, 'approved', null, $user->password));
+
+            \Log::info('Email sent successfully', [
+                'tenant_id' => $tenant->id,
+                'owner_email' => $ownerUser->email
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send approval email', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Don't throw the exception, just log it and continue
+            // This way the approval process won't fail if email sending fails
         }
     }
     
     /**
      * Helper function to set up the tenant database
      */
-    private function setupTenantDatabase(Tenant $tenant, string $databaseName, $ownerUser)
+    private function setupTenantDatabase(Tenant $tenant, $databaseName, $ownerUser)
     {
-        // Create a new database for the tenant
-        DB::statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}`");
-        
-        // Set the database configuration to the new tenant database
-        Config::set('database.connections.tenant', [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => $databaseName,
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-        ]);
-        
-        // Clear the database connection cache
-        DB::purge('tenant');
-        
-        // Run migrations on the tenant database
         try {
+            \Log::info('Setting up tenant database', ['database_name' => $databaseName]);
+            
+            // Set the database configuration to the new tenant database
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            \Log::info('Database configuration set');
+            
+            // Clear the database connection cache
+            DB::purge('tenant');
+            \Log::info('Database connection purged');
+            
+            // Run migrations on the tenant database
             Artisan::call('migrate', [
                 '--database' => 'tenant',
                 '--path' => 'database/migrations/tenant',
                 '--force' => true,
             ]);
+            \Log::info('Migrations completed');
+            
+            // Create owner user in tenant database with temporary password
+            $this->createTenantUser($tenant, $ownerUser, $this->generateTemporaryPassword());
+            \Log::info('Tenant user created');
         } catch (\Exception $e) {
-            \Log::warning('Migration warning (tables might already exist): ' . $e->getMessage());
-        }
-        
-        // Create owner user in tenant database
-        $this->createTenantUser($tenant, $ownerUser);
-    }
-    
-    /**
-     * Helper function to create tenant user
-     */
-    private function createTenantUser(Tenant $tenant, $ownerUser)
-    {
-        // Check if user already exists in tenant database
-        $existingUser = DB::connection('tenant')
-            ->table('users')
-            ->where('email', $ownerUser->email)
-            ->first();
-
-        if (!$existingUser) {
-            // Create owner user in tenant database
-            $userId = DB::connection('tenant')->table('users')->insertGetId([
-                'name' => $ownerUser->name,
-                'email' => $ownerUser->email,
-                'password' => $ownerUser->password,
-                'role' => 'owner',
-                'email_verified_at' => $ownerUser->email_verified_at,
-                'remember_token' => $ownerUser->remember_token,
-                'created_at' => $ownerUser->created_at,
-                'updated_at' => $ownerUser->updated_at,
+            \Log::error('Failed to setup tenant database', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-
-            // Check if user_profiles table exists
-            if (Schema::connection('tenant')->hasTable('user_profiles')) {
-                // Check if profile already exists
-                $existingProfile = DB::connection('tenant')
-                    ->table('user_profiles')
-                    ->where('user_id', $userId)
-                    ->first();
-
-                if (!$existingProfile) {
-                    // Create owner's user profile
-                    DB::connection('tenant')->table('user_profiles')->insert([
-                        'user_id' => $userId,
-                        'age' => $ownerUser->age,
-                        'gender' => $ownerUser->gender,
-                        'address' => $ownerUser->address,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
+            throw $e;
         }
     }
     
     /**
-     * Helper function to send approval email
+     * Helper function to create tenant user in tenant database
      */
-    private function sendApprovalEmail(Tenant $tenant, $ownerUser, bool $wasAlreadyApproved)
+    private function createTenantUser(Tenant $tenant, $ownerUser, $temporaryPassword)
     {
-        try {
-            if ($ownerUser && $ownerUser->email) {
-                Mail::to($ownerUser->email)
-                    ->send(new TenantStatusNotification($tenant, 'approved'));
-                
-                // Log successful email
-                \Log::info('Approval email sent to owner', [
-                    'tenant_id' => $tenant->id,
-                    'owner_email' => $ownerUser->email,
-                    'was_already_approved' => $wasAlreadyApproved
-                ]);
-            }
-        } catch (\Exception $emailException) {
-            // Log email error but don't fail the approval process
-            \Log::error('Failed to send approval email: ' . $emailException->getMessage());
+        // Create owner user in tenant database
+        DB::connection('tenant')->table('users')->insert([
+            'name' => $ownerUser->name,
+            'email' => $ownerUser->email,
+            'password' => Hash::make($temporaryPassword),
+            'role' => 'owner',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create user profile
+        $userId = DB::connection('tenant')->table('users')
+            ->where('email', $ownerUser->email)
+            ->value('id');
+
+        if ($userId) {
+            DB::connection('tenant')->table('user_profiles')->insert([
+                'user_id' => $userId,
+                'age' => $ownerUser->age,
+                'gender' => $ownerUser->gender,
+                'address' => $ownerUser->address,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 

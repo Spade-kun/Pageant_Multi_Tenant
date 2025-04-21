@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TenantStatusNotification;
 
 class TenantController extends Controller
 {
@@ -41,21 +39,10 @@ class TenantController extends Controller
                 'address' => ['required', 'string'],
             ]);
 
-            // Log successful validation
-            \Log::info('Validation passed', ['pageant_name' => $request->pageant_name]);
-
-            // Use the provided slug
-            $slug = $request->slug;
-            
-            // Check if the slug already exists
-            if (Tenant::where('slug', $slug)->exists()) {
-                return back()->withErrors(['slug' => 'This URL slug is already taken. Please choose another one.']);
-            }
-
             DB::beginTransaction();
 
             // Create tenant user first
-            $tenantUser = \App\Models\TenantUser::create([
+            $tenantUser = TenantUser::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'age' => $validated['age'],
@@ -67,29 +54,17 @@ class TenantController extends Controller
             // Create the tenant
             $tenant = Tenant::create([
                 'pageant_name' => $validated['pageant_name'],
-                'slug' => $slug,
+                'slug' => $validated['slug'],
                 'status' => 'pending',
                 'owner_id' => $tenantUser->id,
             ]);
 
-            // Log successful tenant creation
-            \Log::info('Tenant created', ['tenant_id' => $tenant->id]);
-
             // Update the tenant_user with the tenant_id
             $tenantUser->tenant_id = $tenant->id;
-            if (!$tenantUser->save()) {
-                throw new \Exception('Failed to update tenant user with tenant ID.');
-            }
+            $tenantUser->save();
 
             DB::commit();
 
-            // Log successful registration completion
-            \Log::info('Tenant registration completed successfully', [
-                'tenant_id' => $tenant->id,
-                'user_id' => $tenantUser->id
-            ]);
-
-            // Redirect to success page with tenant information
             return redirect()->route('register.success')
                 ->with('success', 'Registration successful! Please wait for admin approval.')
                 ->with('tenant', [
@@ -98,17 +73,15 @@ class TenantController extends Controller
                 ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation failed', ['errors' => $e->errors()]);
             return back()
                 ->withInput($request->all())
                 ->withErrors($e->validator->errors());
         } catch (\Exception $e) {
             DB::rollback();
             \Log::error('Tenant registration failed: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
             return back()
                 ->withInput($request->all())
-                ->withErrors(['error' => 'Registration failed. Please try again. Error: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Registration failed. Please try again.']);
         }
     }
 
@@ -121,10 +94,43 @@ class TenantController extends Controller
     }
 
     /**
-     * Show login form for tenant users.
+     * Show approve form for a tenant.
      */
-    public function showLoginForm()
+    public function showApproveForm(Tenant $tenant)
     {
-        return view('auth.tenant-login');
+        return view('admin.tenants.approve-form', compact('tenant'));
+    }
+
+    /**
+     * Approve a tenant.
+     */
+    public function approve(Request $request, Tenant $tenant)
+    {
+        $request->validate([
+            'message' => 'required|string|min:10',
+        ]);
+
+        // Load the owner relationship
+        $tenant->load(['users' => function($query) {
+            $query->where('role', 'owner');
+        }]);
+
+        // Get the owner user
+        $owner = $tenant->users->where('role', 'owner')->first();
+
+        if (!$owner) {
+            return back()->with('error', 'Cannot approve tenant: Owner not found.');
+        }
+
+        $tenant->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        // Send approval email to tenant owner
+        Mail::to($owner->email)->send(new TenantStatusNotification($tenant, 'approved', $request->message));
+
+        return redirect()->route('admin.tenants.index')
+            ->with('success', 'Tenant has been approved successfully.');
     }
 } 

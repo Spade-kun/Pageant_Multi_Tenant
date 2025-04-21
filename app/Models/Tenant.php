@@ -45,7 +45,7 @@ class Tenant extends Model
      */
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(TenantUser::class, 'owner_id');
     }
 
     /**

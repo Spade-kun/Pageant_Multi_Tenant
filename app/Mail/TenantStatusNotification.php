@@ -15,16 +15,18 @@ class TenantStatusNotification extends Mailable
 
     public $tenant;
     public $status;
-    public $rejectionReason;
+    public $reason;
+    public $temporaryPassword;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Tenant $tenant, string $status, ?string $rejectionReason = null)
+    public function __construct(Tenant $tenant, string $status, ?string $reason = null, ?string $temporaryPassword = null)
     {
         $this->tenant = $tenant;
         $this->status = $status;
-        $this->rejectionReason = $rejectionReason;
+        $this->reason = $reason;
+        $this->temporaryPassword = $temporaryPassword;
     }
 
     /**
@@ -33,9 +35,9 @@ class TenantStatusNotification extends Mailable
     public function envelope(): Envelope
     {
         $subject = $this->status === 'approved' 
-            ? 'Your Pageant Registration Has Been Approved' 
-            : 'Your Pageant Registration Has Been Rejected';
-            
+            ? 'Your Tenant Application Has Been Approved' 
+            : 'Your Tenant Application Has Been Rejected';
+
         return new Envelope(
             subject: $subject,
         );
@@ -47,12 +49,7 @@ class TenantStatusNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.tenant-status-notification',
-            with: [
-                'tenant' => $this->tenant,
-                'status' => $this->status,
-                'rejectionReason' => $this->rejectionReason,
-            ],
+            view: 'emails.tenant-status',
         );
     }
 
@@ -64,5 +61,24 @@ class TenantStatusNotification extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * Build the message.
+     */
+    public function build()
+    {
+        $subject = $this->status === 'approved' 
+            ? 'Your Tenant Application Has Been Approved' 
+            : 'Your Tenant Application Has Been Rejected';
+
+        return $this->markdown('emails.tenant-status')
+            ->subject($subject)
+            ->with([
+                'tenant' => $this->tenant,
+                'status' => $this->status,
+                'reason' => $this->reason,
+                'temporaryPassword' => $this->temporaryPassword,
+            ]);
     }
 } 

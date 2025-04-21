@@ -4,7 +4,7 @@
 <div class="page-inner">
     <div class="page-header">
         <h4 class="page-title">Tenant Management</h4>
-                        </div>
+    </div>
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -18,7 +18,7 @@
                             Access Management
                         </a>
                     </div>
-                        </div>
+                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="tenants-table" class="display table table-striped table-hover">
@@ -45,8 +45,8 @@
                                                 <span class="badge bg-warning text-white">Pending</span>
                                             @elseif($tenant->status === 'rejected')
                                                 <span class="badge bg-danger text-white">Rejected</span>
-                                        @endif
-                                    </td>
+                                            @endif
+                                        </td>
                                         <td>{{ $tenant->created_at->format('M d, Y H:i A') }}</td>
                                         <td>
                                             <div class="form-button-action">
@@ -58,16 +58,12 @@
                                                 </a>
 
                                                 @if($tenant->status === 'pending')
-                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Approve">
-                                                            <span class="btn-label">
-                                                                <i class="fa fa-check"></i>
-                                                            </span>
-                                                            Approve
-                                                        </button>
-                                                    </form>
+                                                    <a href="{{ route('admin.tenants.approve-form', $tenant) }}" class="btn btn-success btn-round btn-sm" data-toggle="tooltip" title="Approve">
+                                                        <span class="btn-label">
+                                                            <i class="fa fa-check"></i>
+                                                        </span>
+                                                        Approve
+                                                    </a>
                                             
                                                     <a href="{{ route('admin.tenants.reject.form', $tenant) }}" class="btn btn-danger btn-round btn-sm" data-toggle="tooltip" title="Reject">
                                                         <span class="btn-label">
@@ -75,19 +71,6 @@
                                                         </span>
                                                         Reject
                                                     </a>
-                                                @endif
-                                                
-                                                @if($tenant->status === 'approved')
-                                                    <form class="d-inline" method="POST" action="{{ route('admin.tenants.approve', $tenant) }}">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-primary btn-round btn-sm" data-toggle="tooltip" title="Send approval email">
-                                                            <span class="btn-label">
-                                                                <i class="fa fa-envelope"></i>
-                                                            </span>
-                                                            Send Email
-                                                        </button>
-                                                    </form>
                                                 @endif
                                             </div>
                                         </td>
@@ -120,6 +103,6 @@
 
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
-        });
+    });
     </script>
 @endpush

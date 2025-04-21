@@ -23,6 +23,12 @@ Route::get('/', function (Request $request) {
     }
 });
 
+// Tenant Authentication - Available on both ports
+Route::middleware('guest:tenant')->group(function () {
+    Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
+    Route::post('/tenant/login', [TenantLoginController::class, 'login']);
+});
+
 // Routes based on port
 Route::group([], function () {
     // Determine if we're on the admin port
@@ -56,11 +62,13 @@ Route::group([], function () {
                 Route::get('admin/tenants', [TenantManagementController::class, 'index'])->name('admin.tenants.index');
                 Route::get('admin/tenants/access', [TenantManagementController::class, 'access'])->name('admin.tenants.access');
                 Route::get('admin/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('admin.tenants.show');
-                Route::put('admin/tenants/{tenant}/approve', [TenantManagementController::class, 'approve'])->name('admin.tenants.approve');
+                Route::get('/admin/tenants/{tenant}/approve-form', [TenantController::class, 'showApproveForm'])->name('admin.tenants.approve-form');
+                Route::put('/admin/tenants/{tenant}/approve', [TenantController::class, 'approve'])->name('admin.tenants.approve');
                 Route::get('admin/tenants/{tenant}/reject', [TenantManagementController::class, 'showRejectForm'])->name('admin.tenants.reject.form');
                 Route::put('admin/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
                 Route::put('admin/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');
                 Route::put('admin/tenants/{tenant}/disable', [TenantManagementController::class, 'disable'])->name('admin.tenants.disable');
+                Route::post('/admin/tenants/{tenant}/send-approval-email', [TenantManagementController::class, 'sendApprovalEmail'])->name('admin.tenants.send-approval-email');
                 
                 // Admin Plan Management Routes
                 Route::get('admin/plans', [App\Http\Controllers\Admin\PlanController::class, 'index'])->name('admin.plans.index');
@@ -103,12 +111,6 @@ Route::group([], function () {
         Route::get('tenant/register', [TenantController::class, 'showRegistrationForm'])->name('register');
         Route::post('tenant/register', [TenantController::class, 'register']);
         Route::get('tenant/register/success', [TenantController::class, 'registrationSuccess'])->name('register.success');
-        
-        // Tenant Authentication
-        Route::middleware('guest:tenant')->group(function () {
-            Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
-            Route::post('/tenant/login', [TenantLoginController::class, 'login']);
-        });
         
         // Tenant Dashboard with tenant slug
         Route::middleware(['auth:tenant'])->group(function () {
