@@ -7,6 +7,10 @@ use App\Models\TenantUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use App\Mail\TenantStatusNotification;
 
 class TenantController extends Controller
@@ -42,35 +46,35 @@ class TenantController extends Controller
             DB::beginTransaction();
 
             // Create tenant user first
-            $tenantUser = TenantUser::create([
+                $tenantUser = TenantUser::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'age' => $validated['age'],
                 'gender' => $validated['gender'],
                 'address' => $validated['address'],
-                'role' => 'owner',
+                    'role' => 'owner',
             ]);
 
             // Create the tenant
-            $tenant = Tenant::create([
+                $tenant = Tenant::create([
                 'pageant_name' => $validated['pageant_name'],
                 'slug' => $validated['slug'],
-                'status' => 'pending',
+                    'status' => 'pending',
                 'owner_id' => $tenantUser->id,
             ]);
 
-            // Update the tenant_user with the tenant_id
-            $tenantUser->tenant_id = $tenant->id;
+                // Update the tenant_user with the tenant_id
+                $tenantUser->tenant_id = $tenant->id;
             $tenantUser->save();
 
-            DB::commit();
+                DB::commit();
 
-            return redirect()->route('register.success')
-                ->with('success', 'Registration successful! Please wait for admin approval.')
-                ->with('tenant', [
-                    'pageant_name' => $tenant->pageant_name,
-                    'slug' => $tenant->slug
-                ]);
+                return redirect()->route('register.success')
+                    ->with('success', 'Registration successful! Please wait for admin approval.')
+                    ->with('tenant', [
+                        'pageant_name' => $tenant->pageant_name,
+                        'slug' => $tenant->slug
+                    ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()
@@ -110,27 +114,96 @@ class TenantController extends Controller
             'message' => 'required|string|min:10',
         ]);
 
-        // Load the owner relationship
-        $tenant->load(['users' => function($query) {
-            $query->where('role', 'owner');
-        }]);
+        try {
+            DB::beginTransaction();
 
-        // Get the owner user
-        $owner = $tenant->users->where('role', 'owner')->first();
+            // Load the owner relationship
+            $tenant->load(['users' => function($query) {
+                $query->where('role', 'owner');
+            }]);
 
-        if (!$owner) {
-            return back()->with('error', 'Cannot approve tenant: Owner not found.');
+            // Get the owner user
+            $owner = $tenant->users->where('role', 'owner')->first();
+
+            if (!$owner) {
+                return back()->with('error', 'Cannot approve tenant: Owner not found.');
+            }
+
+            // Generate temporary password
+            $temporaryPassword = Str::random(10);
+            $hashedPassword = Hash::make($temporaryPassword);
+
+            // Update tenant status
+            $tenant->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+            ]);
+
+            // Set up tenant database connection
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            // Run migrations on the tenant database
+            Artisan::call('migrate', [
+                '--database' => 'tenant',
+                '--path' => 'database/migrations/tenant',
+                '--force' => true,
+            ]);
+
+            // Create owner user in tenant database
+            DB::connection('tenant')->table('users')->insert([
+                'name' => $owner->name,
+                'email' => $owner->email,
+                'password' => $hashedPassword,
+                'role' => 'owner',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Create user profile in tenant database
+            $userId = DB::connection('tenant')->table('users')
+                ->where('email', $owner->email)
+                ->value('id');
+
+            if ($userId) {
+                DB::connection('tenant')->table('user_profiles')->insert([
+                    'user_id' => $userId,
+                    'age' => $owner->age,
+                    'gender' => $owner->gender,
+                    'address' => $owner->address,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            // Send approval email to tenant owner
+            Mail::to($owner->email)->send(new TenantStatusNotification($tenant, 'approved', $request->message, $temporaryPassword));
+
+            return redirect()->route('admin.tenants.index')
+                ->with('success', 'Tenant has been approved successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Tenant approval failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to approve tenant: ' . $e->getMessage());
         }
-
-        $tenant->update([
-            'status' => 'approved',
-            'approved_at' => now(),
-        ]);
-
-        // Send approval email to tenant owner
-        Mail::to($owner->email)->send(new TenantStatusNotification($tenant, 'approved', $request->message));
-
-        return redirect()->route('admin.tenants.index')
-            ->with('success', 'Tenant has been approved successfully.');
     }
 } 

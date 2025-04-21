@@ -53,39 +53,39 @@ Route::group([], function () {
             })->name('dashboard');
             
             // Profile routes
-            Route::get('/admin/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-            Route::patch('/admin/profile', [ProfileController::class, 'update'])->name('profile.update');
-            Route::delete('/admin/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+            Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
             
             Route::prefix('admin')->group(function () {
                 // Tenant Management
-                Route::get('admin/tenants', [TenantManagementController::class, 'index'])->name('admin.tenants.index');
-                Route::get('admin/tenants/access', [TenantManagementController::class, 'access'])->name('admin.tenants.access');
-                Route::get('admin/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('admin.tenants.show');
-                Route::get('/admin/tenants/{tenant}/approve-form', [TenantController::class, 'showApproveForm'])->name('admin.tenants.approve-form');
-                Route::put('/admin/tenants/{tenant}/approve', [TenantController::class, 'approve'])->name('admin.tenants.approve');
-                Route::get('admin/tenants/{tenant}/reject', [TenantManagementController::class, 'showRejectForm'])->name('admin.tenants.reject.form');
-                Route::put('admin/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
-                Route::put('admin/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');
-                Route::put('admin/tenants/{tenant}/disable', [TenantManagementController::class, 'disable'])->name('admin.tenants.disable');
-                Route::post('/admin/tenants/{tenant}/send-approval-email', [TenantManagementController::class, 'sendApprovalEmail'])->name('admin.tenants.send-approval-email');
+                Route::get('/tenants', [TenantManagementController::class, 'index'])->name('admin.tenants.index');
+                Route::get('/tenants/access', [TenantManagementController::class, 'access'])->name('admin.tenants.access');
+                Route::get('/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('admin.tenants.show');
+                Route::get('/tenants/{tenant}/approve-form', [TenantController::class, 'showApproveForm'])->name('admin.tenants.approve-form');
+                Route::put('/tenants/{tenant}/approve', [TenantController::class, 'approve'])->name('admin.tenants.approve');
+                Route::get('/tenants/{tenant}/reject', [TenantManagementController::class, 'showRejectForm'])->name('admin.tenants.reject.form');
+                Route::put('/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
+                Route::put('/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');
+                Route::put('/tenants/{tenant}/disable', [TenantManagementController::class, 'disable'])->name('admin.tenants.disable');
+                Route::post('/tenants/{tenant}/send-approval-email', [TenantManagementController::class, 'sendApprovalEmail'])->name('admin.tenants.send-approval-email');
                 
                 // Admin Plan Management Routes
-                Route::get('admin/plans', [App\Http\Controllers\Admin\PlanController::class, 'index'])->name('admin.plans.index');
-                Route::get('admin/plans/create', [App\Http\Controllers\Admin\PlanController::class, 'create'])->name('admin.plans.create');
-                Route::post('admin/plans', [App\Http\Controllers\Admin\PlanController::class, 'store'])->name('admin.plans.store');
-                Route::get('admin/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'show'])->name('admin.plans.show');
-                Route::get('admin/plans/{plan}/edit', [App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('admin.plans.edit');
-                Route::put('admin/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'update'])->name('admin.plans.update');
-                Route::delete('admin/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'destroy'])->name('admin.plans.destroy');
+                Route::get('/plans', [App\Http\Controllers\Admin\PlanController::class, 'index'])->name('admin.plans.index');
+                Route::get('/plans/create', [App\Http\Controllers\Admin\PlanController::class, 'create'])->name('admin.plans.create');
+                Route::post('/plans', [App\Http\Controllers\Admin\PlanController::class, 'store'])->name('admin.plans.store');
+                Route::get('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'show'])->name('admin.plans.show');
+                Route::get('/plans/{plan}/edit', [App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('admin.plans.edit');
+                Route::put('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'update'])->name('admin.plans.update');
+                Route::delete('/plans/{plan}', [App\Http\Controllers\Admin\PlanController::class, 'destroy'])->name('admin.plans.destroy');
 
                 // Plan Requests Routes
-                Route::get('admin/requests', [App\Http\Controllers\Admin\PlanRequestController::class, 'index'])->name('admin.requests.index');
-                Route::get('admin/requests/{request}', [App\Http\Controllers\Admin\PlanRequestController::class, 'show'])->name('admin.requests.show');
-                Route::put('admin/requests/{request}/approve', [App\Http\Controllers\Admin\PlanRequestController::class, 'approve'])->name('admin.requests.approve');
-                Route::put('admin/requests/{request}/reject', [App\Http\Controllers\Admin\PlanRequestController::class, 'reject'])->name('admin.requests.reject');
-                Route::get('admin/requests/{tenant}/change-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'showChangePlan'])->name('admin.requests.change-plan');
-                Route::put('admin/requests/{tenant}/update-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'updatePlan'])->name('admin.requests.update-plan');
+                Route::get('/requests', [App\Http\Controllers\Admin\PlanRequestController::class, 'index'])->name('admin.requests.index');
+                Route::get('/requests/{request}', [App\Http\Controllers\Admin\PlanRequestController::class, 'show'])->name('admin.requests.show');
+                Route::put('/requests/{request}/approve', [App\Http\Controllers\Admin\PlanRequestController::class, 'approve'])->name('admin.requests.approve');
+                Route::put('/requests/{request}/reject', [App\Http\Controllers\Admin\PlanRequestController::class, 'reject'])->name('admin.requests.reject');
+                Route::get('/requests/{tenant}/change-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'showChangePlan'])->name('admin.requests.change-plan');
+                Route::put('/requests/{tenant}/update-plan', [App\Http\Controllers\Admin\PlanRequestController::class, 'updatePlan'])->name('admin.requests.update-plan');
             });
             
             // Logout
