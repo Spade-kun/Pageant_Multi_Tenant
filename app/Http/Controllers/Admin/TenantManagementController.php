@@ -75,20 +75,20 @@ class TenantManagementController extends Controller
                 \Log::info('Updated owner_id', ['owner_id' => $ownerUser->id]);
             }
 
-            // Get the database name from the tenant and ensure it's valid
-            $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $tenant->slug);
+                // Get the database name from the tenant and ensure it's valid
+                $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $tenant->slug);
             \Log::info('Database name determined', ['database_name' => $databaseName]);
-            
-            // Update the tenant record
-            $tenant->update([
-                'status' => 'approved',
-                'database_name' => $databaseName,
-                'owner_id' => $tenant->owner_id ?? $ownerUser->id,
-            ]);
+                
+                // Update the tenant record
+                $tenant->update([
+                    'status' => 'approved',
+                    'database_name' => $databaseName,
+                    'owner_id' => $tenant->owner_id ?? $ownerUser->id,
+                ]);
             \Log::info('Tenant record updated');
-            
-            // Create and set up the tenant database
-            $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
+                
+                // Create and set up the tenant database
+                $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
             \Log::info('Tenant database setup completed');
 
             DB::commit();
@@ -158,29 +158,29 @@ class TenantManagementController extends Controller
     {
         try {
             \Log::info('Setting up tenant database', ['database_name' => $databaseName]);
-            
-            // Set the database configuration to the new tenant database
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
+        
+        // Set the database configuration to the new tenant database
+        Config::set('database.connections.tenant', [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => $databaseName,
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ]);
             \Log::info('Database configuration set');
-            
-            // Clear the database connection cache
-            DB::purge('tenant');
+        
+        // Clear the database connection cache
+        DB::purge('tenant');
             \Log::info('Database connection purged');
-            
-            // Run migrations on the tenant database
+        
+        // Run migrations on the tenant database
             Artisan::call('migrate', [
                 '--database' => 'tenant',
                 '--path' => 'database/migrations/tenant',
@@ -205,12 +205,12 @@ class TenantManagementController extends Controller
      */
     private function createTenantUser(Tenant $tenant, $ownerUser, $temporaryPassword)
     {
-        // Create owner user in tenant database
+            // Create owner user in tenant database
         DB::connection('tenant')->table('users')->insert([
-            'name' => $ownerUser->name,
-            'email' => $ownerUser->email,
+                'name' => $ownerUser->name,
+                'email' => $ownerUser->email,
             'password' => Hash::make($temporaryPassword),
-            'role' => 'owner',
+                'role' => 'owner',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -221,14 +221,14 @@ class TenantManagementController extends Controller
             ->value('id');
 
         if ($userId) {
-            DB::connection('tenant')->table('user_profiles')->insert([
-                'user_id' => $userId,
-                'age' => $ownerUser->age,
-                'gender' => $ownerUser->gender,
-                'address' => $ownerUser->address,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+                    DB::connection('tenant')->table('user_profiles')->insert([
+                        'user_id' => $userId,
+                        'age' => $ownerUser->age,
+                        'gender' => $ownerUser->gender,
+                        'address' => $ownerUser->address,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
         }
     }
 

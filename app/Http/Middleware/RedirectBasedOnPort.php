@@ -26,13 +26,13 @@ class RedirectBasedOnPort
 
         // If on admin port and trying to access tenant routes
         if ($isAdminPort && str_starts_with($request->path(), 'tenant')) {
-            return redirect()->route('login');
+            return redirect()->route('admin.login');
         }
 
         // Handle root URL redirects
         if ($request->path() === '/') {
             if ($isAdminPort) {
-                return redirect()->route('login');
+                return redirect()->route('admin.login');
             } else if ($isTenantPort) {
                 // If tenant user is logged in, redirect to appropriate dashboard
                 if (Auth::guard('tenant')->check()) {

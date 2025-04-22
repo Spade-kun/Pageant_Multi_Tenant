@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use App\Models\TenantUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -26,10 +27,11 @@ class TenantLoginController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
+            'password' => 'required',
         ]);
 
         // Find the tenant user in the main database first
-        $tenantUser = \App\Models\TenantUser::where('email', $request->email)->first();
+        $tenantUser = TenantUser::where('email', $request->email)->first();
 
         if (!$tenantUser) {
             return back()->withErrors([
@@ -79,6 +81,13 @@ class TenantLoginController extends Controller
             ])->onlyInput('email');
         }
 
+        // Verify password
+        if (!\Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'password' => 'The provided password is incorrect.',
+            ])->onlyInput('email');
+        }
+
         // Set the session tenant
         session(['tenant_id' => $tenant->id]);
         session(['tenant_slug' => $tenant->slug]);
@@ -93,7 +102,7 @@ class TenantLoginController extends Controller
         ]]);
 
         // Manually log in the user using the tenant user ID from central database
-        Auth::guard('tenant')->loginUsingId($tenantUser->id);
+        Auth::guard('tenant')->login($tenantUser);
 
         // Redirect based on user role
         if ($user->role === 'owner') {

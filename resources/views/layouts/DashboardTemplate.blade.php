@@ -75,8 +75,8 @@
             <ul class="nav nav-secondary">
               @if(auth()->guard('web')->check())
               <!-- Admin Sidebar -->
-              <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <a href="{{ route('dashboard') }}">
+              <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
                 </a>
@@ -129,7 +129,7 @@
               @elseif(auth()->guard('tenant')->check())
               <!-- Tenant Sidebar -->
               <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
-                <a href="{{ route('tenant.dashboard', ['slug' => request()->route('slug')]) }}">
+                <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
                 </a>
@@ -138,7 +138,7 @@
               @if(auth()->guard('tenant')->user()->role === 'owner')
               <!-- Tenant Owner Sidebar Items -->
               <li class="nav-item">
-                <a href="{{ route('tenant.subscription.plans', ['slug' => request()->route('slug')]) }}">
+                <a href="{{ route('tenant.subscription.plans', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-crown"></i>
                   <p>Subscription Plans</p>
                   @if(session('trial_days_left'))
@@ -155,12 +155,12 @@
                 <div class="collapse" id="pageantManagement">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="{{ route('tenant.categories.index', ['slug' => request()->route('slug')]) }}">
+                      <a href="{{ route('tenant.categories.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Categories</span>
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('tenant.contestants.index', ['slug' => request()->route('slug')]) }}">
+                      <a href="{{ route('tenant.contestants.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Contestants</span>
                       </a>
                     </li>
@@ -170,7 +170,7 @@
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('tenant.events.index', ['slug' => request()->route('slug')]) }}">
+                      <a href="{{ route('tenant.events.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Events</span>
                       </a>
                     </li>
@@ -204,7 +204,7 @@
                 </div>
               </li>
               <li class="nav-item">
-                <a href="{{ route('tenant.users.index', ['slug' => request()->route('slug')]) }}">
+                <a href="{{ route('tenant.users.index', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-users"></i>
                   <p>User Management</p>
                 </a>
@@ -638,7 +638,7 @@
                                 </a>
                             </form>
                         @elseif(auth()->guard('tenant')->check())
-                            <form method="POST" action="{{ route('tenant.logout', ['slug' => request()->route('slug')]) }}" id="logout-form">
+                            <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}" id="logout-form">
                                 @csrf
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     Logout

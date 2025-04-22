@@ -5,16 +5,28 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
+                    @if(auth()->guard('web')->check())
+                        <a href="{{ route('admin.dashboard') }}">
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        </a>
+                    @elseif(auth()->guard('tenant')->check())
+                        <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @if(auth()->guard('web')->check())
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                    @elseif(auth()->guard('tenant')->check())
+                        <x-nav-link :href="route('tenant.dashboard', ['slug' => session('tenant_slug')])" :active="request()->routeIs('tenant.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -67,16 +79,34 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @if(auth()->guard('web')->check())
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @elseif(auth()->guard('tenant')->check())
+                <x-responsive-nav-link :href="route('tenant.dashboard', ['slug' => session('tenant_slug')])" :active="request()->routeIs('tenant.dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">
+                    @if(auth()->guard('web')->check())
+                        {{ Auth::user()->name }}
+                    @elseif(auth()->guard('tenant')->check())
+                        {{ session('tenant_user.name') }}
+                    @endif
+                </div>
+                <div class="font-medium text-sm text-gray-500">
+                    @if(auth()->guard('web')->check())
+                        {{ Auth::user()->email }}
+                    @elseif(auth()->guard('tenant')->check())
+                        {{ session('tenant_user.email') }}
+                    @endif
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
