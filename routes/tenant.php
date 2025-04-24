@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenant\SubscriptionController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\RegisterController;
 use App\Http\Controllers\Auth\TenantLoginController;
+use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +19,9 @@ Route::middleware('guest:tenant')->group(function () {
 });
 
 // Tenant Registration
-Route::get('tenant/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('tenant/register', [RegisterController::class, 'register']);
-Route::get('tenant/register/success', [RegisterController::class, 'registrationSuccess'])->name('register.success');
+Route::get('tenant/register', [TenantController::class, 'showRegistrationForm'])->name('register');
+Route::post('tenant/register', [TenantController::class, 'register']);
+Route::get('tenant/register/success', [TenantController::class, 'registrationSuccess'])->name('register.success');
 
 // Tenant Dashboard and protected routes
 Route::middleware(['auth:tenant'])->group(function () {

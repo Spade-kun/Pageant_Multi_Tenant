@@ -11,8 +11,8 @@
                         </a>
                     @elseif(auth()->guard('tenant')->check())
                         <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                        </a>
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                    </a>
                     @endif
                 </div>
 
@@ -24,8 +24,8 @@
                         </x-nav-link>
                     @elseif(auth()->guard('tenant')->check())
                         <x-nav-link :href="route('tenant.dashboard', ['slug' => session('tenant_slug')])" :active="request()->routeIs('tenant.dashboard')">
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -85,8 +85,8 @@
                 </x-responsive-nav-link>
             @elseif(auth()->guard('tenant')->check())
                 <x-responsive-nav-link :href="route('tenant.dashboard', ['slug' => session('tenant_slug')])" :active="request()->routeIs('tenant.dashboard')">
-                    {{ __('Dashboard') }}
-                </x-responsive-nav-link>
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
             @endif
         </div>
 
