@@ -1,4 +1,4 @@
-@extends('layouts.DashboardTemplate')
+@extends('layouts.TenantDashboardTemplate')
 
 @section('content')
 <div class="page-header">

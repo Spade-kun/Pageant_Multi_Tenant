@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+    <title>Pageant Management System</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -48,7 +48,7 @@
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
+            <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
               <img
                 src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
                 alt="navbar brand"
@@ -73,58 +73,121 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <!-- Admin Sidebar -->
-              <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <a href="{{ route('admin.dashboard') }}">
+              <!-- Tenant Sidebar -->
+              <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
                 </a>
               </li>
-              <li class="nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
-                <a data-bs-toggle="collapse" href="#tenantManagement">
-                  <i class="fas fa-building"></i>
-                  <p>Tenant Management</p>
+              
+              @if(auth()->guard('tenant')->user()->role === 'owner')
+              <!-- Tenant Owner Sidebar Items -->
+              <li class="nav-item">
+                <a href="{{ route('tenant.subscription.plans', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-crown"></i>
+                  <p>Subscription Plans</p>
+                  @if(session('trial_days_left'))
+                    <span class="badge badge-warning">Trial: {{ session('trial_days_left') }} days left</span>
+                  @endif
+                </a>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#pageantManagement">
+                  <i class="fas fa-crown"></i>
+                  <p>Pageant Management</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="tenantManagement">
+                <div class="collapse" id="pageantManagement">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="{{ route('admin.tenants.index') }}">
-                        <span class="sub-item">Tenants List</span>
+                      <a href="{{ route('tenant.categories.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Categories</span>
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('admin.tenants.access') }}">
-                        <span class="sub-item">Access Control</span>
+                      <a href="{{ route('tenant.contestants.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Contestants</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Judges</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('tenant.events.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Events</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
               <li class="nav-item">
-                <a href="{{ route('admin.plans.index') }}">
-                  <i class="fas fa-credit-card"></i>
-                  <p>Subscription Plans</p>
+                <a data-bs-toggle="collapse" href="#scoring">
+                  <i class="fas fa-star"></i>
+                  <p>Scoring</p>
+                  <span class="caret"></span>
                 </a>
+                <div class="collapse" id="scoring">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Scoring Criteria</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Score Sheets</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Results</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </li>
               <li class="nav-item">
-                <a href="{{ route('admin.requests.index') }}">
-                  <i class="fas fa-tasks"></i>
-                  <p>Plan Requests</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#">
+                <a href="{{ route('tenant.users.index', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-users"></i>
                   <p>User Management</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="#">
-                  <i class="fas fa-cog"></i>
-                  <p>System Settings</p>
+                  <i class="fas fa-chart-bar"></i>
+                  <p>Reports</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-cog"></i>
+                  <p>Settings</p>
+                </a>
+              </li>
+              @else
+              <!-- Regular Tenant User Sidebar Items -->
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-users"></i>
+                  <p>Contestants</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-calendar-alt"></i>
+                  <p>Events</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-star"></i>
+                  <p>Scores</p>
+                </a>
+              </li>
+              @endif
             </ul>
           </div>
         </div>
@@ -136,7 +199,7 @@
           <div class="main-header-logo">
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="dark">
-              <a href="index.html" class="logo">
+              <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
                 <img
                   src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
                   alt="navbar brand"
@@ -230,7 +293,7 @@
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">{{ auth()->guard('web')->user()->name }} (Admin)</span>
+                      <span class="fw-bold">{{ session('tenant_user.name') }}</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -241,8 +304,8 @@
                             <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
                           </div>
                           <div class="u-text">
-                            <h4>{{ auth()->guard('web')->user()->name }} (Admin)</h4>
-                            <p class="text-muted">{{ auth()->guard('web')->user()->email }}</p>
+                            <h4>{{ session('tenant_user.name') }}</h4>
+                            <p class="text-muted">{{ session('tenant_user.email') }}</p>
                             <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
@@ -252,12 +315,16 @@
                         <a class="dropdown-item" href="#">My Profile</a>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                        <form method="POST" action="{{ route('logout') }}" id="logout-form">
-                          @csrf
-                          <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Logout
-                          </a>
-                        </form>
+                        @if(auth()->guard('tenant')->check())
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                        @endif
                       </li>
                     </div>
                   </ul>
@@ -287,7 +354,7 @@
               </ul>
             </nav>
             <div class="copyright">
-              2024, made with <i class="fa fa-heart heart text-danger"></i> by Admin Dashboard
+              2024, made with <i class="fa fa-heart heart text-danger"></i> by Pageant Management System
             </div>
           </div>
         </footer>
@@ -488,8 +555,7 @@
       </div>
       <!-- End Custom template -->
     </div>
-
-    <!-- Core JS Files -->
+    <!--   Core JS Files   -->
     <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
@@ -511,6 +577,10 @@
 
     <!-- Bootstrap Notify -->
     <script src="{{ asset('assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
+
+    <!-- jQuery Vector Maps -->
+    <script src="{{ asset('assets/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugin/jsvectormap/world.js') }}"></script>
 
     <!-- Sweet Alert -->
     <script src="{{ asset('assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>

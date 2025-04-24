@@ -128,3 +128,61 @@
         </div>
     </div>
 </nav>
+
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{{ route('tenant.dashboard') }}" class="brand-link">
+        <img src="{{ asset('images/logo.png') }}" alt="Pageant Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">Pageant System</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="{{ auth()->user()->profile_photo_url }}" class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="{{ route('profile.edit') }}" class="d-block">{{ auth()->user()->name }}</a>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                @if(auth()->check() && auth()->user()->isTenant())
+                    <li class="nav-item">
+                        <a href="{{ route('tenant.dashboard') }}" class="nav-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>{{ __('Dashboard') }}</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('tenant.subscription.plans') }}" class="nav-link {{ request()->routeIs('tenant.subscription.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-crown"></i>
+                            <p>{{ __('Subscription Plans') }}</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('tenant.users.index') }}" class="nav-link {{ request()->routeIs('tenant.users.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>{{ __('User Management') }}</p>
+                        </a>
+                    </li>
+                    @if(auth()->user()->isTenantOwner())
+                        <li class="nav-item">
+                            <a href="{{ route('tenant.pageants.index') }}" class="nav-link {{ request()->routeIs('tenant.pageants.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-star"></i>
+                                <p>{{ __('Pageant Management') }}</p>
+                            </a>
+                        </li>
+                    @endif
+                @endif
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
