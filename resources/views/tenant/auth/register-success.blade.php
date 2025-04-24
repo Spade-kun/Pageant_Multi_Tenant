@@ -70,7 +70,7 @@
             <div class="card-body">
                 <div class="text-center mb-4">
                     <i class="fas fa-user-check fa-4x text-success mb-3"></i>
-                    <h4>Welcome to {{ $tenant->pageant_name }}!</h4>
+                    <h4>Welcome to {{ $tenant->name }}!</h4>
                     <p class="text-muted">Your account has been created successfully.</p>
                 </div>
                 

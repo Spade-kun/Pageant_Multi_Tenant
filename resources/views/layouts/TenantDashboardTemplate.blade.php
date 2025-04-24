@@ -316,14 +316,12 @@
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
                         @if(auth()->guard('tenant')->check())
-                        <div class="dropdown-menu dropdown-menu-end">
                             <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
                                 @csrf
                                 <button type="submit" class="dropdown-item">
                                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                                 </button>
                             </form>
-                        </div>
                         @endif
                       </li>
                     </div>

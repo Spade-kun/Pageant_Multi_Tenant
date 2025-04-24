@@ -170,6 +170,12 @@ Route::middleware(['auth:tenant'])->group(function () {
     // Tenant User Management Routes
     Route::get('/{slug}/users', [UserController::class, 'index'])
         ->name('tenant.users.index');
+    Route::get('/{slug}/users/register', [RegisterController::class, 'showRegistrationForm'])
+        ->name('tenant.register.form');
+    Route::post('/{slug}/users/register', [RegisterController::class, 'register'])
+        ->name('tenant.register');
+    Route::get('/{slug}/users/register-success', [RegisterController::class, 'registrationSuccess'])
+        ->name('tenant.register.success');
     
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');

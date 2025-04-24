@@ -47,7 +47,23 @@
                 <h3 class="mb-0">{{ __('Register for ') }} {{ $tenant->name }}</h3>
             </div>
             <div class="card-body">
-                <form action="{{ route('tenant.register', $tenant->slug) }}" method="POST">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('tenant.register', ['slug' => $tenant->slug]) }}" method="POST">
                     @csrf
                     <div class="form-group mb-3">
                         <label for="name">{{ __('Full Name') }}</label>

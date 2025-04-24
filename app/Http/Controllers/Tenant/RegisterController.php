@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use App\Mail\TenantUserRegistrationMail;
 
 class RegisterController extends Controller
 {
@@ -73,32 +74,31 @@ class RegisterController extends Controller
             // Generate temporary password
             $tempPassword = Str::random(10);
 
-        // Create user in tenant database
-        $userId = DB::connection('tenant')->table('users')->insertGetId([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($tempPassword),
-            'role' => 'user',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Create user in tenant database
+            $userId = DB::connection('tenant')->table('users')->insertGetId([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($tempPassword),
+                'role' => 'user',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
             // Log successful tenant database user creation
             Log::info('User created in tenant database', [
                 'tenant_slug' => $slug,
                 'user_id' => $userId,
                 'email' => $request->email
-        ]);
+            ]);
 
-        // Also create the user in the main tenant_users table
-        $tenantUser = \App\Models\TenantUser::create([
-            'tenant_id' => $tenant->id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => 'user',
-            'password' => Hash::make($tempPassword),
-        ]);
+            // Also create the user in the main tenant_users table
+            $tenantUser = \App\Models\TenantUser::create([
+                'tenant_id' => $tenant->id,
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => 'user',
+            ]);
 
             // Log successful main database user creation
             Log::info('User created in main database', [
@@ -110,9 +110,15 @@ class RegisterController extends Controller
             // Save temp password to session for development/testing purposes
             session(['temp_password' => $tempPassword]);
 
-        // Send email with temporary password
+            // Send welcome email with temporary password
             try {
-        Mail::to($request->email)->send(new \App\Mail\WelcomeEmail($request->name, $tempPassword));
+                Mail::to($request->email)->send(new TenantUserRegistrationMail(
+                    $request->name,
+                    $request->email,
+                    $tempPassword,
+                    $tenant->pageant_name
+                ));
+
                 Log::info('Welcome email sent', ['email' => $request->email]);
             } catch (\Exception $e) {
                 Log::error('Failed to send welcome email', [
@@ -122,7 +128,9 @@ class RegisterController extends Controller
                 // Continue registration process even if email fails
             }
 
-            return redirect()->route('tenant.register.success', ['slug' => $slug]);
+            return redirect()->route('tenant.register.success', ['slug' => $slug])
+                ->with('success', 'Registration successful! Please check your email for login credentials.');
+
         } catch (\Exception $e) {
             Log::error('User registration failed', [
                 'tenant_slug' => $slug,

@@ -230,7 +230,7 @@
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">{{ auth()->guard('web')->user()->name }} (Admin)</span>
+                          <span class="fw-bold">{{ auth()->guard('web')->user()->name }} (Admin)</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -241,8 +241,8 @@
                             <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
                           </div>
                           <div class="u-text">
-                            <h4>{{ auth()->guard('web')->user()->name }} (Admin)</h4>
-                            <p class="text-muted">{{ auth()->guard('web')->user()->email }}</p>
+                                <h4>{{ auth()->guard('web')->user()->name }} (Admin)</h4>
+                                <p class="text-muted">{{ auth()->guard('web')->user()->email }}</p>
                             <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
@@ -252,12 +252,12 @@
                         <a class="dropdown-item" href="#">My Profile</a>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                        <form method="POST" action="{{ route('logout') }}" id="logout-form">
-                          @csrf
-                          <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Logout
-                          </a>
-                        </form>
+                            <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                                @csrf
+                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    Logout
+                                </a>
+                            </form>
                       </li>
                     </div>
                   </ul>
@@ -270,7 +270,7 @@
 
         <div class="container">
           <div class="page-inner">
-            @yield('content')
+              @yield('content')
           </div>
         </div>
 
