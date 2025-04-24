@@ -91,7 +91,7 @@
                 @endif
                 
                 <div class="text-center mt-4">
-                    <a href="{{ route('tenant.login') }}" class="btn-login">
+                    <a href="{{ url('/tenants/login') }}" class="btn-login">
                         <i class="fas fa-sign-in-alt me-2"></i>{{ __('Log In Now') }}
                     </a>
                 </div>

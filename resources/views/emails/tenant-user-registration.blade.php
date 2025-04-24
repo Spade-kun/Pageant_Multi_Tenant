@@ -20,17 +20,21 @@
             text-align: center;
             border-radius: 5px 5px 0 0;
         }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
         .content {
-            background-color: #f8f9fa;
+            background-color: #f9f9f9;
             padding: 20px;
             border-radius: 0 0 5px 5px;
         }
         .credentials {
-            background-color: white;
+            background-color: #fff;
             padding: 15px;
-            margin: 20px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
+            margin: 20px 0;
         }
         .button {
             display: inline-block;
@@ -39,18 +43,19 @@
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            margin: 20px 0;
+            margin-top: 20px;
         }
         .footer {
             text-align: center;
             margin-top: 20px;
+            font-size: 12px;
             color: #666;
-            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="header">
+        <img src="{{ asset('assets/img/logoproduct.svg') }}" alt="{{ $tenantName }} Logo" class="logo">
         <h1>Welcome to {{ $tenantName }}</h1>
     </div>
     

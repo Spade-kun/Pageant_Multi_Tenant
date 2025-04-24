@@ -74,31 +74,31 @@ class RegisterController extends Controller
             // Generate temporary password
             $tempPassword = Str::random(10);
 
-            // Create user in tenant database
-            $userId = DB::connection('tenant')->table('users')->insertGetId([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($tempPassword),
-                'role' => 'user',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Create user in tenant database
+        $userId = DB::connection('tenant')->table('users')->insertGetId([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($tempPassword),
+            'role' => 'user',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
             // Log successful tenant database user creation
             Log::info('User created in tenant database', [
                 'tenant_slug' => $slug,
                 'user_id' => $userId,
                 'email' => $request->email
-            ]);
+        ]);
 
-            // Also create the user in the main tenant_users table
-            $tenantUser = \App\Models\TenantUser::create([
-                'tenant_id' => $tenant->id,
-                'name' => $request->name,
-                'email' => $request->email,
-                'role' => 'user',
-            ]);
+        // Also create the user in the main tenant_users table
+        $tenantUser = \App\Models\TenantUser::create([
+            'tenant_id' => $tenant->id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => 'user',
+        ]);
 
             // Log successful main database user creation
             Log::info('User created in main database', [

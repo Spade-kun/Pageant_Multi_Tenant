@@ -17,11 +17,11 @@ Route::get('/', function (Request $request) {
     }
 });
 
-// Common Tenant Authentication - Available on both ports
-Route::middleware('guest:tenant')->group(function () {
-    Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
-    Route::post('/tenant/login', [TenantLoginController::class, 'login']);
-});
+// // Common Tenant Authentication - Available on both ports
+// Route::middleware('guest:tenant')->group(function () {
+//     Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
+//     Route::post('/tenant/login', [TenantLoginController::class, 'login']);
+// });
 
 // Include admin or tenant routes based on port
 Route::group([], function () {
