@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\EventController;
 use App\Http\Controllers\Tenant\SubscriptionController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\RegisterController;
+use App\Http\Controllers\Tenant\JudgeController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
@@ -171,6 +172,22 @@ Route::middleware(['auth:tenant'])->group(function () {
         ->name('tenant.events.update');
     Route::delete('/{slug}/events/{event}', [EventController::class, 'destroy'])
         ->name('tenant.events.destroy');
+    
+    // Judge Routes
+    Route::get('/{slug}/judges', [JudgeController::class, 'index'])
+        ->name('tenant.judges.index');
+    Route::get('/{slug}/judges/create', [JudgeController::class, 'create'])
+        ->name('tenant.judges.create');
+    Route::post('/{slug}/judges', [JudgeController::class, 'store'])
+        ->name('tenant.judges.store');
+    Route::get('/{slug}/judges/{judge}', [JudgeController::class, 'show'])
+        ->name('tenant.judges.show');
+    Route::get('/{slug}/judges/{judge}/edit', [JudgeController::class, 'edit'])
+        ->name('tenant.judges.edit');
+    Route::put('/{slug}/judges/{judge}', [JudgeController::class, 'update'])
+        ->name('tenant.judges.update');
+    Route::delete('/{slug}/judges/{judge}', [JudgeController::class, 'destroy'])
+        ->name('tenant.judges.destroy');
     
     // Tenant User Management Routes
     Route::get('/{slug}/users', [UserController::class, 'index'])

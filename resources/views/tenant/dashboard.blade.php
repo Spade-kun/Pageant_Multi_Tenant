@@ -118,33 +118,7 @@
         </div>
     </div>
 
-    <div class="col-sm-6 col-md-4">
-        <div class="card card-stats card-round">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-icon">
-                        <div class="icon-big text-center icon-warning bubble-shadow-small">
-                            <i class="fas fa-list-alt"></i>
-                        </div>
-                    </div>
-                    <div class="col col-stats ml-3 ml-sm-0">
-                        <div class="numbers">
-                            <p class="card-category">{{ __('Scoring Criteria') }}</p>
-                            <h4 class="card-title">{{ __('Define the criteria and weights for judging.') }}</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-action mt-3">
-                    <a href="#" class="btn btn-warning btn-round">
-                        <span class="btn-label">
-                            <i class="fas fa-cog"></i>
-                        </span>
-                        {{ __('Manage Criteria') }}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
     <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">

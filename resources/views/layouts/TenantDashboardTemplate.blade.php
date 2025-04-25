@@ -111,7 +111,7 @@
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.judges.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Judges</span>
                       </a>
                     </li>
