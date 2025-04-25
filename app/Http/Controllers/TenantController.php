@@ -27,7 +27,7 @@ class TenantController extends Controller
             return view('tenant.auth.register', compact('tenant'));
         } else {
             // This is a tenant owner registration
-            return view('tenant.register');
+        return view('tenant.register');
         }
     }
 
@@ -108,43 +108,43 @@ class TenantController extends Controller
             }
         } else {
             // This is a tenant owner registration
-            try {
-                // Log the registration attempt
-                \Log::info('Tenant registration attempt', ['email' => $request->email]);
+        try {
+            // Log the registration attempt
+            \Log::info('Tenant registration attempt', ['email' => $request->email]);
 
-                // Validate the request
-                $validated = $request->validate([
-                    'pageant_name' => ['required', 'string', 'max:255'],
-                    'slug' => ['required', 'string', 'max:255', 'unique:tenants,slug', 'regex:/^[a-z0-9-]+$/'],
-                    'name' => ['required', 'string', 'max:255'],
-                    'email' => ['required', 'string', 'email', 'max:255', 'unique:tenant_users'],
-                    'age' => ['required', 'string', 'max:3'],
-                    'gender' => ['required', 'string', 'max:20'],
-                    'address' => ['required', 'string'],
-                ]);
+            // Validate the request
+            $validated = $request->validate([
+                'pageant_name' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', 'unique:tenants,slug', 'regex:/^[a-z0-9-]+$/'],
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:tenant_users'],
+                'age' => ['required', 'string', 'max:3'],
+                'gender' => ['required', 'string', 'max:20'],
+                'address' => ['required', 'string'],
+            ]);
 
-                DB::beginTransaction();
+            DB::beginTransaction();
 
-                // Create tenant user first
+            // Create tenant user first
                 $tenantUser = TenantUser::create([
-                    'name' => $validated['name'],
-                    'email' => $validated['email'],
-                    'age' => $validated['age'],
-                    'gender' => $validated['gender'],
-                    'address' => $validated['address'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'age' => $validated['age'],
+                'gender' => $validated['gender'],
+                'address' => $validated['address'],
                     'role' => 'owner',
-                ]);
+            ]);
 
                 $tenant = Tenant::create([
-                    'pageant_name' => $validated['pageant_name'],
-                    'slug' => $validated['slug'],
+                'pageant_name' => $validated['pageant_name'],
+                'slug' => $validated['slug'],
                     'status' => 'pending',
-                    'owner_id' => $tenantUser->id,
-                ]);
+                'owner_id' => $tenantUser->id,
+            ]);
 
                 // Update the tenant_user with the tenant_id
                 $tenantUser->tenant_id = $tenant->id;
-                $tenantUser->save();
+            $tenantUser->save();
 
                 DB::commit();
 
@@ -155,16 +155,16 @@ class TenantController extends Controller
                         'slug' => $tenant->slug
                     ]);
 
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                return back()
-                    ->withInput($request->all())
-                    ->withErrors($e->validator->errors());
-            } catch (\Exception $e) {
-                DB::rollback();
-                \Log::error('Tenant registration failed: ' . $e->getMessage());
-                return back()
-                    ->withInput($request->all())
-                    ->withErrors(['error' => 'Registration failed. Please try again.']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()
+                ->withInput($request->all())
+                ->withErrors($e->validator->errors());
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Tenant registration failed: ' . $e->getMessage());
+            return back()
+                ->withInput($request->all())
+                ->withErrors(['error' => 'Registration failed. Please try again.']);
             }
         }
     }
@@ -181,7 +181,7 @@ class TenantController extends Controller
             return view('tenant.auth.register-success', compact('tenant', 'tempPassword'));
         } else {
             // This is a tenant owner registration success
-            return view('tenant.register-success');
+        return view('tenant.register-success');
         }
     }
 
