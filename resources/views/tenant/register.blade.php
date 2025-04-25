@@ -251,8 +251,14 @@
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
                 <i class="fas fa-envelope input-icon"></i>
-                <input id="email" class="form-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username">
-        </div>
+                <input id="email" class="form-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="form-label">Phone Number</label>
+                <i class="fas fa-phone input-icon"></i>
+                <input id="phone" class="form-input" type="tel" name="phone" value="{{ old('phone') }}" autocomplete="tel">
+            </div>
 
             <div class="form-group">
                 <label for="age" class="form-label">Age</label>

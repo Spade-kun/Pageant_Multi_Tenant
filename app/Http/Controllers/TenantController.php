@@ -118,6 +118,7 @@ class TenantController extends Controller
                 'slug' => ['required', 'string', 'max:255', 'unique:tenants,slug', 'regex:/^[a-z0-9-]+$/'],
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:tenant_users'],
+                'phone' => ['nullable', 'string', 'max:20'],
                 'age' => ['required', 'string', 'max:3'],
                 'gender' => ['required', 'string', 'max:20'],
                 'address' => ['required', 'string'],
@@ -129,6 +130,7 @@ class TenantController extends Controller
                 $tenantUser = TenantUser::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'age' => $validated['age'],
                 'gender' => $validated['gender'],
                 'address' => $validated['address'],
@@ -259,6 +261,7 @@ class TenantController extends Controller
             DB::connection('tenant')->table('users')->insert([
                 'name' => $owner->name,
                 'email' => $owner->email,
+                'phone' => $owner->phone,
                 'password' => $hashedPassword,
                 'role' => 'owner',
                 'created_at' => now(),

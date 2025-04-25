@@ -21,6 +21,7 @@ class TenantUser extends Authenticatable
         'tenant_id',
         'name',
         'email',
+        'phone',
         'age',
         'gender',
         'address',
