@@ -140,6 +140,7 @@ class TenantController extends Controller
                 'slug' => $validated['slug'],
                     'status' => 'pending',
                 'owner_id' => $tenantUser->id,
+                'database_name' => 'tenant_' . str_replace('-', '_', $validated['slug']),
             ]);
 
                 // Update the tenant_user with the tenant_id
