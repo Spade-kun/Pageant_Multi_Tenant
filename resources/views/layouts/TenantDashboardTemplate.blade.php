@@ -120,6 +120,11 @@
                         <span class="sub-item">Events</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('tenant.event-assignments.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Event Assignments</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>

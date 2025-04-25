@@ -102,12 +102,33 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Event Contestant Categories table
+        Schema::create('event_contestant_categories', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('event_id');
+            $table->unsignedBigInteger('contestant_id');
+            $table->unsignedBigInteger('category_id');
+            $table->enum('status', ['registered', 'confirmed', 'withdrawn'])->default('registered');
+            $table->text('notes')->nullable();
+            $table->timestamps();
+
+            // Add unique constraint to prevent duplicate entries
+            $table->unique(['event_id', 'contestant_id', 'category_id'], 'event_contestant_category_unique');
+        });
+
         // Add foreign key constraints after all tables are created
         Schema::table('scores', function (Blueprint $table) {
             $table->foreign('contestant_id')->references('id')->on('contestants')->onDelete('cascade');
             $table->foreign('judge_id')->references('id')->on('judges')->onDelete('cascade');
             $table->foreign('criteria_id')->references('id')->on('criterias')->onDelete('cascade');
             $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+        });
+
+        // Add foreign key constraints for event_contestant_categories
+        Schema::table('event_contestant_categories', function (Blueprint $table) {
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('contestant_id')->references('id')->on('contestants')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
@@ -116,6 +137,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('event_contestant_categories');
         Schema::dropIfExists('scores');
         Schema::dropIfExists('criterias');
         Schema::dropIfExists('judges');

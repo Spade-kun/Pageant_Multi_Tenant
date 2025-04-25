@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\RegisterController;
 use App\Http\Controllers\Tenant\JudgeController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\Tenant\EventAssignmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -172,6 +173,22 @@ Route::middleware(['auth:tenant'])->group(function () {
         ->name('tenant.events.update');
     Route::delete('/{slug}/events/{event}', [EventController::class, 'destroy'])
         ->name('tenant.events.destroy');
+    
+    // Event Assignment Routes
+    Route::get('/{slug}/event-assignments', [EventAssignmentController::class, 'index'])
+        ->name('tenant.event-assignments.index');
+    Route::get('/{slug}/event-assignments/create', [EventAssignmentController::class, 'create'])
+        ->name('tenant.event-assignments.create');
+    Route::post('/{slug}/event-assignments', [EventAssignmentController::class, 'store'])
+        ->name('tenant.event-assignments.store');
+    Route::get('/{slug}/event-assignments/{id}', [EventAssignmentController::class, 'show'])
+        ->name('tenant.event-assignments.show');
+    Route::get('/{slug}/event-assignments/{id}/edit', [EventAssignmentController::class, 'edit'])
+        ->name('tenant.event-assignments.edit');
+    Route::put('/{slug}/event-assignments/{id}', [EventAssignmentController::class, 'update'])
+        ->name('tenant.event-assignments.update');
+    Route::delete('/{slug}/event-assignments/{id}', [EventAssignmentController::class, 'destroy'])
+        ->name('tenant.event-assignments.destroy');
     
     // Judge Routes
     Route::get('/{slug}/judges', [JudgeController::class, 'index'])
