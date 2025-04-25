@@ -217,65 +217,65 @@
         </h1>
 
         <form method="POST" action="{{ route('register') }}">
-            @csrf
+        @csrf
 
-            @if($errors->any())
+        @if($errors->any())
                 <div class="error-container">
                     <div class="error-message">
-                        @foreach($errors->all() as $error)
-                            <p>{{ $error }}</p>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+                @foreach($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
             <div class="form-group">
                 <label for="pageant_name" class="form-label">Organizer Name</label>
                 <i class="fas fa-user input-icon"></i>
                 <input id="pageant_name" class="form-input" type="text" name="pageant_name" value="{{ old('pageant_name') }}" required autofocus autocomplete="pageant_name">
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="slug" class="form-label">Custom URL Slug</label>
                 <i class="fas fa-link input-icon"></i>
                 <input id="slug" class="form-input" type="text" name="slug" value="{{ old('slug') }}" required autocomplete="slug">
-                <p class="text-sm text-gray-500 mt-1">This will be used in your pageant's URL. Use only letters, numbers, and hyphens.</p>
-            </div>
+            <p class="text-sm text-gray-500 mt-1">This will be used in your pageant's URL. Use only letters, numbers, and hyphens.</p>
+        </div>
 
             <div class="form-group">
                 <label for="name" class="form-label">Name</label>
                 <i class="fas fa-user input-icon"></i>
                 <input id="name" class="form-input" type="text" name="name" value="{{ old('name') }}" required autocomplete="name">
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
                 <i class="fas fa-envelope input-icon"></i>
                 <input id="email" class="form-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username">
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="age" class="form-label">Age</label>
                 <i class="fas fa-calendar input-icon"></i>
                 <input id="age" class="form-input" type="text" name="age" value="{{ old('age') }}" required>
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="gender" class="form-label">Gender</label>
                 <i class="fas fa-venus-mars input-icon"></i>
                 <select id="gender" name="gender" class="form-input">
-                    <option value="">Select Gender</option>
-                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
-                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
-                </select>
-            </div>
+                <option value="">Select Gender</option>
+                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
+            </select>
+        </div>
 
             <div class="form-group">
                 <label for="address" class="form-label">Address</label>
                 <i class="fas fa-map-marker-alt input-icon"></i>
                 <textarea id="address" name="address" class="form-input" rows="3">{{ old('address') }}</textarea>
-            </div>
+        </div>
 
             <button type="submit" class="btn-register">
                 Register Pageant
@@ -285,8 +285,8 @@
                 <a href="{{ route('tenant.login') }}">
                     <i class="fas fa-sign-in-alt"></i> Already registered? Sign in
                 </a>
-            </div>
-        </form>
+        </div>
+    </form>
     </div>
 </body>
 </html> 

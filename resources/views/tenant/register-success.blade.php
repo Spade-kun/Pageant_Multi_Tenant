@@ -177,7 +177,7 @@
         <p class="success-subtitle">
             {{ __('Thank you for registering your pageant!') }}
         </p>
-
+        
         @if(session('tenant'))
             <div class="tenant-info">
                 <div>
@@ -194,9 +194,9 @@
             <div class="alert-info">
                 <i class="fas fa-info-circle"></i>
                 <span>{{ __('Once approved, you will be able to log in and access your pageant dashboard.') }}</span>
-            </div>
+        </div>
         @endif
-
+        
         <a href="{{ url('/tenant/login') }}" class="btn-login">
             <i class="fas fa-sign-in-alt"></i> {{ __('Return to Login') }}
         </a>

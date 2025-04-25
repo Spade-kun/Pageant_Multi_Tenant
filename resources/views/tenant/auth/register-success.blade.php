@@ -186,7 +186,7 @@
         </h1>
 
         <p class="success-subtitle">
-            Welcome to {{ $tenant->slug }}!
+            Welcome to {{ $tenant->pageant_name }}!
         </p>
 
         @if($tempPassword)
