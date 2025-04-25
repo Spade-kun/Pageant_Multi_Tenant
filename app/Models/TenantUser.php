@@ -26,6 +26,7 @@ class TenantUser extends Authenticatable
         'gender',
         'address',
         'role',
+        'password',
     ];
 
     /**

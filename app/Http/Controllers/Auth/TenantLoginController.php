@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class TenantLoginController extends Controller
 {
@@ -30,59 +31,122 @@ class TenantLoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Find the tenant user in the main database first
-        $tenantUser = TenantUser::where('email', $request->email)->first();
+        \Log::info('Login attempt for: ' . $request->email);
 
-        if (!$tenantUser) {
+        // First, try to find the tenant user in the main database
+        $tenantUser = TenantUser::where('email', $request->email)->first();
+        $tenant = null;
+        $user = null;
+        $isOwner = false;
+
+        if ($tenantUser) {
+            // User found in central database (likely an owner)
+            $tenant = $tenantUser->tenant;
+            $isOwner = true;
+            \Log::info('User found in central database as owner', [
+                'email' => $request->email,
+                'tenant_slug' => $tenant ? $tenant->slug : 'null'
+            ]);
+        }
+
+        // Set up tenant database connection
+        if ($tenant) {
+            // If we found a tenant user, use their tenant
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+        } else {
+            // If not found in central database, we need to check all tenant databases
+            // This is less efficient but necessary for users registered directly in tenant databases
+            $tenants = Tenant::where('status', 'approved')->get();
+            \Log::info('Searching in tenant databases', [
+                'email' => $request->email,
+                'tenant_count' => $tenants->count()
+            ]);
+            
+            foreach ($tenants as $potentialTenant) {
+                $databaseName = 'tenant_' . str_replace('-', '_', $potentialTenant->slug);
+                
+                Config::set('database.connections.tenant', [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST', '127.0.0.1'),
+                    'port' => env('DB_PORT', '3306'),
+                    'database' => $databaseName,
+                    'username' => env('DB_USERNAME', 'forge'),
+                    'password' => env('DB_PASSWORD', ''),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'prefix_indexes' => true,
+                    'strict' => true,
+                    'engine' => null,
+                ]);
+
+                DB::purge('tenant');
+                DB::reconnect('tenant');
+
+                // Check if user exists in this tenant database
+                $potentialUser = DB::connection('tenant')
+                    ->table('users')
+                    ->where('email', $request->email)
+                    ->first();
+
+                if ($potentialUser) {
+                    $user = $potentialUser;
+                    $tenant = $potentialTenant;
+                    \Log::info('User found in tenant database', [
+                        'email' => $request->email,
+                        'tenant_slug' => $tenant->slug,
+                        'role' => $user->role
+                    ]);
+                    break;
+                }
+            }
+        }
+
+        // If we found a tenant user but not a tenant, or if we didn't find a user at all
+        if (($tenantUser && !$tenant) || (!$tenantUser && !$user)) {
             return back()->withErrors([
                 'email' => 'The provided email does not match our records.',
             ])->onlyInput('email');
         }
 
-        // Get the tenant
-        $tenant = $tenantUser->tenant;
-
+        // If tenant is not approved
         if (!$tenant || !$tenant->isApproved()) {
             return back()->withErrors([
                 'email' => 'Your account is not approved or the tenant is not active.',
             ])->onlyInput('email');
         }
 
-        // Set the tenant database connection
-        $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-        
-        Config::set('database.connections.tenant', [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => $databaseName,
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-        ]);
+        // If we found a tenant user but not a user in the tenant database, set up the connection
+        if ($tenantUser && !$user) {
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
 
-        DB::purge('tenant');
-        DB::reconnect('tenant');
+            DB::purge('tenant');
+            DB::reconnect('tenant');
 
-        // Verify user exists in tenant database
-        $user = DB::connection('tenant')
-            ->table('users')
-            ->where('email', $request->email)
-            ->first();
-
-        if (!$user) {
-            return back()->withErrors([
-                'email' => 'The provided email does not match our records.',
-            ])->onlyInput('email');
+            // Get user from tenant database
+            $user = DB::connection('tenant')
+                ->table('users')
+                ->where('email', $request->email)
+                ->first();
         }
 
         // Verify password
-        if (!\Hash::check($request->password, $user->password)) {
+        if (!Hash::check($request->password, $user->password)) {
             return back()->withErrors([
                 'password' => 'The provided password is incorrect.',
             ])->onlyInput('email');
@@ -101,16 +165,63 @@ class TenantLoginController extends Controller
             'role' => $user->role
         ]]);
 
-        // Manually log in the user using the tenant user ID from central database
-        Auth::guard('tenant')->login($tenantUser);
+        // If this is an owner (found in tenant_users), use that for authentication
+        if ($isOwner) {
+            \Log::info('Authenticating owner with central database record', [
+                'email' => $user->email,
+                'role' => $user->role
+            ]);
+            Auth::guard('tenant')->login($tenantUser);
+        } else {
+            // For users only in tenant database, create a temporary TenantUser for authentication
+            \Log::info('Creating temporary TenantUser for auth', [
+                'email' => $user->email,
+                'role' => $user->role,
+                'tenant_id' => $tenant->id
+            ]);
+            
+            // Create or find a tenant user in the central database for this user
+            $tempTenantUser = TenantUser::firstOrCreate(
+                ['email' => $user->email],
+                [
+                    'tenant_id' => $tenant->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ]
+            );
+            
+            // The password isn't being saved as it's not included in the TenantUser fillable
+            // We just use it for the login session
+            
+            Auth::guard('tenant')->login($tempTenantUser);
+            
+            \Log::info('Successfully authenticated user', [
+                'email' => $tempTenantUser->email,
+                'id' => $tempTenantUser->id,
+                'tenant_id' => $tenant->id
+            ]);
+        }
 
         // Redirect based on user role
         if ($user->role === 'owner') {
-            return redirect()->route('tenant.dashboard', ['slug' => $tenant->slug]);
+            \Log::info('Redirecting owner to dashboard', [
+                'role' => $user->role,
+                'tenant_slug' => $tenant->slug
+            ]);
+            return redirect('/' . $tenant->slug . '/dashboard');
         } else if ($user->role === 'judge') {
-            return redirect()->route('tenant.judge.dashboard', ['slug' => $tenant->slug]);
+            \Log::info('Redirecting judge to dashboard', [
+                'role' => $user->role,
+                'tenant_slug' => $tenant->slug
+            ]);
+            return redirect('/' . $tenant->slug . '/judge-dashboard');
         } else {
-            return redirect()->route('tenant.user.dashboard', ['slug' => $tenant->slug]);
+            \Log::info('Redirecting user to dashboard', [
+                'role' => $user->role,
+                'tenant_slug' => $tenant->slug
+            ]);
+            return redirect('/' . $tenant->slug . '/user-dashboard');
         }
     }
 
@@ -122,6 +233,6 @@ class TenantLoginController extends Controller
         Auth::guard('tenant')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('tenant.login');
+        return redirect('/tenant/login');
     }
 } 

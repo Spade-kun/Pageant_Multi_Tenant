@@ -17,7 +17,7 @@ Route::get('/', function (Request $request) {
     }
 });
 
-// // Common Tenant Authentication - Available on both ports
+// Common Tenant Authentication - Available on both ports
 // Route::middleware('guest:tenant')->group(function () {
 //     Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
 //     Route::post('/tenant/login', [TenantLoginController::class, 'login']);

@@ -41,6 +41,8 @@ class RedirectBasedOnPort
                     
                     if ($role === 'owner') {
                         return redirect()->route('tenant.dashboard', ['slug' => $tenant]);
+                    } else if ($role === 'judge') {
+                        return redirect()->route('tenant.judge.dashboard', ['slug' => $tenant]);
                     } else {
                         return redirect()->route('tenant.user.dashboard', ['slug' => $tenant]);
                     }
