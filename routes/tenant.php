@@ -120,6 +120,51 @@ Route::middleware(['auth:tenant'])->group(function () {
         return view('tenant.user-dashboard', ['slug' => $slug]);
     })->name('tenant.user.dashboard');
     
+    // Judge Dashboard
+    Route::get('/{slug}/judge-dashboard', function ($slug) {
+        // Verify tenant exists
+        $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+        
+        // Get user from tenant database
+        $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+        Config::set('database.connections.tenant', [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => $databaseName,
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ]);
+
+        DB::purge('tenant');
+        DB::reconnect('tenant');
+
+        // Get user from session
+        $tenantUser = session('tenant_user');
+        if (!$tenantUser) {
+            return redirect()->route('tenant.login');
+        }
+
+        // Get user from tenant database
+        $user = DB::connection('tenant')
+            ->table('users')
+            ->where('email', $tenantUser['email'])
+            ->first();
+
+        if (!$user || $user->role !== 'judge') {
+            return redirect()->route('tenant.dashboard', ['slug' => $slug]);
+        }
+
+        // Return the view without trying to fetch assignments
+        return view('tenant.judge-dashboard', ['slug' => $slug]);
+    })->name('tenant.judge.dashboard');
+    
     // Subscription Routes
     Route::get('/{slug}/subscription/plans', [SubscriptionController::class, 'showPlans'])
         ->name('tenant.subscription.plans');

@@ -107,6 +107,8 @@ class TenantLoginController extends Controller
         // Redirect based on user role
         if ($user->role === 'owner') {
             return redirect()->route('tenant.dashboard', ['slug' => $tenant->slug]);
+        } else if ($user->role === 'judge') {
+            return redirect()->route('tenant.judge.dashboard', ['slug' => $tenant->slug]);
         } else {
             return redirect()->route('tenant.user.dashboard', ['slug' => $tenant->slug]);
         }
