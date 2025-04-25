@@ -216,30 +216,30 @@
             <span>Administrative Dashboard Access</span>
         </h1>
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
 
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
                 <i class="fas fa-envelope input-icon"></i>
                 <input id="email" class="form-input" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
                 <x-input-error :messages="$errors->get('email')" class="error-message" />
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">Password</label>
                 <i class="fas fa-lock input-icon"></i>
                 <input id="password" class="form-input" type="password" name="password" required autocomplete="current-password">
                 <x-input-error :messages="$errors->get('password')" class="error-message" />
-            </div>
+        </div>
 
             <div class="remember-me">
                 <input id="remember_me" type="checkbox" name="remember">
                 <label for="remember_me">Keep me signed in</label>
-            </div>
+        </div>
 
             <button type="submit" class="btn-login">
                 Sign In to Dashboard
@@ -249,10 +249,10 @@
                 <div class="forgot-password">
                     <a href="{{ route('password.request') }}">
                         Forgot your password?
-                    </a>
+                </a>
                 </div>
             @endif
         </form>
-    </div>
+        </div>
 </body>
 </html>
