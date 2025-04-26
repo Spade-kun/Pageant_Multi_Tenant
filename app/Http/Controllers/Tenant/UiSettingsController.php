@@ -117,34 +117,35 @@ class UiSettingsController extends Controller
         DB::purge('tenant');
         DB::reconnect('tenant');
 
-        $settings = UiSettings::firstOrCreate(
-            ['tenant_id' => $tenant->id],
-            [
-                'logo_header_color' => 'dark',
-                'navbar_color' => 'white',
-                'sidebar_color' => 'dark',
-                'navbar_position' => 'top',
-                'sidebar_position' => 'left',
-                'is_sidebar_collapsed' => false,
-                'is_navbar_fixed' => true,
-                'is_sidebar_fixed' => true
-            ]
-        );
+        $settings = UiSettings::where('tenant_id', $tenant->id)->first();
+        
+        if (!$settings) {
+            $settings = new UiSettings();
+            $settings->tenant_id = $tenant->id;
+        }
 
-        $validated = $request->validate([
-            'logo_header_color' => 'required|string',
-            'navbar_color' => 'required|string',
-            'sidebar_color' => 'required|string',
-            'navbar_position' => 'required|in:top,bottom,left,right',
-            'sidebar_position' => 'required|in:left,right',
-            'is_sidebar_collapsed' => 'boolean',
-            'is_navbar_fixed' => 'boolean',
-            'is_sidebar_fixed' => 'boolean'
-        ]);
+        // Update settings with new values
+        $settings->logo_header_color = $request->logo_header_color;
+        $settings->navbar_color = $request->navbar_color;
+        $settings->sidebar_color = $request->sidebar_color;
+        $settings->navbar_position = $request->navbar_position;
+        $settings->sidebar_position = $request->sidebar_position;
+        $settings->is_sidebar_collapsed = $request->has('is_sidebar_collapsed');
+        $settings->is_navbar_fixed = $request->has('is_navbar_fixed');
+        $settings->is_sidebar_fixed = $request->has('is_sidebar_fixed');
+        
+        $settings->save();
 
-        $settings->update($validated);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'UI settings updated successfully',
+                'settings' => $settings
+            ]);
+        }
 
-        return redirect()->back()->with('success', 'UI settings updated successfully.');
+        return redirect()->route('tenant.ui-settings.index', ['slug' => session('tenant_slug')])
+            ->with('success', 'UI settings updated successfully');
     }
 
     /**

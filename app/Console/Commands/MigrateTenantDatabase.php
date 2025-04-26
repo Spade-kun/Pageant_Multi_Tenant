@@ -21,15 +21,23 @@ class MigrateTenantDatabase extends Command
             return 1;
         }
 
-        $tenant = Tenant::where('slug', $slug)->first();
+        // Convert slug to database-friendly format
+        $searchSlug = str_replace('_', '-', $slug);
+        
+        $tenant = Tenant::where('slug', $searchSlug)->first();
         
         if (!$tenant) {
-            $this->error('Tenant not found');
-            return 1;
+            // Try finding with original slug if not found with converted slug
+            $tenant = Tenant::where('slug', $slug)->first();
+            
+            if (!$tenant) {
+                $this->error('Tenant not found');
+                return 1;
+            }
         }
 
-        // Get the database name and ensure it uses underscores
-        $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $slug);
+        // Get the database name
+        $databaseName = $tenant->database_name ?? 'tenant_' . str_replace('-', '_', $tenant->slug);
 
         // Set the tenant database connection
         Config::set('database.connections.tenant', [
@@ -52,6 +60,9 @@ class MigrateTenantDatabase extends Command
         DB::reconnect('tenant');
 
         // Run migrations on the tenant database
+        $this->info("Running migrations for tenant: {$tenant->name} (Slug: {$tenant->slug})");
+        $this->info("Using database: {$databaseName}");
+        
         $this->call('migrate', [
             '--database' => 'tenant',
             '--path' => 'database/migrations/tenant'
