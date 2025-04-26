@@ -258,7 +258,7 @@
                 <label for="phone" class="form-label">Phone Number</label>
                 <i class="fas fa-phone input-icon"></i>
                 <input id="phone" class="form-input" type="tel" name="phone" value="{{ old('phone') }}" autocomplete="tel">
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="age" class="form-label">Age</label>

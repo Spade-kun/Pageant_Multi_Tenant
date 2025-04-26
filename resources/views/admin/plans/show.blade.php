@@ -80,7 +80,60 @@
 
                     <div class="row mt-4">
                         <div class="col-md-12">
-                            <h4>Features</h4>
+                            <h4>Features Access</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Default Features</h5>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th>Dashboard Access</th>
+                                            <td>
+                                                <span class="badge badge-success">
+                                                    Always Enabled
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>User Management</th>
+                                            <td>
+                                                <span class="badge badge-success">
+                                                    Always Enabled
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Subscription Management</th>
+                                            <td>
+                                                <span class="badge badge-success">
+                                                    Always Enabled
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Premium Features</h5>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th>Pageant Management</th>
+                                            <td>
+                                                <span class="badge badge-{{ $plan->pageant_management ? 'success' : 'secondary' }}">
+                                                    {{ $plan->pageant_management ? 'Enabled' : 'Disabled' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Reports Module</th>
+                                            <td>
+                                                <span class="badge badge-{{ $plan->reports_module ? 'success' : 'secondary' }}">
+                                                    {{ $plan->reports_module ? 'Enabled' : 'Disabled' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <h5 class="mt-3">Additional Features</h5>
                             <table class="table table-bordered">
                                 <tr>
                                     <th>Analytics</th>

@@ -32,6 +32,11 @@ class PlanController extends Controller
             'description' => 'nullable|string',
             'analytics' => 'boolean',
             'support_priority' => 'boolean',
+            'dashboard_access' => 'boolean',
+            'user_management' => 'boolean',
+            'subscription_management' => 'boolean',
+            'pageant_management' => 'boolean',
+            'reports_module' => 'boolean',
         ]);
 
         $plan = Plan::create([
@@ -45,6 +50,11 @@ class PlanController extends Controller
             'description' => $request->description,
             'analytics' => $request->boolean('analytics'),
             'support_priority' => $request->boolean('support_priority'),
+            'dashboard_access' => $request->boolean('dashboard_access', true),
+            'user_management' => $request->boolean('user_management', true),
+            'subscription_management' => $request->boolean('subscription_management', true),
+            'pageant_management' => $request->boolean('pageant_management'),
+            'reports_module' => $request->boolean('reports_module'),
             'is_active' => true,
         ]);
 
@@ -76,6 +86,11 @@ class PlanController extends Controller
             'analytics' => 'boolean',
             'support_priority' => 'boolean',
             'is_active' => 'boolean',
+            'dashboard_access' => 'boolean',
+            'user_management' => 'boolean',
+            'subscription_management' => 'boolean',
+            'pageant_management' => 'boolean',
+            'reports_module' => 'boolean',
         ]);
 
         $plan->update([
@@ -90,6 +105,11 @@ class PlanController extends Controller
             'analytics' => $request->boolean('analytics'),
             'support_priority' => $request->boolean('support_priority'),
             'is_active' => $request->boolean('is_active'),
+            'dashboard_access' => $request->boolean('dashboard_access', true),
+            'user_management' => $request->boolean('user_management', true),
+            'subscription_management' => $request->boolean('subscription_management', true),
+            'pageant_management' => $request->boolean('pageant_management'),
+            'reports_module' => $request->boolean('reports_module'),
         ]);
 
         return redirect()->route('admin.plans.index')

@@ -20,7 +20,12 @@ class Plan extends Model
         'description',
         'analytics',
         'support_priority',
-        'is_active'
+        'is_active',
+        'dashboard_access',
+        'user_management',
+        'subscription_management',
+        'pageant_management',
+        'reports_module'
     ];
 
     protected $casts = [
@@ -31,7 +36,12 @@ class Plan extends Model
         'max_judges' => 'integer',
         'analytics' => 'boolean',
         'support_priority' => 'boolean',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'dashboard_access' => 'boolean',
+        'user_management' => 'boolean',
+        'subscription_management' => 'boolean',
+        'pageant_management' => 'boolean',
+        'reports_module' => 'boolean'
     ];
 
     public function tenants()
@@ -47,7 +57,12 @@ class Plan extends Model
             'max_categories' => $this->max_categories,
             'max_judges' => $this->max_judges,
             'analytics' => $this->analytics,
-            'support_priority' => $this->support_priority
+            'support_priority' => $this->support_priority,
+            'dashboard_access' => $this->dashboard_access,
+            'user_management' => $this->user_management,
+            'subscription_management' => $this->subscription_management,
+            'pageant_management' => $this->pageant_management,
+            'reports_module' => $this->reports_module
         ];
     }
 } 

@@ -41,6 +41,19 @@ class Tenant extends Model
     ];
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($tenant) {
+            // Set default plan_id to 0 (No Plan) if not set
+            if (is_null($tenant->plan_id)) {
+                $tenant->plan_id = 0;
+            }
+        });
+    }
+
+    /**
      * Get the owner of the tenant.
      */
     public function owner(): BelongsTo
@@ -80,9 +93,28 @@ class Tenant extends Model
         return $this->status === 'rejected';
     }
 
+    /**
+     * Get the tenant's plan.
+     */
     public function plan()
     {
         return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * Check if tenant has only the default "No Plan".
+     */
+    public function hasNoPlan(): bool
+    {
+        return $this->plan_id === 0;
+    }
+
+    /**
+     * Check if tenant has a premium plan (not the default No Plan).
+     */
+    public function hasPremiumPlan(): bool
+    {
+        return $this->plan_id > 0;
     }
 
     public function planRequests()

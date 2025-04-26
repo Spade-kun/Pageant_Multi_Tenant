@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="card-title">Select User to Add as Judge</h4>
+                        <h4 class="card-title">Select Regular User to Add as Judge</h4>
                     </div>
                 </div>
                 <div class="card-body">
@@ -29,7 +29,7 @@
                         @csrf
                         
                         <div class="form-group">
-                            <label for="user_id">Select User</label>
+                            <label for="user_id">User</label>
                             <select name="user_id" id="user_id" class="form-control @error('user_id') is-invalid @enderror" required>
                                 <option value="">-- Select User --</option>
                                 @foreach($users as $user)
@@ -38,6 +38,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <small class="form-text text-muted">Only users with the 'user' role can be selected as judges.</small>
                             @error('user_id')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

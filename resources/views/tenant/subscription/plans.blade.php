@@ -30,17 +30,41 @@
                         <h2 class="text-center mb-4">₱{{ number_format($plan->price, 2) }}<small>/{{ $plan->interval }}</small></h2>
                     </div>
                     <p class="card-text">{{ $plan->description }}</p>
+                    
+                    <h5 class="mt-3">Resource Limits</h5>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-check text-success"></i> Max Events: {{ $plan->max_events }}</li>
                         <li><i class="fas fa-check text-success"></i> Max Contestants: {{ $plan->max_contestants }}</li>
                         <li><i class="fas fa-check text-success"></i> Max Categories: {{ $plan->max_categories }}</li>
                         <li><i class="fas fa-check text-success"></i> Max Judges: {{ $plan->max_judges }}</li>
-                        @if($plan->analytics)
-                            <li><i class="fas fa-check text-success"></i> Analytics</li>
-                        @endif
-                        @if($plan->support_priority)
-                            <li><i class="fas fa-check text-success"></i> Priority Support</li>
-                        @endif
+                    </ul>
+                    
+                    <h5 class="mt-3">Features</h5>
+                    <ul class="list-unstyled">
+                        <!-- Default features -->
+                        <li><i class="fas fa-check text-success"></i> Dashboard Access</li>
+                        <li><i class="fas fa-check text-success"></i> User Management</li>
+                        <li><i class="fas fa-check text-success"></i> Subscription Management</li>
+                        
+                        <!-- Premium features -->
+                        <li>
+                            <i class="fas {{ $plan->pageant_management ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
+                            Pageant Management
+                        </li>
+                        <li>
+                            <i class="fas {{ $plan->reports_module ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
+                            Reports Module
+                        </li>
+                        
+                        <!-- Additional features -->
+                        <li>
+                            <i class="fas {{ $plan->analytics ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
+                            Analytics
+                        </li>
+                        <li>
+                            <i class="fas {{ $plan->support_priority ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
+                            Priority Support
+                        </li>
                     </ul>
 
                     @if($currentPlan && $currentPlan->id === $plan->id)

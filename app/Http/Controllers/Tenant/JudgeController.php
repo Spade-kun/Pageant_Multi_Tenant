@@ -44,59 +44,62 @@ class JudgeController extends Controller
     public function create($slug)
     {
         $this->setTenantConnection($slug);
-        // Get all users who are not already judges
+        // Get all users with role 'user' only (exclude owners and existing judges)
         $users = DB::connection('tenant')
             ->table('users')
-            ->where('role', '!=', 'judge')
+            ->where('role', 'user')
             ->get();
         
-        return view('tenant.judges.create', compact('users', 'slug'));
+        return view('tenant.judges.create', [
+            'slug' => $slug,
+            'users' => $users
+        ]);
     }
 
     public function store(Request $request, $slug)
     {
         $this->setTenantConnection($slug);
         
-        $validated = $request->validate([
-            'user_id' => 'required|exists:tenant.users,id',
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
             'specialty' => 'required|string|max:255',
         ]);
-
-        // Get the user
+        
+        // Verify selected user has the 'user' role
         $user = DB::connection('tenant')
             ->table('users')
-            ->where('id', $validated['user_id'])
+            ->where('id', $request->user_id)
+            ->where('role', 'user')
             ->first();
-
+            
         if (!$user) {
-            return back()->withErrors(['user_id' => 'User not found.']);
+            return redirect()->back()->withErrors(['user_id' => 'Invalid user selected.'])->withInput();
         }
-
+        
         // Check if user is already a judge
         $existingJudge = DB::connection('tenant')
             ->table('judges')
-            ->where('email', $user->email)
+            ->where('user_id', $request->user_id)
             ->first();
-
+            
         if ($existingJudge) {
-            return back()->withErrors(['user_id' => 'This user is already a judge.']);
+            return redirect()->back()->withErrors(['user_id' => 'User is already a judge.'])->withInput();
         }
-
-        // Create the judge record
+        
+        // Create the judge
         DB::connection('tenant')->table('judges')->insert([
-            'name' => $user->name,
-            'email' => $user->email,
-            'specialty' => $validated['specialty'],
+            'user_id' => $request->user_id,
+            'specialty' => $request->specialty,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        // Update the user's role to 'judge'
+        
+        // Update user role to 'judge'
         DB::connection('tenant')
             ->table('users')
-            ->where('id', $validated['user_id'])
+            ->where('id', $request->user_id)
             ->update(['role' => 'judge']);
-
+            
         return redirect()->route('tenant.judges.index', ['slug' => $slug])
             ->with('success', 'Judge added successfully.');
     }

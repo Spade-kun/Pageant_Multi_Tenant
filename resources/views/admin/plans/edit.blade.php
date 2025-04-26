@@ -102,6 +102,75 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Feature Access</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">Select which features will be accessible with this plan:</p>
+                                        
+                                        <div class="row">
+                                            <!-- Basic Features (Always enabled) -->
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="dashboard_access" name="dashboard_access" value="1" checked disabled>
+                                                        <input type="hidden" name="dashboard_access" value="1">
+                                                        <label class="custom-control-label" for="dashboard_access">Dashboard Access</label>
+                                                        <small class="form-text text-muted">Basic dashboard access (always included)</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="user_management" name="user_management" value="1" checked disabled>
+                                                        <input type="hidden" name="user_management" value="1">
+                                                        <label class="custom-control-label" for="user_management">User Management</label>
+                                                        <small class="form-text text-muted">User management (always included)</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="subscription_management" name="subscription_management" value="1" checked disabled>
+                                                        <input type="hidden" name="subscription_management" value="1">
+                                                        <label class="custom-control-label" for="subscription_management">Subscription Management</label>
+                                                        <small class="form-text text-muted">Subscription management (always included)</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <!-- Premium Features -->
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="pageant_management" name="pageant_management" value="1" {{ old('pageant_management', $plan->pageant_management) ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="pageant_management">Pageant Management</label>
+                                                        <small class="form-text text-muted">Access to pageant, event, contestant, and category management</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="reports_module" name="reports_module" value="1" {{ old('reports_module', $plan->reports_module) ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="reports_module">Reports Module</label>
+                                                        <small class="form-text text-muted">Access to reporting and analytics</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">

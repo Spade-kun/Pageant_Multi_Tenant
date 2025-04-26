@@ -5,7 +5,89 @@
     <h4 class="page-title">{{ __('Welcome to your Pageant Dashboard') }}</h4>
 </div>
 
+@php
+    // Get tenant's current plan
+    $tenant = App\Models\Tenant::where('slug', $slug)->first();
+    $tenantPlan = $tenant->plan;
+@endphp
+
+@if($tenant->hasNoPlan())
+<div class="alert alert-warning">
+    <h5><i class="fas fa-exclamation-triangle"></i> {{ __('You are currently on the basic "No Plan" subscription') }}</h5>
+    <p>{{ __('Upgrade to a premium plan to access advanced features like Pageant Management and Reports.') }}</p>
+    <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-warning">
+        <i class="fas fa-arrow-up"></i> {{ __('Upgrade Now') }}
+    </a>
+</div>
+@endif
+
 <div class="row">
+    <!-- Always show these cards for basic features -->
+    <!-- User Management Card -->
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-primary bubble-shadow-small">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">{{ __('User Management') }}</p>
+                            <h4 class="card-title">{{ __('Invite and manage users for your pageant.') }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action mt-3">
+                    <a href="{{ route('tenant.users.index', ['slug' => $slug]) }}" class="btn btn-primary btn-round">
+                        <span class="btn-label">
+                            <i class="fas fa-users"></i>
+                        </span>
+                        {{ __('Manage Users') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Management Card -->
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">{{ __('Subscription') }}</p>
+                            <h4 class="card-title">{{ __('Manage your subscription plan.') }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action mt-3">
+                    <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-success btn-round">
+                        <span class="btn-label">
+                            <i class="fas fa-crown"></i>
+                        </span>
+                        {{ __('View Plans') }}
+                        @if($tenant->hasNoPlan())
+                            <span class="badge badge-danger ml-2">No Plan</span>
+                        @elseif(session('trial_days_left'))
+                            <span class="badge badge-warning ml-2">Trial: {{ session('trial_days_left') }} days left</span>
+                        @endif
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show these cards only if Pageant Management is enabled -->
+    @if(!$tenant->hasNoPlan() && $tenantPlan->pageant_management)
     <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
             <div class="card-body">
@@ -118,8 +200,6 @@
         </div>
     </div>
 
-   
-
     <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
             <div class="card-body">
@@ -147,7 +227,41 @@
             </div>
         </div>
     </div>
+    @else
+    <!-- Show locked feature cards if on "No Plan" -->
+    @if($tenant->hasNoPlan())
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round bg-light">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">{{ __('Pageant Management') }}</p>
+                            <h4 class="card-title">{{ __('Unlock to manage contestants, events, and more.') }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action mt-3">
+                    <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-secondary btn-round">
+                        <span class="btn-label">
+                            <i class="fas fa-arrow-up"></i>
+                        </span>
+                        {{ __('Upgrade Plan to Unlock') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endif
 
+    <!-- Show Reports card only if Reports Module is enabled -->
+    @if(!$tenant->hasNoPlan() && $tenantPlan->reports_module)
     <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
             <div class="card-body">
@@ -175,66 +289,35 @@
             </div>
         </div>
     </div>
-
-    <!-- User Management Card -->
+    @elseif($tenant->hasNoPlan())
+    <!-- Show locked Reports feature card if on "No Plan" -->
     <div class="col-sm-6 col-md-4">
-        <div class="card card-stats card-round">
+        <div class="card card-stats card-round bg-light">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
-                        <div class="icon-big text-center icon-primary bubble-shadow-small">
-                            <i class="fas fa-user-plus"></i>
+                        <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                            <i class="fas fa-lock"></i>
                         </div>
                     </div>
                     <div class="col col-stats ml-3 ml-sm-0">
                         <div class="numbers">
-                            <p class="card-category">{{ __('User Management') }}</p>
-                            <h4 class="card-title">{{ __('Invite and manage users for your pageant.') }}</h4>
+                            <p class="card-category">{{ __('Reports Module') }}</p>
+                            <h4 class="card-title">{{ __('Unlock to access analytics and insights.') }}</h4>
                         </div>
                     </div>
                 </div>
                 <div class="card-action mt-3">
-                    <a href="{{ route('tenant.users.index', ['slug' => $slug]) }}" class="btn btn-primary btn-round">
+                    <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-secondary btn-round">
                         <span class="btn-label">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-arrow-up"></i>
                         </span>
-                        {{ __('Manage Users') }}
+                        {{ __('Upgrade Plan to Unlock') }}
                     </a>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Subscription Management Card -->
-    <div class="col-sm-6 col-md-4">
-        <div class="card card-stats card-round">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-icon">
-                        <div class="icon-big text-center icon-success bubble-shadow-small">
-                            <i class="fas fa-crown"></i>
-                        </div>
-                    </div>
-                    <div class="col col-stats ml-3 ml-sm-0">
-                        <div class="numbers">
-                            <p class="card-category">{{ __('Subscription') }}</p>
-                            <h4 class="card-title">{{ __('Manage your subscription plan.') }}</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-action mt-3">
-                    <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-success btn-round">
-                        <span class="btn-label">
-                            <i class="fas fa-crown"></i>
-                        </span>
-                        {{ __('View Plans') }}
-                        @if(session('trial_days_left'))
-                            <span class="badge badge-warning ml-2">Trial: {{ session('trial_days_left') }} days left</span>
                         @endif
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
