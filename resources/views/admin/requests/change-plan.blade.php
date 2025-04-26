@@ -39,7 +39,7 @@
                         <div class="form-group">
                             <label>Select New Plan</label>
                             <select name="plan_id" class="form-control">
-                                <option value="">No Plan</option>
+                               
                                 @foreach($plans as $plan)
                                     <option value="{{ $plan->id }}" {{ $tenant->plan_id == $plan->id ? 'selected' : '' }}>
                                         {{ $plan->name }} - ₱{{ number_format($plan->price, 2) }}/{{ $plan->interval }}

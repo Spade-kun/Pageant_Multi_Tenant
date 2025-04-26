@@ -21,6 +21,7 @@
                                 <tr>
                                     <th>Tenant Name</th>
                                     <th>Owner Email</th>
+                                    <th>Current Plan</th>
                                     <th>Requested Plan</th>
                                     <th>Price</th>
                                     <th>Interval</th>
@@ -34,6 +35,13 @@
                                     <tr>
                                         <td>{{ $request->tenant->pageant_name }}</td>
                                         <td>{{ $request->tenant->users->where('role', 'owner')->first()->email ?? 'No owner email' }}</td>
+                                        <td>
+                                            @if($request->tenant->plan)
+                                                {{ $request->tenant->plan->name }}
+                                            @else
+                                                <span class="badge badge-secondary">No Plan</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $request->plan->name }}</td>
                                         <td>₱{{ number_format($request->plan->price, 2) }}</td>
                                         <td>

@@ -106,9 +106,9 @@
               <li class="nav-item">
                 <div class="alert alert-warning m-2 p-2">
                   <i class="fas fa-exclamation-triangle"></i>
-                  <small>Upgrade your plan to access premium features</small>
+                  <small class="text-black">Upgrade your plan to access premium features</small>
                   <a href="{{ route('tenant.subscription.plans', ['slug' => session('tenant_slug')]) }}" class="btn btn-warning btn-xs btn-block mt-1">
-                    <i class="fas fa-arrow-up"></i> Upgrade Now
+                    <i class="fas fa-arrow-up text-black"></i> <p class="text-black">Upgrade Now</p>
                   </a>
                 </div>
               </li>
@@ -125,22 +125,22 @@
                 <div class="collapse" id="pageantManagement">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.events.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Events</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.contestants.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Contestants</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.categories.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Categories</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('tenant.judges.index', ['slug' => session('tenant_slug')]) }}">
                         <span class="sub-item">Judges</span>
                       </a>
                     </li>
@@ -186,10 +186,30 @@
               <!-- Only show Reports module if the tenant's plan allows it -->
               @if(!$tenant->hasNoPlan() && $tenantPlan->reports_module)
               <li class="nav-item">
-                <a href="#">
+                <a data-bs-toggle="collapse" href="#reportsMenu">
                   <i class="fas fa-chart-bar"></i>
                   <p>Reports</p>
+                  <span class="caret"></span>
                 </a>
+                <div class="collapse" id="reportsMenu">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Contestant Reports</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Event Reports</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <span class="sub-item">Analytics</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </li>
               @endif
 
