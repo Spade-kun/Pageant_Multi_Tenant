@@ -10,6 +10,7 @@ use App\Http\Controllers\Tenant\JudgeController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\Tenant\EventAssignmentController;
+use App\Http\Controllers\Tenant\UiSettingsController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -254,6 +255,12 @@ Route::middleware(['auth:tenant'])->group(function () {
     // Tenant User Management Routes
     Route::get('/{slug}/users', [UserController::class, 'index'])
         ->name('tenant.users.index');
+    
+    // UI Settings Routes
+    Route::get('/{slug}/ui-settings', [UiSettingsController::class, 'index'])
+        ->name('tenant.ui-settings.index');
+    Route::put('/{slug}/ui-settings', [UiSettingsController::class, 'update'])
+        ->name('tenant.ui-settings.update');
     
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');

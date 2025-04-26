@@ -42,12 +42,29 @@
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
   </head>
   <body>
-    <div class="wrapper">
+    @php
+        $tenant = App\Models\Tenant::where('slug', session('tenant_slug'))->first();
+        $uiSettings = App\Models\UiSettings::where('tenant_id', $tenant->id)->first();
+        if (!$uiSettings) {
+            $uiSettings = new App\Models\UiSettings([
+                'logo_header_color' => 'dark',
+                'navbar_color' => 'white',
+                'sidebar_color' => 'dark',
+                'navbar_position' => 'top',
+                'sidebar_position' => 'left',
+                'is_sidebar_collapsed' => false,
+                'is_navbar_fixed' => true,
+                'is_sidebar_fixed' => true
+            ]);
+        }
+    @endphp
+
+    <div class="wrapper {{ $uiSettings->is_sidebar_collapsed ? 'sidebar-collapse' : '' }} {{ $uiSettings->is_navbar_fixed ? 'navbar-fixed' : '' }} {{ $uiSettings->is_sidebar_fixed ? 'sidebar-fixed' : '' }}">
       <!-- Sidebar -->
-      <div class="sidebar" data-background-color="dark">
+      <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" data-background-color="{{ $uiSettings->sidebar_color }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
-          <div class="logo-header" data-background-color="dark">
+          <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
             <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
               <img
                 src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
@@ -219,6 +236,15 @@
                   <p>Settings</p>
                 </a>
               </li>
+
+              @if(auth()->guard('tenant')->user()->role === 'owner')
+              <li class="nav-item">
+                <a href="{{ route('tenant.ui-settings.index', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-paint-brush"></i>
+                  <p>UI Customization</p>
+                </a>
+              </li>
+              @endif
               @else
               <!-- Regular Tenant User Sidebar Items -->
               <li class="nav-item">
@@ -250,7 +276,7 @@
         <div class="main-header">
           <div class="main-header-logo">
             <!-- Logo Header -->
-            <div class="logo-header" data-background-color="dark">
+            <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
               <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
                 <img
                   src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
@@ -274,7 +300,7 @@
             <!-- End Logo Header -->
           </div>
           <!-- Navbar Header -->
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : '' }} {{ $uiSettings->navbar_position === 'left' ? 'navbar-left' : '' }} {{ $uiSettings->navbar_position === 'right' ? 'navbar-right' : '' }}" data-background-color="{{ $uiSettings->navbar_color }}">
             <div class="container-fluid">
               <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
                 <div class="input-group">
@@ -409,202 +435,8 @@
           </div>
         </footer>
       </div>
-
-      <!-- Custom template | don't include it in your project! -->
-      <div class="custom-template">
-        <div class="title">Settings</div>
-        <div class="custom-content">
-          <div class="switcher">
-            <div class="switch-block">
-              <h4>Logo Header</h4>
-              <div class="btnSwitch">
-                <button
-                  type="button"
-                  class="selected changeLogoHeaderColor"
-                  data-color="dark"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="blue"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="purple"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="light-blue"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="green"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="orange"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="red"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="white"
-                ></button>
-                <br />
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="dark2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="blue2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="purple2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="light-blue2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="green2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="orange2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeLogoHeaderColor"
-                  data-color="red2"
-                ></button>
-              </div>
-            </div>
-            <div class="switch-block">
-              <h4>Navbar Header</h4>
-              <div class="btnSwitch">
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="dark"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="blue"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="purple"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="light-blue"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="green"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="orange"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="red"
-                ></button>
-                <button
-                  type="button"
-                  class="selected changeTopBarColor"
-                  data-color="white"
-                ></button>
-                <br />
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="dark2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="blue2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="purple2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="light-blue2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="green2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="orange2"
-                ></button>
-                <button
-                  type="button"
-                  class="changeTopBarColor"
-                  data-color="red2"
-                ></button>
-              </div>
-            </div>
-            <div class="switch-block">
-              <h4>Sidebar</h4>
-              <div class="btnSwitch">
-                <button
-                  type="button"
-                  class="changeSideBarColor"
-                  data-color="white"
-                ></button>
-                <button
-                  type="button"
-                  class="selected changeSideBarColor"
-                  data-color="dark"
-                ></button>
-                <button
-                  type="button"
-                  class="changeSideBarColor"
-                  data-color="dark2"
-                ></button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="custom-toggle">
-          <i class="icon-settings"></i>
-        </div>
-      </div>
-      <!-- End Custom template -->
     </div>
+
     <!--   Core JS Files   -->
     <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
