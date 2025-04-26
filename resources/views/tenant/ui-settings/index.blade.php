@@ -136,7 +136,6 @@ $(document).ready(function() {
         const navbar = $('.navbar');
         const sidebar = $('.sidebar');
         const wrapper = $('.wrapper');
-        const mainPanel = $('.main-panel');
         
         // Get current values
         const logoColor = $('#logoHeaderColor').val();
@@ -153,28 +152,16 @@ $(document).ready(function() {
         navbar.attr('data-background-color', navbarColor);
         sidebar.attr('data-background-color', sidebarColor);
         
-        // Reset all position classes first
-        wrapper.removeClass('navbar-top navbar-bottom');
-        navbar.removeClass('navbar-top navbar-bottom');
-        sidebar.removeClass('sidebar-left sidebar-right');
-        mainPanel.removeClass('main-panel-left main-panel-right');
-        
         // Apply navbar position
-        if (navbarPosition === 'bottom') {
-            wrapper.addClass('navbar-bottom');
-            navbar.addClass('navbar-bottom fixed-bottom');
-        } else {
-            wrapper.addClass('navbar-top');
-            navbar.addClass('navbar-top');
+        wrapper.removeClass('navbar-bottom navbar-left navbar-right');
+        if (navbarPosition !== 'top') {
+            wrapper.addClass('navbar-' + navbarPosition);
         }
         
         // Apply sidebar position
+        sidebar.removeClass('sidebar-right');
         if (sidebarPosition === 'right') {
             sidebar.addClass('sidebar-right');
-            mainPanel.addClass('main-panel-left');
-        } else {
-            sidebar.addClass('sidebar-left');
-            mainPanel.addClass('main-panel-right');
         }
         
         // Apply fixed states and collapse
@@ -182,52 +169,11 @@ $(document).ready(function() {
         wrapper.toggleClass('sidebar-fixed', isSidebarFixed);
         wrapper.toggleClass('sidebar-collapse', isSidebarCollapsed);
 
-        // Add custom CSS for positions
-        let customStyle = `
-            <style id="custom-position-styles">
-                .navbar-bottom {
-                    top: auto !important;
-                    bottom: 0 !important;
-                }
-                .navbar-top {
-                    top: 0 !important;
-                    bottom: auto !important;
-                }
-                .sidebar-right {
-                    right: 0 !important;
-                    left: auto !important;
-                }
-                .sidebar-left {
-                    left: 0 !important;
-                    right: auto !important;
-                }
-                .main-panel-left {
-                    margin-right: 250px !important;
-                    margin-left: 0 !important;
-                }
-                .main-panel-right {
-                    margin-left: 250px !important;
-                    margin-right: 0 !important;
-                }
-                .sidebar-collapse .main-panel-left {
-                    margin-right: 60px !important;
-                }
-                .sidebar-collapse .main-panel-right {
-                    margin-left: 60px !important;
-                }
-            </style>
-        `;
-
-        // Update or add custom styles
-        $('#custom-position-styles').remove();
-        $('head').append(customStyle);
-
-        // Force refresh styles
+        // Force refresh styles by temporarily removing and re-adding classes
         setTimeout(() => {
-            wrapper.addClass('force-refresh').removeClass('force-refresh');
+            logoHeader.addClass('force-refresh').removeClass('force-refresh');
             navbar.addClass('force-refresh').removeClass('force-refresh');
             sidebar.addClass('force-refresh').removeClass('force-refresh');
-            mainPanel.addClass('force-refresh').removeClass('force-refresh');
         }, 100);
     }
 
@@ -244,6 +190,9 @@ $(document).ready(function() {
         // Disable submit button to prevent double submission
         submitButton.prop('disabled', true);
         
+        // Don't prevent default form submission
+        // This will allow regular form submission if AJAX fails
+        
         // Try AJAX submission first
         $.ajax({
             url: form.attr('action'),
@@ -255,25 +204,21 @@ $(document).ready(function() {
                     // Apply changes immediately
                     applyChanges();
                     
-                    // Show success message
-                    $('.alert-success').remove();
-                    const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                        response.message +
-                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                        '</div>');
-                    $('.page-header').after(alert);
-                    
-                    // Enable submit button
-                    submitButton.prop('disabled', false);
+                    // Reload the page
+                    window.location.reload();
                 }
             },
             error: function(xhr) {
                 // On AJAX error, allow form to submit normally
                 form.off('submit').submit();
+            },
+            complete: function() {
+                // Re-enable submit button
+                submitButton.prop('disabled', false);
             }
         });
         
-        // Prevent default form submission
+        // Prevent default form submission only after AJAX attempt
         return false;
     });
 
