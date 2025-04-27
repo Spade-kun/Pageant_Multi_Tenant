@@ -199,6 +199,34 @@
             </div>
         </div>
     </div>
+    
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-warning bubble-shadow-small">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">{{ __('Event Assignments') }}</p>
+                            <h4 class="card-title">{{ __('Manage event assignments and schedules.') }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action mt-3">
+                    <a href="{{ route('tenant.event-assignments.index', ['slug' => $slug]) }}" class="btn btn-warning btn-round">
+                        <span class="btn-label">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                        {{ __('View Assignments') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
@@ -227,6 +255,8 @@
             </div>
         </div>
     </div>
+
+    
     @else
     <!-- Show locked feature cards if on "No Plan" -->
     @if($tenant->hasNoPlan())

@@ -64,7 +64,7 @@
                                 <label>Sidebar Color</label>
                                 <select class="form-control" name="sidebar_color" id="sidebarColor">
                                     <option value="dark" {{ $settings->sidebar_color === 'dark' ? 'selected' : '' }}>Dark</option>
-                                    <option value="blue" {{ $settings->sidebar_color === 'blue' ? 'selected' : '' }}>Blue</option>
+
                                     <option value="white" {{ $settings->sidebar_color === 'white' ? 'selected' : '' }}>White</option>
                                 </select>
                             </div>

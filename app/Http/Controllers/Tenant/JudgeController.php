@@ -61,7 +61,7 @@ class JudgeController extends Controller
         $this->setTenantConnection($slug);
         
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:tenant.users,id',
             'specialty' => 'required|string|max:255',
         ]);
         
@@ -73,22 +73,27 @@ class JudgeController extends Controller
             ->first();
             
         if (!$user) {
-            return redirect()->back()->withErrors(['user_id' => 'Invalid user selected.'])->withInput();
+            return redirect()->back()
+                ->withErrors(['user_id' => 'Selected user must have the "user" role.'])
+                ->withInput();
         }
         
-        // Check if user is already a judge
+        // Check if user is already a judge by email
         $existingJudge = DB::connection('tenant')
             ->table('judges')
-            ->where('user_id', $request->user_id)
+            ->where('email', $user->email)
             ->first();
             
         if ($existingJudge) {
-            return redirect()->back()->withErrors(['user_id' => 'User is already a judge.'])->withInput();
+            return redirect()->back()
+                ->withErrors(['user_id' => 'This user is already a judge.'])
+                ->withInput();
         }
         
         // Create the judge
         DB::connection('tenant')->table('judges')->insert([
-            'user_id' => $request->user_id,
+            'name' => $user->name,
+            'email' => $user->email,
             'specialty' => $request->specialty,
             'created_at' => now(),
             'updated_at' => now(),

@@ -47,6 +47,7 @@ class EventController extends Controller
 
     public function create($slug)
     {
+        $this->setTenantConnection($slug);
         return view('tenant.events.create', compact('slug'));
     }
 

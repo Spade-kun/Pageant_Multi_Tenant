@@ -38,6 +38,232 @@
     <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}" />
 
+    <!-- Custom styles for profile section -->
+    <style>
+      /* Logo Header and Navbar alignment */
+      .logo-header {
+        height: 60px;
+        width: 250px;
+        position: fixed;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        transition: all .3s;
+      }
+
+      .main-header {
+        background: #fff;
+        min-height: 60px;
+        width: 100%;
+        position: relative;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ebecec;
+      }
+
+      .navbar {
+        min-height: 60px;
+        transition: all .3s;
+        margin-left: 250px;
+        width: calc(100% - 250px);
+      }
+
+      .navbar.navbar-header {
+        background: #fff;
+        padding: 0;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        right: 0;
+      }
+
+      /* Wrapper adjustments */
+      .wrapper {
+        min-height: 100vh;
+        position: relative;
+        top: 0;
+        height: 100vh;
+      }
+
+      .main-panel {
+        height: 100%;
+        min-height: 100%;
+        position: relative;
+        transition: all .3s;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 250px;
+        display: block;
+        z-index: 1000;
+        color: #ffffff;
+        font-weight: 200;
+        background: #1a2035;
+        transition: all .3s;
+      }
+
+      .sidebar.sidebar-right {
+        right: 0;
+        left: auto;
+      }
+
+      /* Sidebar position adjustments */
+      .wrapper:not(.sidebar-right-layout) .sidebar {
+        left: 0;
+        right: auto;
+      }
+
+      .wrapper.sidebar-right-layout .sidebar {
+        right: 0;
+        left: auto;
+      }
+
+      .wrapper.sidebar-right-layout .logo-header {
+        left: 0;
+        right: auto;
+      }
+
+      .wrapper.sidebar-right-layout .navbar {
+        margin-left: 0;
+        margin-right: 250px;
+      }
+
+      /* Main content adjustment */
+      .main-panel > .content {
+        padding: 0 15px;
+        min-height: calc(100% - 123px);
+        margin-top: 60px;
+      }
+
+      /* Profile section improvements */
+      .topbar-user .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        gap: 10px;
+        color: #495057;
+      }
+
+      .topbar-user .avatar-sm {
+        width: 32px;
+        height: 32px;
+      }
+
+      .topbar-user .avatar-sm img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      .topbar-user .profile-info {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+      }
+
+      .topbar-user .profile-greeting {
+        color: #8d9498;
+      }
+
+      .topbar-user .profile-name {
+        color: #495057;
+        font-weight: 600;
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* Navbar search improvements */
+      .nav-search {
+        flex: 1;
+        max-width: 400px;
+        padding: 0 15px;
+        
+      }
+
+      .nav-search .input-group {
+        background: #f8f9fa;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .nav-search .input-group input {
+        background: transparent;
+        border: none;
+        padding: 8px 15px;
+        height: 40px;
+      }
+
+      .nav-search .input-group input:focus {
+        background: #fff;
+        box-shadow: none;
+      }
+
+      .nav-search .btn-search {
+        background: transparent;
+        border: none;
+        color: #8d9498;
+        padding: 8px 15px;
+      }
+
+      /* Container adjustments */
+      .navbar-header .container-fluid {
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        height: 60px;
+      }
+
+      .navbar-nav {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* Adjust colors based on navbar background */
+      [data-background-color]:not([data-background-color="white"]) {
+        color: #ffffff;
+      }
+
+      [data-background-color]:not([data-background-color="white"]) .nav-search input {
+        color: #ffffff;
+      }
+
+      [data-background-color]:not([data-background-color="white"]) .nav-search .btn-search {
+        color: #ffffff;
+      }
+
+      [data-background-color]:not([data-background-color="white"]) .profile-greeting {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      [data-background-color]:not([data-background-color="white"]) .profile-name {
+        color: #ffffff;
+      }
+
+      /* Collapsed sidebar adjustments */
+      .wrapper.sidebar-collapse .logo-header {
+        width: 70px;
+      }
+
+      .wrapper.sidebar-collapse .navbar {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
+
+      .wrapper.sidebar-collapse.sidebar-right-layout .navbar {
+        margin-left: 0;
+        margin-right: 70px;
+      }
+    </style>
+
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
   </head>
@@ -163,6 +389,11 @@
                         <span class="sub-item">Judges</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('tenant.event-assignments.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Event Assignments</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -170,28 +401,10 @@
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#scoring">
                   <i class="fas fa-star"></i>
-                  <p>Scoring</p>
-                  <span class="caret"></span>
+                  <p>Scoring Result</p>
+                  
                 </a>
-                <div class="collapse" id="scoring">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Scoring Criteria</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Score Sheets</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Results</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+              
               </li>
               @endif
 
@@ -232,12 +445,12 @@
               </li>
               @endif
 
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="#">
                   <i class="fas fa-cog"></i>
                   <p>Settings</p>
                 </a>
-              </li>
+              </li> -->
 
               @if(auth()->guard('tenant')->user()->role === 'owner')
               <li class="nav-item">
@@ -275,194 +488,82 @@
       <!-- End Sidebar -->
 
       <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'float: left; margin-right: 250px; margin-left: 0;' : '' }}">
-        <div class="main-header">
-          <div class="main-header-logo d-flex d-lg-none">
-            <!-- Mobile Logo Header -->
-            <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
-              <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
-                <img src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
-              </a>
-              <div class="nav-toggle">
-                <button class="btn btn-toggle toggle-sidebar">
-                  <i class="gg-menu-right"></i>
-                </button>
-                <button class="btn btn-toggle sidenav-toggler">
-                  <i class="gg-menu-left"></i>
-                </button>
-              </div>
-              <button class="topbar-toggler more">
-                <i class="gg-more-vertical-alt"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Navbar Header -->
-          <nav class="navbar navbar-header navbar-expand-lg" data-background-color="{{ $uiSettings->navbar_color }}">
+        @if($uiSettings->navbar_position === 'top')
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-header navbar-expand-lg" data-background-color="{{ $uiSettings->navbar_color }}">
             <div class="container-fluid">
-              <nav class="navbar navbar-header-left navbar-expand-lg p-0">
-                <div class="nav-search">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button type="submit" class="btn btn-search pe-1">
-                      <i class="fa fa-search search-icon"></i>
-                    </button>
-                  </div>
-                  <input type="text" placeholder="Search ..." class="form-control" />
-                  </div>
-                </div>
-              </nav>
-
-              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <!-- Search Toggle -->
-                <li class="nav-item dropdown hidden-caret d-flex d-lg-none">
-                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button">
-                    <i class="fa fa-search"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form class="navbar-left navbar-form nav-search">
-                      <div class="input-group">
-                        <input type="text" placeholder="Search ..." class="form-control">
-                      </div>
-                    </form>
-                  </ul>
-                </li>
-
-                <!-- Messages -->
-                <li class="nav-item dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown">
-                    <i class="fa fa-envelope"></i>
-                  </a>
-                  <ul class="dropdown-menu messages-notif-box animated fadeIn" aria-labelledby="messageDropdown">
-                    <li>
-                      <div class="dropdown-title d-flex justify-content-between align-items-center">
-                        Messages
-                        <a href="#" class="small">Mark all as read</a>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="message-notif-scroll scrollbar-outer">
-                        <div class="notif-center">
-                          <p class="text-muted text-center py-3">No messages</p>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <a class="see-all" href="javascript:void(0);">See all messages<i class="fa fa-angle-right"></i></a>
-                    </li>
-                  </ul>
-                </li>
-
-                <!-- Notifications -->
-                <li class="nav-item dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown">
-                    <i class="fa fa-bell"></i>
-                    <span class="notification">0</span>
-                  </a>
-                  <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
-                    <li>
-                      <div class="dropdown-title">You have 0 new notifications</div>
-                    </li>
-                    <li>
-                      <div class="notif-scroll scrollbar-outer">
-                        <div class="notif-center">
-                          <p class="text-muted text-center py-3">No notifications</p>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <a class="see-all" href="javascript:void(0);">See all notifications<i class="fa fa-angle-right"></i></a>
-                    </li>
-                  </ul>
-                </li>
-
-                <!-- Quick Actions -->
-                <li class="nav-item dropdown hidden-caret">
-                  <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                    <i class="fas fa-layer-group"></i>
-                  </a>
-                  <div class="dropdown-menu quick-actions animated fadeIn">
-                    <div class="quick-actions-header">
-                      <span class="title mb-1">Quick Actions</span>
-                      <span class="subtitle op-7">Shortcuts</span>
-                    </div>
-                    <div class="quick-actions-scroll scrollbar-outer">
-                      <div class="quick-actions-items">
-                        <div class="row m-0">
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div class="avatar-item bg-danger rounded-circle">
-                                <i class="far fa-calendar-alt"></i>
-                              </div>
-                              <span class="text">Calendar</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div class="avatar-item bg-warning rounded-circle">
-                                <i class="fas fa-map"></i>
-                              </div>
-                              <span class="text">Reports</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div class="avatar-item bg-info rounded-circle">
-                                <i class="fas fa-file-excel"></i>
-                              </div>
-                              <span class="text">Export</span>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                <!-- User Profile -->
-                <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                    <div class="avatar-sm float-end">
-                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle">
-                    </div>
-                    <span class="profile-username">
-                      <span class="op-7">Hi,</span>
-                      <span class="fw-bold">{{ session('tenant_user.name') }}</span>
-                    </span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user animated fadeIn">
-                      <li>
-                        <div class="user-box">
-                          <div class="avatar-lg">
-                          <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded">
-                          </div>
-                          <div class="u-text">
-                            <h4>{{ session('tenant_user.name') }}</h4>
-                            <p class="text-muted">{{ session('tenant_user.email') }}</p>
-                          <a href="#" class="btn btn-secondary btn-sm">View Profile</a>
-                        </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">My Profile</a>
-                      <a class="dropdown-item" href="#">Account Settings</a>
-                        <div class="dropdown-divider"></div>
-                        @if(auth()->guard('tenant')->check())
-                            <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                <nav class="navbar navbar-header-left navbar-expand-lg p-0">
+                    <!-- <div class="nav-search">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button type="submit" class="btn btn-search pe-1">
+                                    <i class="fa fa-search search-icon"></i>
                                 </button>
+                            </div>
+                            <input type="text" placeholder="Search ..." class="form-control">
+                        </div>
+                    </div> -->
+                </nav>
+
+                <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                    <!-- Search Toggle -->
+                    <li class="nav-item dropdown hidden-caret d-flex d-lg-none">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button">
+                            <i class="fa fa-search"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-search animated fadeIn">
+                            <form class="navbar-left navbar-form nav-search">
+                                <div class="input-group">
+                                    <input type="text" placeholder="Search ..." class="form-control">
+                                </div>
                             </form>
-                        @endif
-                      </li>
-                  </ul>
-                </li>
-              </ul>
+                        </ul>
+                    </li>
+
+                    <!-- User Profile -->
+                    <li class="nav-item topbar-user dropdown hidden-caret">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <div class="avatar-sm">
+                                <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle border shadow-sm">
+                            </div>
+                            <div class="profile-info">
+                                <span class="profile-greeting">Hi,</span>
+                                <span class="profile-name">{{ session('tenant_user.name') }}</span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user animated fadeIn">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                        <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded">
+                                    </div>
+                                    <div class="u-text">
+                                        <h4>{{ session('tenant_user.name') }}</h4>
+                                        <p class="text-muted">{{ session('tenant_user.email') }}</p>
+                                        <a href="#" class="btn btn-secondary btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">My Profile</a>
+                                <a class="dropdown-item" href="#">Account Settings</a>
+                                <div class="dropdown-divider"></div>
+                                @if(auth()->guard('tenant')->check())
+                                    <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                        </button>
+                                    </form>
+                                @endif
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-          </nav>
-          <!-- End Navbar -->
-        </div>
+        </nav>
+        @endif
 
         <div class="container">
           <div class="page-inner">
@@ -470,24 +571,82 @@
           </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-          <div class="container-fluid d-flex justify-content-between">
-            <nav class="pull-left">
-              <ul class="nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Help</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Licenses</a>
-                </li>
-              </ul>
+        @if($uiSettings->navbar_position === 'bottom')
+        <!-- Bottom Navbar -->
+        <nav class="navbar navbar-header navbar-expand-lg navbar-bottom" data-background-color="{{ $uiSettings->navbar_color }}">
+          <div class="container-fluid">
+            <nav class="navbar navbar-header-left navbar-expand-lg p-0">
+              <div class="nav-search">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button type="submit" class="btn btn-search pe-1">
+                      <i class="fa fa-search search-icon"></i>
+                    </button>
+                  </div>
+                  <input type="text" placeholder="Search ..." class="form-control" />
+                </div>
+              </div>
             </nav>
-            <div class="copyright">
-              2024, made with <i class="fa fa-heart heart text-danger"></i> by Pageant Management System
-            </div>
+
+            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+              <!-- Search Toggle -->
+              <li class="nav-item dropdown hidden-caret d-flex d-lg-none">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button">
+                  <i class="fa fa-search"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-search animated fadeIn">
+                  <form class="navbar-left navbar-form nav-search">
+                    <div class="input-group">
+                      <input type="text" placeholder="Search ..." class="form-control">
+                    </div>
+                  </form>
+                </ul>
+              </li>
+
+              <!-- User Profile -->
+              <li class="nav-item topbar-user dropdown hidden-caret">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <div class="avatar-sm me-2">
+                        <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;">
+                    </div>
+                    <div class="profile-info">
+                        <span class="profile-greeting text-muted small">Hi,</span>
+                        <span class="profile-name d-block text-dark fw-bold">{{ session('tenant_user.name') }}</span>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-user animated fadeIn">
+                  <li>
+                    <div class="user-box">
+                      <div class="avatar-lg">
+                        <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded">
+                      </div>
+                      <div class="u-text">
+                        <h4>{{ session('tenant_user.name') }}</h4>
+                        <p class="text-muted">{{ session('tenant_user.email') }}</p>
+                        <a href="#" class="btn btn-secondary btn-sm">View Profile</a>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">My Profile</a>
+                    <a class="dropdown-item" href="#">Account Settings</a>
+                    <div class="dropdown-divider"></div>
+                    @if(auth()->guard('tenant')->check())
+                    <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
+                      @csrf
+                      <button type="submit" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                      </button>
+                    </form>
+                    @endif
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
-        </footer>
+        </nav>
+        @endif
       </div>
 
       <!-- Custom template | Settings Panel -->

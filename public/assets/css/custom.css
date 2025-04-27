@@ -89,8 +89,9 @@
 /* Main content adjustments */
 .page-inner {
     padding: 20px;
+    padding-bottom: 80px;
     flex: 1 1 auto;
-    min-height: calc(100vh - 180px);
+    min-height: calc(100vh - 80px);
     /* Account for navbar and footer */
 }
 
@@ -143,8 +144,7 @@
     }
 
     .page-inner {
-        min-height: calc(100vh - 200px);
-        /* Adjust for mobile */
+        padding-bottom: 90px;
     }
 
     .bottom-wrapper {
@@ -160,6 +160,10 @@
 
     .sidebar-collapse .sidebar {
         width: 265px;
+    }
+
+    .navbar-header.navbar-bottom {
+        padding: 8px 0;
     }
 }
 
@@ -218,11 +222,25 @@
     margin-left: 0;
 }
 
+/* Adjust bottom navbar margins for right sidebar */
+.sidebar-right-layout .navbar-header.navbar-bottom {
+    margin-right: 265px;
+    width: calc(100% - 265px);
+}
+
+.sidebar-right-layout.sidebar-collapse .navbar-header.navbar-bottom {
+    margin-right: 75px;
+    width: calc(100% - 75px);
+}
+
 /* Mobile Responsive Adjustments */
 @media (max-width: 991px) {
+    .sidebar-right-layout .navbar-header.navbar-bottom {
+        margin-right: 0;
+        width: 100%;
+    }
 
-    .sidebar-right-layout .main-panel,
-    .sidebar-right-layout .footer {
+    .sidebar-right-layout .main-panel {
         margin-right: 0 !important;
         margin-left: 0 !important;
     }
@@ -257,4 +275,98 @@
 
 .sidebar-right-layout .custom-template.open {
     transform: translateX(0);
+}
+
+/* User Profile Styles */
+.topbar-user {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.topbar-user .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
+.avatar-sm img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-username {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #555;
+}
+
+.profile-username .op-7 {
+    opacity: 0.7;
+    font-weight: normal;
+}
+
+.profile-username .fw-bold {
+    font-weight: 600;
+    color: #1a1f33;
+}
+
+/* Dropdown styles */
+.dropdown-user {
+    min-width: 250px;
+    padding: 0.5rem;
+}
+
+.user-box {
+    padding: 1rem;
+    text-align: center;
+}
+
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+}
+
+.avatar-lg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.u-text {
+    margin-top: 1rem;
+}
+
+.u-text h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1f33;
+}
+
+.u-text p {
+    margin: 0.25rem 0 1rem;
+    font-size: 0.875rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+    .profile-username {
+        display: none;
+    }
+
+    .avatar-sm {
+        margin-right: 0;
+    }
 }

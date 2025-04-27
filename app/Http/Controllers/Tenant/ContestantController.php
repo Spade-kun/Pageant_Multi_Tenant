@@ -44,6 +44,7 @@ class ContestantController extends Controller
 
     public function create($slug)
     {
+        $this->setTenantConnection($slug);
         return view('tenant.contestants.create', compact('slug'));
     }
 
