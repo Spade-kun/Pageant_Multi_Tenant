@@ -180,3 +180,81 @@
     margin-right: 0 !important;
     width: 100% !important;
 }
+
+/* Right Sidebar Layout Styles */
+.sidebar-right-layout {
+    direction: ltr !important;
+}
+
+.sidebar-right-layout .main-panel {
+    float: left !important;
+    transition: margin-right 0.3s ease;
+}
+
+.sidebar-right-layout .sidebar {
+    right: 0;
+    left: auto !important;
+    transform: none !important;
+    transition: all 0.3s ease;
+}
+
+.sidebar-right-layout.sidebar-collapse .main-panel {
+    margin-right: 75px !important;
+    margin-left: 0 !important;
+}
+
+.sidebar-right-layout.sidebar-collapse .sidebar {
+    width: 75px !important;
+}
+
+.sidebar-right-layout .footer {
+    margin-right: 250px;
+    margin-left: 0;
+    transition: all 0.3s ease;
+}
+
+.sidebar-right-layout.sidebar-collapse .footer {
+    margin-right: 75px;
+    margin-left: 0;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 991px) {
+
+    .sidebar-right-layout .main-panel,
+    .sidebar-right-layout .footer {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    .sidebar-right-layout .sidebar {
+        transform: translateX(250px) !important;
+    }
+
+    .sidebar-right-layout.nav-toggle .sidebar {
+        transform: translateX(0) !important;
+    }
+}
+
+/* Fix for content overlap */
+.sidebar-right-layout .main-panel>.content {
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+/* Adjust navbar positioning */
+.sidebar-right-layout .navbar {
+    left: 0;
+    right: auto;
+}
+
+/* Settings panel adjustment */
+.sidebar-right-layout .custom-template {
+    left: 0;
+    right: auto;
+    transform: translateX(-280px);
+}
+
+.sidebar-right-layout .custom-template.open {
+    transform: translateX(0);
+}

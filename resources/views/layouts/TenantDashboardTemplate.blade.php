@@ -59,11 +59,11 @@
         }
     @endphp
 
-    <div class="wrapper {{ $uiSettings->is_sidebar_collapsed ? 'sidebar-collapse' : '' }} {{ $uiSettings->is_navbar_fixed ? 'navbar-fixed' : '' }} {{ $uiSettings->is_sidebar_fixed ? 'sidebar-fixed' : '' }}">
+    <div class="wrapper {{ $uiSettings->is_sidebar_collapsed ? 'sidebar-collapse' : '' }} {{ $uiSettings->is_navbar_fixed ? 'navbar-fixed' : '' }} {{ $uiSettings->is_sidebar_fixed ? 'sidebar-fixed' : '' }} {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right-layout' : '' }}">
       <!-- Sidebar -->
       <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" 
            data-background-color="{{ $uiSettings->sidebar_color }}"
-           style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0 !important; left: auto !important; transform: none !important;' : '' }}">
+           style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto !important; transform: none !important;' : '' }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
@@ -274,131 +274,33 @@
       </div>
       <!-- End Sidebar -->
 
-      <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'margin-right: 265px; margin-left: 0; width: calc(100% - 265px);' : 'margin-left: 265px; margin-right: 0; width: calc(100% - 265px);' }}">
-        <!-- Top Navbar (when not bottom) -->
-        @if($uiSettings->navbar_position !== 'bottom')
-        <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg" data-background-color="{{ $uiSettings->navbar_color }}">
-          <div class="container-fluid">
-            <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <button type="submit" class="btn btn-search pe-1">
-                    <i class="fa fa-search search-icon"></i>
+      <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'float: left; margin-right: 250px; margin-left: 0;' : '' }}">
+        <div class="main-header">
+          <div class="main-header-logo d-flex d-lg-none">
+            <!-- Mobile Logo Header -->
+            <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
+              <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
+                <img src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+              </a>
+              <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                  <i class="gg-menu-right"></i>
                 </button>
-                </div>
-                <input type="text" placeholder="Search ..." class="form-control" />
+                <button class="btn btn-toggle sidenav-toggler">
+                  <i class="gg-menu-left"></i>
+                </button>
               </div>
-            </nav>
-
-            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-              <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" aria-haspopup="true">
-                  <i class="fa fa-search"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-search animated fadeIn">
-                  <form class="navbar-left navbar-form nav-search">
-                    <div class="input-group">
-                      <input type="text" placeholder="Search ..." class="form-control" />
-                    </div>
-                  </form>
-                </ul>
-              </li>
-              <li class="nav-item topbar-icon dropdown hidden-caret">
-                <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-envelope"></i>
-                </a>
-                <ul class="dropdown-menu messages-notif-box animated fadeIn" aria-labelledby="messageDropdown">
-                  <li>
-                    <div class="dropdown-title d-flex justify-content-between align-items-center">
-                      Messages
-                      <a href="#" class="small">Mark all as read</a>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="message-notif-scroll scrollbar-outer">
-                      <div class="notif-center">
-                        <p class="text-muted text-center">No messages</p>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-              <li class="nav-item topbar-icon dropdown hidden-caret">
-                <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-bell"></i>
-                  <span class="notification">0</span>
-                </a>
-                <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
-                  <li>
-                    <div class="dropdown-title">You have 0 notifications</div>
-                  </li>
-                  <li>
-                    <div class="notif-scroll scrollbar-outer">
-                      <div class="notif-center">
-                        <p class="text-muted text-center">No notifications</p>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-              <li class="nav-item topbar-user dropdown hidden-caret">
-                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                  <div class="avatar-sm">
-                    <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
-                  </div>
-                  <span class="profile-username">
-                    <span class="op-7">Hi,</span>
-                    <span class="fw-bold">{{ session('tenant_user.name') }}</span>
-                  </span>
-                </a>
-                <ul class="dropdown-menu dropdown-user animated fadeIn">
-                  <div class="dropdown-user-scroll scrollbar-outer">
-                    <li>
-                      <div class="user-box">
-                        <div class="avatar-lg">
-                          <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
-                        </div>
-                        <div class="u-text">
-                          <h4>{{ session('tenant_user.name') }}</h4>
-                          <p class="text-muted">{{ session('tenant_user.email') }}</p>
-                          <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">My Profile</a>
-                      <a class="dropdown-item" href="#">Account Setting</a>
-                      <div class="dropdown-divider"></div>
-                      @if(auth()->guard('tenant')->check())
-                          <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
-                              @csrf
-                              <button type="submit" class="dropdown-item">
-                                  <i class="fas fa-sign-out-alt me-2"></i> Logout
+              <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
               </button>
-                          </form>
-                      @endif
-                    </li>
             </div>
-                </ul>
-              </li>
-            </ul>
           </div>
-        </nav>
-        @endif
 
-        <!-- Page Content -->
-        <div class="page-inner">
-          @yield('content')
-        </div>
-
-        <!-- Bottom Navigation and Footer -->
-        <div class="bottom-wrapper">
-          <!-- Bottom Navbar (when bottom) -->
-          @if($uiSettings->navbar_position === 'bottom')
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg navbar-bottom" data-background-color="{{ $uiSettings->navbar_color }}">
+          <!-- Navbar Header -->
+          <nav class="navbar navbar-header navbar-expand-lg" data-background-color="{{ $uiSettings->navbar_color }}">
             <div class="container-fluid">
-              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+              <nav class="navbar navbar-header-left navbar-expand-lg p-0">
+                <div class="nav-search">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <button type="submit" class="btn btn-search pe-1">
@@ -406,24 +308,28 @@
                     </button>
                   </div>
                   <input type="text" placeholder="Search ..." class="form-control" />
+                  </div>
                 </div>
               </nav>
 
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" aria-haspopup="true">
+                <!-- Search Toggle -->
+                <li class="nav-item dropdown hidden-caret d-flex d-lg-none">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button">
                     <i class="fa fa-search"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-search animated fadeIn">
                     <form class="navbar-left navbar-form nav-search">
                       <div class="input-group">
-                        <input type="text" placeholder="Search ..." class="form-control" />
+                        <input type="text" placeholder="Search ..." class="form-control">
                       </div>
                     </form>
                   </ul>
                 </li>
-                <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                <!-- Messages -->
+                <li class="nav-item dropdown hidden-caret">
+                  <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown">
                     <i class="fa fa-envelope"></i>
                   </a>
                   <ul class="dropdown-menu messages-notif-box animated fadeIn" aria-labelledby="messageDropdown">
@@ -436,34 +342,87 @@
                     <li>
                       <div class="message-notif-scroll scrollbar-outer">
                         <div class="notif-center">
-                          <p class="text-muted text-center">No messages</p>
+                          <p class="text-muted text-center py-3">No messages</p>
                         </div>
                       </div>
                     </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);">See all messages<i class="fa fa-angle-right"></i></a>
+                    </li>
                   </ul>
                 </li>
-                <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                <!-- Notifications -->
+                <li class="nav-item dropdown hidden-caret">
+                  <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown">
                     <i class="fa fa-bell"></i>
                     <span class="notification">0</span>
                   </a>
                   <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
                     <li>
-                      <div class="dropdown-title">You have 0 notifications</div>
+                      <div class="dropdown-title">You have 0 new notifications</div>
                     </li>
                     <li>
                       <div class="notif-scroll scrollbar-outer">
                         <div class="notif-center">
-                          <p class="text-muted text-center">No notifications</p>
+                          <p class="text-muted text-center py-3">No notifications</p>
                         </div>
                       </div>
                     </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);">See all notifications<i class="fa fa-angle-right"></i></a>
+                    </li>
                   </ul>
                 </li>
+
+                <!-- Quick Actions -->
+                <li class="nav-item dropdown hidden-caret">
+                  <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                    <i class="fas fa-layer-group"></i>
+                  </a>
+                  <div class="dropdown-menu quick-actions animated fadeIn">
+                    <div class="quick-actions-header">
+                      <span class="title mb-1">Quick Actions</span>
+                      <span class="subtitle op-7">Shortcuts</span>
+                    </div>
+                    <div class="quick-actions-scroll scrollbar-outer">
+                      <div class="quick-actions-items">
+                        <div class="row m-0">
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div class="avatar-item bg-danger rounded-circle">
+                                <i class="far fa-calendar-alt"></i>
+                              </div>
+                              <span class="text">Calendar</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div class="avatar-item bg-warning rounded-circle">
+                                <i class="fas fa-map"></i>
+                              </div>
+                              <span class="text">Reports</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div class="avatar-item bg-info rounded-circle">
+                                <i class="fas fa-file-excel"></i>
+                              </div>
+                              <span class="text">Export</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+                <!-- User Profile -->
                 <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                    <div class="avatar-sm">
-                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <div class="avatar-sm float-end">
+                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle">
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
@@ -471,23 +430,22 @@
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                          <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded">
                           </div>
                           <div class="u-text">
                             <h4>{{ session('tenant_user.name') }}</h4>
                             <p class="text-muted">{{ session('tenant_user.email') }}</p>
-                            <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
-                          </div>
+                          <a href="#" class="btn btn-secondary btn-sm">View Profile</a>
+                        </div>
                         </div>
                       </li>
                       <li>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">My Profile</a>
-                        <a class="dropdown-item" href="#">Account Setting</a>
+                      <a class="dropdown-item" href="#">Account Settings</a>
                         <div class="dropdown-divider"></div>
                         @if(auth()->guard('tenant')->check())
                             <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
@@ -498,15 +456,21 @@
                             </form>
                         @endif
                       </li>
-                    </div>
                   </ul>
                 </li>
               </ul>
             </div>
           </nav>
-          @endif
+          <!-- End Navbar -->
+        </div>
 
-          <!-- Footer -->
+        <div class="container">
+          <div class="page-inner">
+            @yield('content')
+          </div>
+        </div>
+
+        <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid d-flex justify-content-between">
             <nav class="pull-left">
@@ -525,8 +489,68 @@
           </div>
         </footer>
       </div>
-        <!-- End Bottom Navigation and Footer -->
-      </div>
+
+      <!-- Custom template | Settings Panel -->
+      <!-- <div class="custom-template" style="{{ $uiSettings->sidebar_position === 'right' ? 'left: 0; right: auto;' : '' }}">
+        <div class="title">Settings</div>
+        <div class="custom-content">
+          <div class="switcher">
+            <div class="switch-block">
+              <h4>Logo Header</h4>
+              <div class="btnSwitch">
+                <button type="button" class="selected changeLogoHeaderColor" data-color="dark"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="blue"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="purple"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="light-blue"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="green"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="orange"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="red"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="white"></button>
+                <br />
+                <button type="button" class="changeLogoHeaderColor" data-color="dark2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="blue2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="purple2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="light-blue2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="green2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="orange2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="red2"></button>
+              </div>
+            </div>
+            <div class="switch-block">
+              <h4>Navbar Header</h4>
+              <div class="btnSwitch">
+                <button type="button" class="changeTopBarColor" data-color="dark"></button>
+                <button type="button" class="changeTopBarColor" data-color="blue"></button>
+                <button type="button" class="changeTopBarColor" data-color="purple"></button>
+                <button type="button" class="changeTopBarColor" data-color="light-blue"></button>
+                <button type="button" class="changeTopBarColor" data-color="green"></button>
+                <button type="button" class="changeTopBarColor" data-color="orange"></button>
+                <button type="button" class="changeTopBarColor" data-color="red"></button>
+                <button type="button" class="selected changeTopBarColor" data-color="white"></button>
+                <br />
+                <button type="button" class="changeTopBarColor" data-color="dark2"></button>
+                <button type="button" class="changeTopBarColor" data-color="blue2"></button>
+                <button type="button" class="changeTopBarColor" data-color="purple2"></button>
+                <button type="button" class="changeTopBarColor" data-color="light-blue2"></button>
+                <button type="button" class="changeTopBarColor" data-color="green2"></button>
+                <button type="button" class="changeTopBarColor" data-color="orange2"></button>
+                <button type="button" class="changeTopBarColor" data-color="red2"></button>
+              </div>
+            </div>
+            <div class="switch-block">
+              <h4>Sidebar</h4>
+              <div class="btnSwitch">
+                <button type="button" class="changeSideBarColor" data-color="white"></button>
+                <button type="button" class="selected changeSideBarColor" data-color="dark"></button>
+                <button type="button" class="changeSideBarColor" data-color="dark2"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="custom-toggle">
+          <i class="icon-settings"></i>
+        </div>
+      </div> -->
     </div>
 
     <!--   Core JS Files   -->
@@ -562,35 +586,99 @@
     <!-- Kaiadmin JS -->
     <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>
 
-    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
+    <!-- Kaiadmin DEMO methods -->
     <script src="{{ asset('assets/js/setting-demo.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
+
+    <!-- Custom Scripts -->
     <script>
-      $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#177dff",
-        fillColor: "rgba(23, 125, 255, 0.14)",
-      });
+      $(document).ready(function() {
+        // Initialize scrollbars
+        $('.scrollbar-inner').scrollbar();
 
-      $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#f3545d",
-        fillColor: "rgba(243, 84, 93, .14)",
-      });
+        // Function to update layout based on sidebar position
+        function updateLayoutForSidebarPosition(position) {
+          if (position === 'right') {
+            $('.main-panel').css({
+              'float': 'left',
+              'margin-right': $('.sidebar').width() + 'px',
+              'margin-left': '0'
+            });
+            $('.custom-template').css({
+              'left': '0',
+              'right': 'auto'
+            });
+          } else {
+            $('.main-panel').css({
+              'float': '',
+              'margin-right': '',
+              'margin-left': ''
+            });
+            $('.custom-template').css({
+              'left': '',
+              'right': ''
+            });
+          }
+        }
 
-      $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#ffa534",
-        fillColor: "rgba(255, 165, 52, .14)",
+        // Initial layout update
+        updateLayoutForSidebarPosition('{{ $uiSettings->sidebar_position }}');
+
+        // Update layout when sidebar is toggled
+        $('.toggle-sidebar').click(function() {
+          $('.wrapper').toggleClass('sidebar-collapse');
+          $(this).find('i').toggleClass('gg-menu-right gg-menu-left');
+          
+          // Adjust margins when sidebar is collapsed
+          if ($('.wrapper').hasClass('sidebar-collapse')) {
+            if ('{{ $uiSettings->sidebar_position }}' === 'right') {
+              $('.main-panel').css('margin-right', '75px');
+            }
+          } else {
+            if ('{{ $uiSettings->sidebar_position }}' === 'right') {
+              $('.main-panel').css('margin-right', '250px');
+            }
+          }
+        });
+
+        // Mobile sidebar toggle
+        $('.sidenav-toggler').click(function() {
+          $('.wrapper').toggleClass('nav-toggle');
+          $(this).find('i').toggleClass('gg-menu-left gg-menu-right');
+        });
+
+        // Settings panel toggle
+        $('.custom-toggle').click(function() {
+          $('.custom-template').toggleClass('active');
+        });
+
+        // Apply color changes from settings panel
+        $('.changeLogoHeaderColor').click(function() {
+          if ($(this).attr('data-color') != null) {
+            $('.logo-header').attr('data-background-color', $(this).attr('data-color'));
+          }
+          $(this).parent().find('.selected').removeClass('selected');
+          $(this).addClass('selected');
+        });
+
+        $('.changeTopBarColor').click(function() {
+          if ($(this).attr('data-color') != null) {
+            $('.navbar-header').attr('data-background-color', $(this).attr('data-color'));
+          }
+          $(this).parent().find('.selected').removeClass('selected');
+          $(this).addClass('selected');
+        });
+
+        $('.changeSideBarColor').click(function() {
+          if ($(this).attr('data-color') != null) {
+            $('.sidebar').attr('data-background-color', $(this).attr('data-color'));
+          }
+          $(this).parent().find('.selected').removeClass('selected');
+          $(this).addClass('selected');
+        });
+
+        // Initialize any additional plugins or components
+        @stack('scripts')
       });
     </script>
   </body>
