@@ -134,11 +134,11 @@ $(document).ready(function() {
     function applyChanges() {
         const logoHeader = $('.logo-header');
         const navbar = $('.navbar-header');
+        const mainHeader = $('.main-header');
         const sidebar = $('.sidebar');
         const wrapper = $('.wrapper');
         const mainPanel = $('.main-panel');
         const pageInner = $('.page-inner');
-        const footer = $('.footer');
         
         // Get current values
         const logoColor = $('#logoHeaderColor').val();
@@ -155,57 +155,133 @@ $(document).ready(function() {
         navbar.attr('data-background-color', navbarColor);
         sidebar.attr('data-background-color', sidebarColor);
         
-        // Apply navbar position
-        navbar.removeClass('navbar-bottom');
-        pageInner.css({
-            'padding-bottom': '',
-            'padding-top': ''
-        });
-        footer.css('bottom', '');
+        // Apply navbar position - completely remove and reapply classes
+        wrapper.removeClass('navbar-bottom navbar-top');
+        navbar.removeClass('navbar-bottom navbar-top');
+        mainHeader.removeClass('navbar-bottom navbar-top');
         
-        if (navbarPosition === 'bottom') {
-            navbar.addClass('navbar-bottom');
-            pageInner.css({
-                'padding-bottom': '85px',
-                'padding-top': '20px'
-            });
-            footer.css('bottom', '62px');
-        }
+        // Force reflow to ensure CSS changes take effect
+        void wrapper[0].offsetWidth;
+        void navbar[0].offsetWidth;
+        void mainHeader[0].offsetWidth;
         
-        // Apply sidebar position
+        // Apply sidebar position first
+        wrapper.removeClass('sidebar-right-layout');
         if (sidebarPosition === 'right') {
+            wrapper.addClass('sidebar-right-layout');
             sidebar.addClass('sidebar-right')
                   .css({
-                      'right': '0 !important',
-                      'left': 'auto !important',
-                      'transform': 'none !important'
+                      'right': '0',
+                      'left': 'auto',
+                      'transform': 'none'
                   });
+            mainPanel.css({
+                'float': 'left',
+                'margin-right': '250px',
+                'margin-left': '0'
+            });
         } else {
             sidebar.removeClass('sidebar-right')
                   .css({
                       'right': '',
                       'left': '0',
-                      'transform': 'none'
+                      'transform': ''
                   });
+            mainPanel.css({
+                'float': '',
+                'margin-right': '',
+                'margin-left': ''
+            });
         }
         
         // Apply fixed states and collapse
         wrapper.toggleClass('navbar-fixed', isNavbarFixed);
         wrapper.toggleClass('sidebar-fixed', isSidebarFixed);
         wrapper.toggleClass('sidebar-collapse', isSidebarCollapsed);
+        
+        // Now apply navbar positioning
+        if (navbarPosition === 'bottom') {
+            wrapper.addClass('navbar-bottom');
+            navbar.addClass('navbar-bottom');
+            mainHeader.addClass('navbar-bottom');
+            
+            // Adjust navbar width and position based on sidebar
+            adjustNavbarForSidebar(navbar, mainHeader, sidebarPosition, isSidebarCollapsed);
+        } else {
+            wrapper.addClass('navbar-top');
+            navbar.addClass('navbar-top');
+            mainHeader.addClass('navbar-top');
+            
+            // Adjust navbar width and position based on sidebar
+            adjustNavbarForSidebar(navbar, mainHeader, sidebarPosition, isSidebarCollapsed);
+        }
 
         // Force refresh styles
         setTimeout(() => {
             navbar.addClass('force-refresh').removeClass('force-refresh');
+            mainHeader.addClass('force-refresh').removeClass('force-refresh');
             sidebar.addClass('force-refresh').removeClass('force-refresh');
             mainPanel.addClass('force-refresh').removeClass('force-refresh');
             pageInner.addClass('force-refresh').removeClass('force-refresh');
-            footer.addClass('force-refresh').removeClass('force-refresh');
         }, 100);
+    }
+    
+    // Helper function to adjust navbar for sidebar
+    function adjustNavbarForSidebar(navbar, mainHeader, sidebarPosition, isSidebarCollapsed) {
+        const sidebarWidth = isSidebarCollapsed ? '76px' : '251px'; // 1px extra to avoid overlap
+        
+        if (sidebarPosition === 'right') {
+            navbar.css({
+                'width': 'calc(100% - ' + sidebarWidth + ')',
+                'right': sidebarWidth,
+                'left': '0',
+                'z-index': '1029'
+            });
+            mainHeader.css({
+                'width': 'calc(100% - ' + sidebarWidth + ')',
+                'right': sidebarWidth,
+                'left': '0',
+                'z-index': '1029'
+            });
+        } else {
+            navbar.css({
+                'width': 'calc(100% - ' + sidebarWidth + ')',
+                'left': sidebarWidth,
+                'right': '0',
+                'z-index': '1029'
+            });
+            mainHeader.css({
+                'width': 'calc(100% - ' + sidebarWidth + ')',
+                'left': sidebarWidth,
+                'right': '0',
+                'z-index': '1029'
+            });
+        }
+        
+        // Handle responsive behavior
+        if ($(window).width() < 992) {
+            navbar.css({
+                'width': '100%',
+                'left': '0',
+                'right': '0',
+                'z-index': '1029'
+            });
+            mainHeader.css({
+                'width': '100%',
+                'left': '0',
+                'right': '0',
+                'z-index': '1029'
+            });
+        }
     }
 
     // Apply changes when any form control changes
     $('#uiSettingsForm select, #uiSettingsForm input[type="checkbox"]').on('change', function() {
+        applyChanges();
+    });
+
+    // Responsive adjustments
+    $(window).on('resize', function() {
         applyChanges();
     });
 
