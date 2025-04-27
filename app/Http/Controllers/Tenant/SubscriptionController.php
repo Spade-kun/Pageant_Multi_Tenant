@@ -8,12 +8,32 @@ use App\Models\PlanRequest;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class SubscriptionController extends Controller
 {
     public function showPlans($slug)
     {
+        // Get tenant from central database
         $tenant = Tenant::where('slug', $slug)->firstOrFail();
+        
+        // Configure tenant database connection
+        $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+        Config::set('database.connections.tenant', [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => $databaseName,
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ]);
+
+        // Get plans from central database
         $plans = Plan::where('is_active', true)->get();
         $currentPlan = $tenant->plan;
         

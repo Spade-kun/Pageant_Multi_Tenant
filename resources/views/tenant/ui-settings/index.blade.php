@@ -133,10 +133,12 @@ $(document).ready(function() {
     // Function to apply changes in real-time
     function applyChanges() {
         const logoHeader = $('.logo-header');
-        const navbar = $('.navbar');
+        const navbar = $('.navbar-header');
         const sidebar = $('.sidebar');
         const wrapper = $('.wrapper');
         const mainPanel = $('.main-panel');
+        const pageInner = $('.page-inner');
+        const footer = $('.footer');
         
         // Get current values
         const logoColor = $('#logoHeaderColor').val();
@@ -154,9 +156,20 @@ $(document).ready(function() {
         sidebar.attr('data-background-color', sidebarColor);
         
         // Apply navbar position
-        wrapper.removeClass('navbar-bottom navbar-left navbar-right');
-        if (navbarPosition !== 'top') {
-            wrapper.addClass('navbar-' + navbarPosition);
+        navbar.removeClass('navbar-bottom');
+        pageInner.css({
+            'padding-bottom': '',
+            'padding-top': ''
+        });
+        footer.css('bottom', '');
+        
+        if (navbarPosition === 'bottom') {
+            navbar.addClass('navbar-bottom');
+            pageInner.css({
+                'padding-bottom': '85px',
+                'padding-top': '20px'
+            });
+            footer.css('bottom', '62px');
         }
         
         // Apply sidebar position
@@ -183,8 +196,11 @@ $(document).ready(function() {
 
         // Force refresh styles
         setTimeout(() => {
+            navbar.addClass('force-refresh').removeClass('force-refresh');
             sidebar.addClass('force-refresh').removeClass('force-refresh');
             mainPanel.addClass('force-refresh').removeClass('force-refresh');
+            pageInner.addClass('force-refresh').removeClass('force-refresh');
+            footer.addClass('force-refresh').removeClass('force-refresh');
         }, 100);
     }
 

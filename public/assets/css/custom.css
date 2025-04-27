@@ -26,6 +26,9 @@
 .main-panel {
     position: relative;
     transition: all .3s ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar:not(.sidebar-right)+.main-panel {
@@ -40,31 +43,55 @@
     width: calc(100% - 265px);
 }
 
-.navbar-bottom {
-    position: fixed;
+/* Navbar Positioning */
+.navbar-header {
+    width: 100%;
+    transition: all .3s ease;
+    z-index: 1030;
+}
+
+/* Top navbar (default) */
+.navbar-header:not(.navbar-bottom) {
+    top: 0;
+}
+
+/* Bottom Navigation and Footer */
+.bottom-wrapper {
+    position: sticky;
     bottom: 0;
-    top: auto;
-}
-
-.navbar-left {
-    position: fixed;
     left: 0;
-    right: auto;
-    height: 100vh;
-    width: 250px;
-}
-
-.navbar-right {
-    position: fixed;
     right: 0;
-    left: auto;
-    height: 100vh;
-    width: 250px;
+    z-index: 1030;
+    background: #fff;
+    margin-top: auto;
 }
 
-/* Adjust main content based on navbar position */
-.navbar-bottom+.main-panel {
-    margin-bottom: 60px;
+/* Bottom navbar */
+.navbar-bottom {
+    position: relative !important;
+    bottom: auto !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+    margin-bottom: 0;
+    background: #fff;
+}
+
+/* Footer adjustments */
+.footer {
+    position: relative;
+    width: 100%;
+    border-top: 1px solid #eee;
+    padding: 15px;
+    background: #ffffff;
+    margin-top: 0;
+}
+
+/* Main content adjustments */
+.page-inner {
+    padding: 20px;
+    flex: 1 1 auto;
+    min-height: calc(100vh - 180px);
+    /* Account for navbar and footer */
 }
 
 /* Sidebar collapse animation */
@@ -81,7 +108,7 @@
 }
 
 /* Fixed navbar and sidebar */
-.navbar-fixed .navbar {
+.navbar-fixed .navbar-header:not(.navbar-bottom) {
     position: fixed;
     top: 0;
     width: 100%;
@@ -93,11 +120,6 @@
     top: 0;
     bottom: 0;
     z-index: 1020;
-}
-
-/* Adjust main content for fixed elements */
-.navbar-fixed+.main-panel {
-    padding-top: 60px;
 }
 
 /* Mobile Responsive */
@@ -120,7 +142,41 @@
         margin-right: 0 !important;
     }
 
+    .page-inner {
+        min-height: calc(100vh - 200px);
+        /* Adjust for mobile */
+    }
+
+    .bottom-wrapper {
+        position: sticky;
+        left: 0 !important;
+        right: 0 !important;
+    }
+
+    .footer {
+        position: relative;
+        margin-bottom: 0;
+    }
+
     .sidebar-collapse .sidebar {
         width: 265px;
     }
+}
+
+/* Sidebar margin adjustments */
+.sidebar:not(.sidebar-right)+.main-panel .bottom-wrapper {
+    margin-left: 265px;
+    width: calc(100% - 265px);
+}
+
+.sidebar.sidebar-right+.main-panel .bottom-wrapper {
+    margin-right: 265px;
+    width: calc(100% - 265px);
+}
+
+/* Collapsed sidebar adjustments */
+.sidebar-collapse .main-panel .bottom-wrapper {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
 }

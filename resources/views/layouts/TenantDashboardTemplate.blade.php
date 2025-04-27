@@ -275,34 +275,128 @@
       <!-- End Sidebar -->
 
       <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'margin-right: 265px; margin-left: 0; width: calc(100% - 265px);' : 'margin-left: 265px; margin-right: 0; width: calc(100% - 265px);' }}">
-        <div class="main-header">
-          <div class="main-header-logo">
-            <!-- Logo Header -->
-            <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
-              <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
-                <img
-                  src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
-                  alt="navbar brand"
-                  class="navbar-brand"
-                  height="20"
-                />
-              </a>
-              <div class="nav-toggle">
-                <button class="btn btn-toggle toggle-sidebar">
-                  <i class="gg-menu-right"></i>
+        <!-- Top Navbar (when not bottom) -->
+        @if($uiSettings->navbar_position !== 'bottom')
+        <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg" data-background-color="{{ $uiSettings->navbar_color }}">
+          <div class="container-fluid">
+            <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <button type="submit" class="btn btn-search pe-1">
+                    <i class="fa fa-search search-icon"></i>
                 </button>
-                <button class="btn btn-toggle sidenav-toggler">
-                  <i class="gg-menu-left"></i>
-                </button>
+                </div>
+                <input type="text" placeholder="Search ..." class="form-control" />
               </div>
-              <button class="topbar-toggler more">
-                <i class="gg-more-vertical-alt"></i>
+            </nav>
+
+            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+              <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" aria-haspopup="true">
+                  <i class="fa fa-search"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-search animated fadeIn">
+                  <form class="navbar-left navbar-form nav-search">
+                    <div class="input-group">
+                      <input type="text" placeholder="Search ..." class="form-control" />
+                    </div>
+                  </form>
+                </ul>
+              </li>
+              <li class="nav-item topbar-icon dropdown hidden-caret">
+                <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-envelope"></i>
+                </a>
+                <ul class="dropdown-menu messages-notif-box animated fadeIn" aria-labelledby="messageDropdown">
+                  <li>
+                    <div class="dropdown-title d-flex justify-content-between align-items-center">
+                      Messages
+                      <a href="#" class="small">Mark all as read</a>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="message-notif-scroll scrollbar-outer">
+                      <div class="notif-center">
+                        <p class="text-muted text-center">No messages</p>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item topbar-icon dropdown hidden-caret">
+                <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-bell"></i>
+                  <span class="notification">0</span>
+                </a>
+                <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
+                  <li>
+                    <div class="dropdown-title">You have 0 notifications</div>
+                  </li>
+                  <li>
+                    <div class="notif-scroll scrollbar-outer">
+                      <div class="notif-center">
+                        <p class="text-muted text-center">No notifications</p>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item topbar-user dropdown hidden-caret">
+                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                  <div class="avatar-sm">
+                    <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                  </div>
+                  <span class="profile-username">
+                    <span class="op-7">Hi,</span>
+                    <span class="fw-bold">{{ session('tenant_user.name') }}</span>
+                  </span>
+                </a>
+                <ul class="dropdown-menu dropdown-user animated fadeIn">
+                  <div class="dropdown-user-scroll scrollbar-outer">
+                    <li>
+                      <div class="user-box">
+                        <div class="avatar-lg">
+                          <img src="{{ asset('assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                        </div>
+                        <div class="u-text">
+                          <h4>{{ session('tenant_user.name') }}</h4>
+                          <p class="text-muted">{{ session('tenant_user.email') }}</p>
+                          <a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">My Profile</a>
+                      <a class="dropdown-item" href="#">Account Setting</a>
+                      <div class="dropdown-divider"></div>
+                      @if(auth()->guard('tenant')->check())
+                          <form method="POST" action="{{ route('tenant.logout', ['slug' => session('tenant_slug')]) }}">
+                              @csrf
+                              <button type="submit" class="dropdown-item">
+                                  <i class="fas fa-sign-out-alt me-2"></i> Logout
               </button>
+                          </form>
+                      @endif
+                    </li>
             </div>
-            <!-- End Logo Header -->
+                </ul>
+              </li>
+            </ul>
           </div>
-          <!-- Navbar Header -->
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : '' }} {{ $uiSettings->navbar_position === 'left' ? 'navbar-left' : '' }} {{ $uiSettings->navbar_position === 'right' ? 'navbar-right' : '' }}" data-background-color="{{ $uiSettings->navbar_color }}">
+        </nav>
+        @endif
+
+        <!-- Page Content -->
+        <div class="page-inner">
+          @yield('content')
+        </div>
+
+        <!-- Bottom Navigation and Footer -->
+        <div class="bottom-wrapper">
+          <!-- Bottom Navbar (when bottom) -->
+          @if($uiSettings->navbar_position === 'bottom')
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg navbar-bottom" data-background-color="{{ $uiSettings->navbar_color }}">
             <div class="container-fluid">
               <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
                 <div class="input-group">
@@ -410,15 +504,9 @@
               </ul>
             </div>
           </nav>
-          <!-- End Navbar -->
-        </div>
+          @endif
 
-        <div class="container">
-          <div class="page-inner">
-            @yield('content')
-          </div>
-        </div>
-
+          <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid d-flex justify-content-between">
             <nav class="pull-left">
@@ -436,6 +524,8 @@
             </div>
           </div>
         </footer>
+      </div>
+        <!-- End Bottom Navigation and Footer -->
       </div>
     </div>
 
