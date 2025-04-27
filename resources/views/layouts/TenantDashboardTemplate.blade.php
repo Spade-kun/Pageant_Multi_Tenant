@@ -61,7 +61,9 @@
 
     <div class="wrapper {{ $uiSettings->is_sidebar_collapsed ? 'sidebar-collapse' : '' }} {{ $uiSettings->is_navbar_fixed ? 'navbar-fixed' : '' }} {{ $uiSettings->is_sidebar_fixed ? 'sidebar-fixed' : '' }}">
       <!-- Sidebar -->
-      <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" data-background-color="{{ $uiSettings->sidebar_color }}">
+      <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" 
+           data-background-color="{{ $uiSettings->sidebar_color }}"
+           style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0 !important; left: auto !important; transform: none !important;' : '' }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
@@ -272,7 +274,7 @@
       </div>
       <!-- End Sidebar -->
 
-      <div class="main-panel">
+      <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'margin-right: 265px; margin-left: 0; width: calc(100% - 265px);' : 'margin-left: 265px; margin-right: 0; width: calc(100% - 265px);' }}">
         <div class="main-header">
           <div class="main-header-logo">
             <!-- Logo Header -->

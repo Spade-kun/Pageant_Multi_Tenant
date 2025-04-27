@@ -136,6 +136,7 @@ $(document).ready(function() {
         const navbar = $('.navbar');
         const sidebar = $('.sidebar');
         const wrapper = $('.wrapper');
+        const mainPanel = $('.main-panel');
         
         // Get current values
         const logoColor = $('#logoHeaderColor').val();
@@ -159,9 +160,20 @@ $(document).ready(function() {
         }
         
         // Apply sidebar position
-        sidebar.removeClass('sidebar-right');
         if (sidebarPosition === 'right') {
-            sidebar.addClass('sidebar-right');
+            sidebar.addClass('sidebar-right')
+                  .css({
+                      'right': '0 !important',
+                      'left': 'auto !important',
+                      'transform': 'none !important'
+                  });
+        } else {
+            sidebar.removeClass('sidebar-right')
+                  .css({
+                      'right': '',
+                      'left': '0',
+                      'transform': 'none'
+                  });
         }
         
         // Apply fixed states and collapse
@@ -169,11 +181,10 @@ $(document).ready(function() {
         wrapper.toggleClass('sidebar-fixed', isSidebarFixed);
         wrapper.toggleClass('sidebar-collapse', isSidebarCollapsed);
 
-        // Force refresh styles by temporarily removing and re-adding classes
+        // Force refresh styles
         setTimeout(() => {
-            logoHeader.addClass('force-refresh').removeClass('force-refresh');
-            navbar.addClass('force-refresh').removeClass('force-refresh');
             sidebar.addClass('force-refresh').removeClass('force-refresh');
+            mainPanel.addClass('force-refresh').removeClass('force-refresh');
         }, 100);
     }
 
@@ -190,9 +201,6 @@ $(document).ready(function() {
         // Disable submit button to prevent double submission
         submitButton.prop('disabled', true);
         
-        // Don't prevent default form submission
-        // This will allow regular form submission if AJAX fails
-        
         // Try AJAX submission first
         $.ajax({
             url: form.attr('action'),
@@ -201,24 +209,36 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
+                    // Show success message
+                    const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                        'UI settings updated successfully' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                        '</div>');
+                    form.before(alert);
+                    
                     // Apply changes immediately
                     applyChanges();
                     
-                    // Reload the page
-                    window.location.reload();
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 }
             },
             error: function(xhr) {
-                // On AJAX error, allow form to submit normally
-                form.off('submit').submit();
-            },
-            complete: function() {
+                // Show error message
+                const alert = $('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                    'Failed to update UI settings. Please try again.' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                    '</div>');
+                form.before(alert);
+                
                 // Re-enable submit button
                 submitButton.prop('disabled', false);
             }
         });
         
-        // Prevent default form submission only after AJAX attempt
+        // Prevent default form submission
         return false;
     });
 

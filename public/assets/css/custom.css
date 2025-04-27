@@ -1,7 +1,43 @@
 /* Layout Customization */
-.sidebar-right {
-    right: 0;
-    left: auto;
+/* Base sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 265px;
+    z-index: 1002;
+    transition: all .3s ease;
+}
+
+/* Left sidebar (default) */
+.sidebar:not(.sidebar-right) {
+    left: 0;
+    right: auto;
+}
+
+/* Right sidebar */
+.sidebar.sidebar-right {
+    right: 0 !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+/* Main panel adjustments */
+.main-panel {
+    position: relative;
+    transition: all .3s ease;
+}
+
+.sidebar:not(.sidebar-right)+.main-panel {
+    margin-left: 265px;
+    margin-right: 0;
+    width: calc(100% - 265px);
+}
+
+.sidebar.sidebar-right+.main-panel {
+    margin-right: 265px;
+    margin-left: 0;
+    width: calc(100% - 265px);
 }
 
 .navbar-bottom {
@@ -31,14 +67,6 @@
     margin-bottom: 60px;
 }
 
-.navbar-left+.main-panel {
-    margin-left: 250px;
-}
-
-.navbar-right+.main-panel {
-    margin-right: 250px;
-}
-
 /* Sidebar collapse animation */
 .sidebar-collapse .sidebar {
     width: 0;
@@ -46,8 +74,10 @@
 }
 
 .sidebar-collapse .main-panel {
-    margin-left: 0;
-    transition: margin-left 0.3s ease;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    transition: all 0.3s ease;
 }
 
 /* Fixed navbar and sidebar */
@@ -70,34 +100,27 @@
     padding-top: 60px;
 }
 
-.sidebar-fixed+.main-panel {
-    margin-left: 250px;
-}
-
-/* Responsive adjustments */
+/* Mobile Responsive */
 @media (max-width: 991px) {
-
-    .navbar-left,
-    .navbar-right {
-        width: 0;
-        overflow: hidden;
+    .sidebar {
+        transform: translate3d(-265px, 0, 0);
     }
 
-    .navbar-left+.main-panel,
-    .navbar-right+.main-panel {
-        margin-left: 0;
-        margin-right: 0;
+    .sidebar.sidebar-right {
+        transform: translate3d(265px, 0, 0) !important;
     }
 
-    .sidebar-right {
-        right: -250px;
+    .nav_open .sidebar {
+        transform: translate3d(0, 0, 0) !important;
+    }
+
+    .main-panel {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 
     .sidebar-collapse .sidebar {
-        width: 250px;
-    }
-
-    .sidebar-collapse .main-panel {
-        margin-left: 250px;
+        width: 265px;
     }
 }
