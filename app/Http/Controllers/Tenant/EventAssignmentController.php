@@ -131,12 +131,35 @@ class EventAssignmentController extends Controller
     {
         $this->setTenantConnection($slug);
         
+        // Get the base assignment
         $assignment = DB::connection('tenant')->table('event_contestant_categories')->find($id);
+        
+        // Get all contestants and categories for this event
+        $eventContestants = DB::connection('tenant')
+            ->table('event_contestant_categories')
+            ->where('event_id', $assignment->event_id)
+            ->pluck('contestant_id')
+            ->toArray();
+            
+        $eventCategories = DB::connection('tenant')
+            ->table('event_contestant_categories')
+            ->where('event_id', $assignment->event_id)
+            ->pluck('category_id')
+            ->toArray();
+            
         $events = DB::connection('tenant')->table('events')->get();
         $contestants = DB::connection('tenant')->table('contestants')->where('is_active', true)->get();
         $categories = DB::connection('tenant')->table('categories')->where('is_active', true)->get();
         
-        return view('tenant.event-assignments.edit', compact('assignment', 'events', 'contestants', 'categories', 'slug'));
+        return view('tenant.event-assignments.edit', compact(
+            'assignment', 
+            'events', 
+            'contestants', 
+            'categories', 
+            'eventContestants',
+            'eventCategories',
+            'slug'
+        ));
     }
 
     public function update(Request $request, $slug, $id)
@@ -164,13 +187,13 @@ class EventAssignmentController extends Controller
             foreach ($validated['contestant_ids'] as $contestantId) {
                 foreach ($validated['category_ids'] as $categoryId) {
                     $assignments[] = [
-                        'event_id' => $validated['event_id'],
+                    'event_id' => $validated['event_id'],
                         'contestant_id' => $contestantId,
                         'category_id' => $categoryId,
-                        'status' => $validated['status'],
-                        'notes' => $validated['notes'],
+                    'status' => $validated['status'],
+                    'notes' => $validated['notes'],
                         'created_at' => now(),
-                        'updated_at' => now(),
+                    'updated_at' => now(),
                     ];
                 }
             }

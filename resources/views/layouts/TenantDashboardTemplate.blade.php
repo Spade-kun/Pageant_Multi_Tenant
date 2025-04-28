@@ -211,8 +211,22 @@
                   <p>Dashboard</p>
                 </a>
               </li>
+
+              @php
+                $userRole = session('tenant_user.role');
+              @endphp
+
+              @if($userRole === 'judge')
+              <!-- Judge Sidebar Items -->
+              <li class="nav-item {{ request()->routeIs('tenant.judges.scoring.*') ? 'active' : '' }}">
+                <a href="{{ route('tenant.judges.scoring.index', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-clipboard-list"></i>
+                  <p>Score Contestants</p>
+                </a>
+              </li>
+              @endif
               
-              @if(auth()->guard('tenant')->user()->role === 'owner')
+              @if($userRole === 'owner')
               <!-- Tenant Owner Sidebar Items -->
               <li class="nav-item">
                 <a href="{{ route('tenant.subscription.plans', ['slug' => session('tenant_slug')]) }}">
@@ -360,6 +374,14 @@
                   <p>Events</p>
                 </a>
               </li>
+              <!-- @if(session('tenant_user.role') === 'judge')
+              <li class="nav-item {{ request()->routeIs('tenant.judges.scoring.*') ? 'active' : '' }}">
+                <a href="{{ route('tenant.judges.scoring.index', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-clipboard-list"></i>
+                  <p>Score Contestants</p>
+                </a>
+              </li>
+              @endif -->
               <li class="nav-item">
                 <a href="#">
                   <i class="fas fa-star"></i>

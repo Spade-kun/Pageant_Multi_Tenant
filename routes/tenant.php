@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\Tenant\EventAssignmentController;
 use App\Http\Controllers\Tenant\UiSettingsController;
+use App\Http\Controllers\Tenant\JudgeScoringController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -165,6 +166,13 @@ Route::middleware(['auth:tenant'])->group(function () {
         // Return the view without trying to fetch assignments
         return view('tenant.judge-dashboard', ['slug' => $slug]);
     })->name('tenant.judge.dashboard');
+
+    // Judge Scoring Routes
+    Route::prefix('{slug}/judges/scoring')->name('tenant.judges.scoring.')->group(function () {
+        Route::get('/', [JudgeScoringController::class, 'index'])->name('index');
+        Route::get('/score/{eventId}/{contestantId}/{categoryId}', [JudgeScoringController::class, 'score'])->name('score');
+        Route::post('/store', [JudgeScoringController::class, 'store'])->name('store');
+    });
     
     // Subscription Routes
     Route::get('/{slug}/subscription/plans', [SubscriptionController::class, 'showPlans'])

@@ -90,17 +90,6 @@ return new class extends Migration
             $table->integer('weight');
             $table->timestamps();
         });
-        
-        // Pageant scores table with foreign key constraints
-        Schema::create('scores', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('contestant_id');
-            $table->unsignedBigInteger('judge_id');
-            $table->unsignedBigInteger('criteria_id');
-            $table->unsignedBigInteger('event_id');
-            $table->decimal('score', 5, 2);
-            $table->timestamps();
-        });
 
         // Event Contestant Categories table
         Schema::create('event_contestant_categories', function (Blueprint $table) {
@@ -114,14 +103,6 @@ return new class extends Migration
 
             // Add unique constraint to prevent duplicate entries
             $table->unique(['event_id', 'contestant_id', 'category_id'], 'event_contestant_category_unique');
-        });
-
-        // Add foreign key constraints after all tables are created
-        Schema::table('scores', function (Blueprint $table) {
-            $table->foreign('contestant_id')->references('id')->on('contestants')->onDelete('cascade');
-            $table->foreign('judge_id')->references('id')->on('judges')->onDelete('cascade');
-            $table->foreign('criteria_id')->references('id')->on('criterias')->onDelete('cascade');
-            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
         });
 
         // Add foreign key constraints for event_contestant_categories
@@ -138,7 +119,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('event_contestant_categories');
-        Schema::dropIfExists('scores');
         Schema::dropIfExists('criterias');
         Schema::dropIfExists('judges');
         Schema::dropIfExists('events');
