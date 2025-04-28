@@ -15,6 +15,12 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
@@ -22,8 +28,8 @@
                     <thead>
                         <tr>
                             <th>Event</th>
-                            <th>Contestant</th>
-                            <th>Category</th>
+                            <th>Contestants</th>
+                            <th>Categories</th>
                             <th>Status</th>
                             <th>Notes</th>
                             <th>Actions</th>
@@ -32,29 +38,41 @@
                     <tbody>
                         @foreach($assignments as $assignment)
                             <tr>
-                                <td>{{ $assignment->event_name }}</td>
-                                <td>{{ $assignment->contestant_name }}</td>
-                                <td>{{ $assignment->category_name }}</td>
+                                <td>{{ $assignment['event_name'] }}</td>
                                 <td>
-                                    <span class="badge badge-{{ $assignment->status === 'confirmed' ? 'success' : ($assignment->status === 'withdrawn' ? 'danger' : 'warning') }}">
-                                        {{ ucfirst($assignment->status) }}
+                                    <ul class="list-unstyled mb-0">
+                                        @foreach($assignment['contestants'] as $contestant)
+                                            <li>{{ $contestant }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul class="list-unstyled mb-0">
+                                        @foreach($assignment['categories'] as $category)
+                                            <li>{{ $category }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ $assignment['status'] === 'confirmed' ? 'success' : ($assignment['status'] === 'withdrawn' ? 'danger' : 'warning') }}">
+                                        {{ ucfirst($assignment['status']) }}
                                     </span>
                                 </td>
-                                <td>{{ $assignment->notes ?? 'No notes' }}</td>
+                                <td>{{ $assignment['notes'] ?? 'No notes' }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('tenant.event-assignments.show', ['slug' => $slug, 'id' => $assignment->id]) }}" 
+                                        <a href="{{ route('tenant.event-assignments.show', ['slug' => $slug, 'id' => $assignment['id']]) }}" 
                                            class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('tenant.event-assignments.edit', ['slug' => $slug, 'id' => $assignment->id]) }}" 
+                                        <a href="{{ route('tenant.event-assignments.edit', ['slug' => $slug, 'id' => $assignment['id']]) }}" 
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('tenant.event-assignments.destroy', ['slug' => $slug, 'id' => $assignment->id]) }}" 
+                                        <form action="{{ route('tenant.event-assignments.destroy', ['slug' => $slug, 'id' => $assignment['id']]) }}" 
                                               method="POST" 
                                               class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to delete this assignment?');">
+                                              onsubmit="return confirm('Are you sure you want to delete all assignments for this event? This action cannot be undone.');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">

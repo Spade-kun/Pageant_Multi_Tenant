@@ -44,7 +44,18 @@ class EventAssignmentController extends Controller
             ->join('contestants as c', 'c.id', '=', 'ecc.contestant_id')
             ->join('categories as cat', 'cat.id', '=', 'ecc.category_id')
             ->select('ecc.*', 'e.name as event_name', 'c.name as contestant_name', 'cat.name as category_name')
-            ->get();
+            ->get()
+            ->groupBy('event_id')
+            ->map(function ($group) {
+                return [
+                    'id' => $group->first()->id,
+                    'event_name' => $group->first()->event_name,
+                    'contestants' => $group->pluck('contestant_name')->unique()->values()->toArray(),
+                    'categories' => $group->pluck('category_name')->unique()->values()->toArray(),
+                    'status' => $group->first()->status,
+                    'notes' => $group->first()->notes,
+                ];
+            });
 
         return view('tenant.event-assignments.index', compact('assignments', 'slug'));
     }
@@ -134,29 +145,43 @@ class EventAssignmentController extends Controller
         
         $validated = $request->validate([
             'event_id' => 'required|exists:tenant.events,id',
-            'contestant_id' => 'required|exists:tenant.contestants,id',
-            'category_id' => 'required|exists:tenant.categories,id',
+            'contestant_ids' => 'required|array',
+            'contestant_ids.*' => 'exists:tenant.contestants,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:tenant.categories,id',
             'status' => 'required|in:registered,confirmed,withdrawn',
             'notes' => 'nullable|string'
         ]);
 
         try {
+            // Delete existing assignments for this event
             DB::connection('tenant')->table('event_contestant_categories')
                 ->where('id', $id)
-                ->update([
-                    'event_id' => $validated['event_id'],
-                    'contestant_id' => $validated['contestant_id'],
-                    'category_id' => $validated['category_id'],
-                    'status' => $validated['status'],
-                    'notes' => $validated['notes'],
-                    'updated_at' => now(),
-                ]);
+                ->delete();
+
+            // Create new assignments for each contestant-category combination
+            $assignments = [];
+            foreach ($validated['contestant_ids'] as $contestantId) {
+                foreach ($validated['category_ids'] as $categoryId) {
+                    $assignments[] = [
+                        'event_id' => $validated['event_id'],
+                        'contestant_id' => $contestantId,
+                        'category_id' => $categoryId,
+                        'status' => $validated['status'],
+                        'notes' => $validated['notes'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            DB::connection('tenant')->table('event_contestant_categories')->insert($assignments);
 
             return redirect()->route('tenant.event-assignments.index', ['slug' => $slug])
-                ->with('success', 'Event assignment updated successfully.');
+                ->with('success', 'Event assignments updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'This assignment combination already exists.')
+                ->with('error', 'Failed to update assignments. Some combinations may already exist.')
                 ->withInput();
         }
     }
@@ -165,9 +190,24 @@ class EventAssignmentController extends Controller
     {
         $this->setTenantConnection($slug);
         
-        DB::connection('tenant')->table('event_contestant_categories')->delete($id);
+        // First get the event_id from the assignment
+        $assignment = DB::connection('tenant')
+            ->table('event_contestant_categories')
+            ->where('id', $id)
+            ->first();
+
+        if (!$assignment) {
+            return redirect()->route('tenant.event-assignments.index', ['slug' => $slug])
+                ->with('error', 'Assignment not found.');
+        }
+
+        // Delete all assignments for this event
+        DB::connection('tenant')
+            ->table('event_contestant_categories')
+            ->where('event_id', $assignment->event_id)
+            ->delete();
         
         return redirect()->route('tenant.event-assignments.index', ['slug' => $slug])
-            ->with('success', 'Event assignment deleted successfully.');
+            ->with('success', 'Event assignments deleted successfully.');
     }
 } 

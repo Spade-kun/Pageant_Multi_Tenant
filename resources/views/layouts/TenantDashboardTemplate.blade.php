@@ -275,6 +275,11 @@
                         <span class="sub-item">Judges</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('tenant.event-assignments.index', ['slug' => session('tenant_slug')]) }}">
+                        <span class="sub-item">Event Assignments</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -283,27 +288,9 @@
                 <a data-bs-toggle="collapse" href="#scoring">
                   <i class="fas fa-star"></i>
                   <p>Scoring</p>
-                  <span class="caret"></span>
+                  
                 </a>
-                <div class="collapse" id="scoring">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Scoring Criteria</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Score Sheets</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Results</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+               
               </li>
               @endif
 
