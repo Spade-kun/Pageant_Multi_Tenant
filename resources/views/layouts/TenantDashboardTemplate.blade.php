@@ -204,19 +204,20 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <!-- Tenant Sidebar -->
-              <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
-                <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
-                  <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
-                </a>
-              </li>
+              <!-- Common Dashboard Link for All Roles -->
+              
 
               @php
                 $userRole = session('tenant_user.role');
               @endphp
 
               @if($userRole === 'judge')
+              <li class="nav-item {{ request()->routeIs('tenant.judge.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('tenant.judge.dashboard', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
               <!-- Judge Sidebar Items -->
               <li class="nav-item {{ request()->routeIs('tenant.judges.scoring.*') ? 'active' : '' }}">
                 <a href="{{ route('tenant.judges.scoring.index', ['slug' => session('tenant_slug')]) }}">
@@ -224,16 +225,47 @@
                   <p>Score Contestants</p>
                 </a>
               </li>
-              @endif
-              
-              @if($userRole === 'owner')
-              <!-- Tenant Owner Sidebar Items -->
+
+              @elseif($userRole === 'user')
+              <li class="nav-item {{ request()->routeIs('tenant.user.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('tenant.user.dashboard', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
+              <!-- Regular User Sidebar Items -->
+              <li class="nav-item">
+                <a href="{{ route('tenant.contestants.index', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-users"></i>
+                  <p>Contestants</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('tenant.events.index', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-calendar-alt"></i>
+                  <p>Events</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-star"></i>
+                  <p>Scores</p>
+                </a>
+              </li>
+
+              @elseif($userRole === 'owner')
+              <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
+              <!-- Owner Sidebar Items -->
               <li class="nav-item">
                 <a href="{{ route('tenant.subscription.plans', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-crown"></i>
                   <p>Subscription Plans</p>
                   @php
-                    // Get tenant and plan information
                     $tenant = App\Models\Tenant::where('slug', session('tenant_slug'))->first();
                     $tenantPlan = $tenant->plan;
                   @endphp
@@ -360,34 +392,6 @@
                 </a>
               </li>
               @endif
-              @else
-              <!-- Regular Tenant User Sidebar Items -->
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-users"></i>
-                  <p>Contestants</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-calendar-alt"></i>
-                  <p>Events</p>
-                </a>
-              </li>
-              <!-- @if(session('tenant_user.role') === 'judge')
-              <li class="nav-item {{ request()->routeIs('tenant.judges.scoring.*') ? 'active' : '' }}">
-                <a href="{{ route('tenant.judges.scoring.index', ['slug' => session('tenant_slug')]) }}">
-                  <i class="fas fa-clipboard-list"></i>
-                  <p>Score Contestants</p>
-                </a>
-              </li>
-              @endif -->
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-star"></i>
-                  <p>Scores</p>
-                </a>
-              </li>
               @endif
             </ul>
           </div>
