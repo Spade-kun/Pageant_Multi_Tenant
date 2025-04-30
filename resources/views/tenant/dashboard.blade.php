@@ -245,7 +245,7 @@
                     </div>
                 </div>
                 <div class="card-action mt-3">
-                    <a href="#" class="btn btn-danger btn-round">
+                    <a href="{{ route('tenant.scores.index', ['slug' => $slug]) }}" class="btn btn-danger btn-round">
                         <span class="btn-label">
                             <i class="fas fa-eye"></i>
                         </span>

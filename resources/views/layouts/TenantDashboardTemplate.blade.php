@@ -313,7 +313,7 @@
               </li>
 
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#scoring">
+                <a href="{{ route('tenant.scores.index', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-star"></i>
                   <p>Scoring</p>
                   
@@ -341,12 +341,12 @@
               </li>
               @endif
 
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="#">
                   <i class="fas fa-cog"></i>
                   <p>Settings</p>
                 </a>
-              </li>
+              </li> -->
 
               @if(auth()->guard('tenant')->user()->role === 'owner')
               <li class="nav-item">

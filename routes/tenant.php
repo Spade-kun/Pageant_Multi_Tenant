@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\EventAssignmentController;
 use App\Http\Controllers\Tenant\UiSettingsController;
 use App\Http\Controllers\Tenant\JudgeScoringController;
 use App\Http\Controllers\Tenant\ReportController;
+use App\Http\Controllers\Tenant\ScoreController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -276,3 +277,7 @@ Route::middleware(['auth:tenant'])->group(function () {
 });
 
 Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport'])->name('tenant.reports.generate');
+
+// Score Routes
+Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
+Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
