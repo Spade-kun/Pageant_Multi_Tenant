@@ -309,11 +309,11 @@
                     </div>
                 </div>
                 <div class="card-action mt-3">
-                    <a href="#" class="btn btn-secondary btn-round">
+                    <a href="{{ route('tenant.reports.generate', ['slug' => $slug]) }}" class="btn btn-secondary btn-round">
                         <span class="btn-label">
-                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-file-pdf"></i>
                         </span>
-                        {{ __('View Reports') }}
+                        {{ __('Generate PDF Report') }}
                     </a>
                 </div>
             </div>

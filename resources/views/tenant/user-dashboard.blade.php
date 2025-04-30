@@ -40,7 +40,7 @@
                     <h3 class="card-title">
                         {{ DB::connection('tenant')->table('judges')->count() }}
                     </h3>
-                </div>
+</div>
             </div>
         </div>
         <div class="col-md-3">

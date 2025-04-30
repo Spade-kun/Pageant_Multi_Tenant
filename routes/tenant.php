@@ -12,6 +12,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\Tenant\EventAssignmentController;
 use App\Http\Controllers\Tenant\UiSettingsController;
 use App\Http\Controllers\Tenant\JudgeScoringController;
+use App\Http\Controllers\Tenant\ReportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -273,3 +274,5 @@ Route::middleware(['auth:tenant'])->group(function () {
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
 });
+
+Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport'])->name('tenant.reports.generate');

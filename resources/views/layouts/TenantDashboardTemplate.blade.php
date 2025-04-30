@@ -233,25 +233,7 @@
                   <p>Dashboard</p>
                 </a>
               </li>
-              <!-- Regular User Sidebar Items -->
-              <li class="nav-item">
-                <a href="{{ route('tenant.contestants.index', ['slug' => session('tenant_slug')]) }}">
-                  <i class="fas fa-users"></i>
-                  <p>Contestants</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('tenant.events.index', ['slug' => session('tenant_slug')]) }}">
-                  <i class="fas fa-calendar-alt"></i>
-                  <p>Events</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-star"></i>
-                  <p>Scores</p>
-                </a>
-              </li>
+              
 
               @elseif($userRole === 'owner')
               <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
@@ -350,30 +332,12 @@
               <!-- Only show Reports module if the tenant's plan allows it -->
               @if(!$tenant->hasNoPlan() && $tenantPlan->reports_module)
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#reportsMenu">
+              <a href="{{ route('tenant.reports.generate', ['slug' => $slug]) }}">
                   <i class="fas fa-chart-bar"></i>
                   <p>Reports</p>
-                  <span class="caret"></span>
+                  
                 </a>
-                <div class="collapse" id="reportsMenu">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Contestant Reports</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Event Reports</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Analytics</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+                
               </li>
               @endif
 
