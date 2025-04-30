@@ -554,13 +554,13 @@
 
                 <!-- User Profile -->
                 <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                    <div class="avatar-sm float-end">
-                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle">
+                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                    <div class="avatar-sm">
+                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">{{ session('tenant_user.name') }}</span>
+                          <span class="fw-bold">{{ session('tenant_user.name') }}</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
