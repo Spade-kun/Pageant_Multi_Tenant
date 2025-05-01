@@ -1,7 +1,7 @@
 @extends('layouts.TenantDashboardTemplate')
 
 @section('content')
-<div class="page-header">
+<div class="page-header mb-4">
     <h4 class="page-title">UI Customization</h4>
 </div>
 
@@ -15,29 +15,44 @@
         @endif
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header bg-white">
                 <h4 class="card-title">Customize Your Dashboard</h4>
             </div>
             <div class="card-body">
-                <form id="uiSettingsForm" action="{{ route('tenant.ui-settings.update', ['slug' => session('tenant_slug')]) }}" method="POST">
+                <form id="uiSettingsForm" action="{{ route('tenant.ui-settings.update', ['slug' => session('tenant_slug')]) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+
+                    <!-- Logo Upload Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Header Logo</label>
+                                <div class="custom-file">
+                                    <input type="file" class="form-control @error('header_logo') is-invalid @enderror" 
+                                           id="headerLogo" name="header_logo" accept="image/*">
+                                    <small class="form-text text-muted">Max file size: 2MB</small>
+                                    @error('header_logo')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <img id="logoPreview" src="{{ $settings->header_logo ? asset('storage/' . $settings->header_logo) : asset('assets/img/clam_logo.jpg') }}" 
+                                     alt="Current Logo" class="img-thumbnail" style="width: 40px; height: 40px; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="row mb-4">
                         <!-- Logo Header Color -->
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Logo Header Color</label>
-                                <select class="form-control" name="logo_header_color" id="logoHeaderColor">
-                                    <option value="dark" {{ $settings->logo_header_color === 'dark' ? 'selected' : '' }}>Dark</option>
-                                    <option value="blue" {{ $settings->logo_header_color === 'blue' ? 'selected' : '' }}>Blue</option>
-                                    <option value="purple" {{ $settings->logo_header_color === 'purple' ? 'selected' : '' }}>Purple</option>
-                                    <option value="light-blue" {{ $settings->logo_header_color === 'light-blue' ? 'selected' : '' }}>Light Blue</option>
-                                    <option value="green" {{ $settings->logo_header_color === 'green' ? 'selected' : '' }}>Green</option>
-                                    <option value="orange" {{ $settings->logo_header_color === 'orange' ? 'selected' : '' }}>Orange</option>
-                                    <option value="red" {{ $settings->logo_header_color === 'red' ? 'selected' : '' }}>Red</option>
-                                    <option value="white" {{ $settings->logo_header_color === 'white' ? 'selected' : '' }}>White</option>
-                                </select>
+                                <div class="input-group">
+                                    <input type="color" class="form-control form-control-color" id="logoHeaderColorPicker" name="logo_header_color" value="{{ $settings->logo_header_color }}" title="Choose logo header color">
+                                    <input type="text" class="form-control" id="logoHeaderColorHex" value="{{ $settings->logo_header_color }}">
+                                </div>
                             </div>
                         </div>
 
@@ -45,16 +60,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Navbar Color</label>
-                                <select class="form-control" name="navbar_color" id="navbarColor">
-                                    <option value="dark" {{ $settings->navbar_color === 'dark' ? 'selected' : '' }}>Dark</option>
-                                    <option value="blue" {{ $settings->navbar_color === 'blue' ? 'selected' : '' }}>Blue</option>
-                                    <option value="purple" {{ $settings->navbar_color === 'purple' ? 'selected' : '' }}>Purple</option>
-                                    <option value="light-blue" {{ $settings->navbar_color === 'light-blue' ? 'selected' : '' }}>Light Blue</option>
-                                    <option value="green" {{ $settings->navbar_color === 'green' ? 'selected' : '' }}>Green</option>
-                                    <option value="orange" {{ $settings->navbar_color === 'orange' ? 'selected' : '' }}>Orange</option>
-                                    <option value="red" {{ $settings->navbar_color === 'red' ? 'selected' : '' }}>Red</option>
-                                    <option value="white" {{ $settings->navbar_color === 'white' ? 'selected' : '' }}>White</option>
-                                </select>
+                                <div class="input-group">
+                                    <input type="color" class="form-control form-control-color" id="navbarColorPicker" name="navbar_color" value="{{ $settings->navbar_color }}" title="Choose navbar color">
+                                    <input type="text" class="form-control" id="navbarColorHex" value="{{ $settings->navbar_color }}">
+                                </div>
                             </div>
                         </div>
 
@@ -62,10 +71,36 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Sidebar Color</label>
-                                <select class="form-control" name="sidebar_color" id="sidebarColor">
-                                    <option value="dark" {{ $settings->sidebar_color === 'dark' ? 'selected' : '' }}>Dark</option>
+                                <div class="input-group">
+                                    <input type="color" class="form-control form-control-color" id="sidebarColorPicker" name="sidebar_color" value="{{ $settings->sidebar_color }}" title="Choose sidebar color">
+                                    <input type="text" class="form-control" id="sidebarColorHex" value="{{ $settings->sidebar_color }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                    <option value="white" {{ $settings->sidebar_color === 'white' ? 'selected' : '' }}>White</option>
+                    <!-- Font Customization -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Primary Font</label>
+                                <select class="form-control" name="primary_font" id="primaryFont">
+                                    <option value="Public Sans" {{ $settings->primary_font === 'Public Sans' ? 'selected' : '' }}>Public Sans</option>
+                                    <option value="Roboto" {{ $settings->primary_font === 'Roboto' ? 'selected' : '' }}>Roboto</option>
+                                    <option value="Open Sans" {{ $settings->primary_font === 'Open Sans' ? 'selected' : '' }}>Open Sans</option>
+                                    <option value="Lato" {{ $settings->primary_font === 'Lato' ? 'selected' : '' }}>Lato</option>
+                                    <option value="Poppins" {{ $settings->primary_font === 'Poppins' ? 'selected' : '' }}>Poppins</option>
+                                    <option value="Montserrat" {{ $settings->primary_font === 'Montserrat' ? 'selected' : '' }}>Montserrat</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Font Size Scale</label>
+                                <select class="form-control" name="font_size_scale" id="fontSizeScale">
+                                    <option value="0.9" {{ $settings->font_size_scale === '0.9' ? 'selected' : '' }}>Small</option>
+                                    <option value="1.0" {{ $settings->font_size_scale === '1.0' ? 'selected' : '' }}>Medium (Default)</option>
+                                    <option value="1.1" {{ $settings->font_size_scale === '1.1' ? 'selected' : '' }}>Large</option>
                                 </select>
                             </div>
                         </div>
@@ -120,6 +155,9 @@
                         <button type="submit" class="btn btn-primary" id="saveChanges">
                             <i class="fa fa-save"></i> Save Changes
                         </button>
+                        <button type="button" class="btn btn-danger" id="resetDefaults">
+                            <i class="fa fa-undo"></i> Reset to Defaults
+                        </button>
                     </div>
                 </form>
             </div>
@@ -128,9 +166,89 @@
 </div>
 
 @push('scripts')
+<!-- Add Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <script>
 $(document).ready(function() {
-    // Function to apply changes in real-time
+    // Logo preview functionality
+    $('#headerLogo').change(function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#logoPreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Color picker synchronization
+    function syncColorPicker(pickerId, hexId) {
+        $(pickerId).on('input', function() {
+            $(hexId).val($(this).val());
+            applyChanges();
+            $(document).trigger('colorChanged'); // Trigger color change event
+        });
+        $(hexId).on('input', function() {
+            $(pickerId).val($(this).val());
+            applyChanges();
+            $(document).trigger('colorChanged'); // Trigger color change event
+        });
+    }
+
+    syncColorPicker('#logoHeaderColorPicker', '#logoHeaderColorHex');
+    syncColorPicker('#navbarColorPicker', '#navbarColorHex');
+    syncColorPicker('#sidebarColorPicker', '#sidebarColorHex');
+
+    // Font preview functionality
+    $('#primaryFont').on('change', function() {
+        const selectedFont = $(this).val();
+        $('body').css('font-family', selectedFont);
+    });
+
+    // Font size scale functionality
+    $('#fontSizeScale').on('change', function() {
+        const scale = parseFloat($(this).val());
+        $('html').css('font-size', `${scale * 100}%`);
+    });
+
+    // Reset to defaults
+    $('#resetDefaults').click(function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to reset all UI settings to defaults?')) {
+            // Add default values here
+            const defaults = {
+                logo_header_color: '#1a2035',
+                navbar_color: '#ffffff',
+                sidebar_color: '#1a2035',
+                primary_font: 'Public Sans',
+                font_size_scale: '1.0',
+                navbar_position: 'top',
+                sidebar_position: 'left',
+                is_sidebar_collapsed: false,
+                is_navbar_fixed: true,
+                is_sidebar_fixed: true
+            };
+
+            // Apply defaults to form
+            $('#logoHeaderColorPicker, #logoHeaderColorHex').val(defaults.logo_header_color);
+            $('#navbarColorPicker, #navbarColorHex').val(defaults.navbar_color);
+            $('#sidebarColorPicker, #sidebarColorHex').val(defaults.sidebar_color);
+            $('#primaryFont').val(defaults.primary_font);
+            $('#fontSizeScale').val(defaults.font_size_scale);
+            $('#navbarPosition').val(defaults.navbar_position);
+            $('#sidebarPosition').val(defaults.sidebar_position);
+            $('#sidebarCollapsed').prop('checked', defaults.is_sidebar_collapsed);
+            $('#navbarFixed').prop('checked', defaults.is_navbar_fixed);
+            $('#sidebarFixed').prop('checked', defaults.is_sidebar_fixed);
+
+            // Trigger change events
+            applyChanges();
+        }
+    });
+
+    // Original applyChanges function with modifications
     function applyChanges() {
         const logoHeader = $('.logo-header');
         const navbar = $('.navbar-header');
@@ -141,19 +259,59 @@ $(document).ready(function() {
         const pageInner = $('.page-inner');
         
         // Get current values
-        const logoColor = $('#logoHeaderColor').val();
-        const navbarColor = $('#navbarColor').val();
-        const sidebarColor = $('#sidebarColor').val();
+        const logoColor = $('#logoHeaderColorPicker').val();
+        const navbarColor = $('#navbarColorPicker').val();
+        const sidebarColor = $('#sidebarColorPicker').val();
         const navbarPosition = $('#navbarPosition').val();
         const sidebarPosition = $('#sidebarPosition').val();
         const isSidebarCollapsed = $('#sidebarCollapsed').is(':checked');
         const isNavbarFixed = $('#navbarFixed').is(':checked');
         const isSidebarFixed = $('#sidebarFixed').is(':checked');
+        const primaryFont = $('#primaryFont').val();
+        const fontScale = $('#fontSizeScale').val();
         
-        // Apply colors
-        logoHeader.attr('data-background-color', logoColor);
-        navbar.attr('data-background-color', navbarColor);
-        sidebar.attr('data-background-color', sidebarColor);
+        // Apply colors with both inline style and data attribute
+        logoHeader.css('background-color', logoColor)
+                 .attr('data-background-color', logoColor);
+        
+        navbar.css('background-color', navbarColor)
+              .attr('data-background-color', navbarColor);
+        
+        sidebar.css('background-color', sidebarColor)
+               .attr('data-background-color', sidebarColor);
+
+        // Function to determine if a color is light
+        function isLightColor(color) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return brightness > 155;
+        }
+
+        // Apply dynamic text colors
+        if (isLightColor(logoColor)) {
+            logoHeader.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+        } else {
+            logoHeader.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+        }
+
+        if (isLightColor(navbarColor)) {
+            navbar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+        } else {
+            navbar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+        }
+
+        if (isLightColor(sidebarColor)) {
+            sidebar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+        } else {
+            sidebar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+        }
+
+        // Apply font
+        $('body').css('font-family', primaryFont);
+        $('html').css('font-size', `${parseFloat(fontScale) * 100}%`);
         
         // Apply navbar position - completely remove and reapply classes
         wrapper.removeClass('navbar-bottom navbar-top');
@@ -275,66 +433,67 @@ $(document).ready(function() {
         }
     }
 
-    // Apply changes when any form control changes
-    $('#uiSettingsForm select, #uiSettingsForm input[type="checkbox"]').on('change', function() {
-        applyChanges();
-    });
-
-    // Responsive adjustments
-    $(window).on('resize', function() {
-        applyChanges();
-    });
-
-    // Handle form submission
+    // Form submission with file upload
     $('#uiSettingsForm').on('submit', function(e) {
-        const form = $(this);
-        const submitButton = form.find('button[type="submit"]');
+        e.preventDefault();
+        const formData = new FormData(this);
         
-        // Disable submit button to prevent double submission
-        submitButton.prop('disabled', true);
-        
-        // Try AJAX submission first
         $.ajax({
-            url: form.attr('action'),
+            url: $(this).attr('action'),
             type: 'POST',
-            data: form.serialize(),
-            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 if (response.success) {
+                    // Update logo preview with new image
+                    if (response.logo_url) {
+                        $('#logoPreview').attr('src', response.logo_url);
+                    }
+                    
                     // Show success message
                     const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                        'UI settings updated successfully' +
+                        response.message +
                         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                         '</div>');
-                    form.before(alert);
+                    $('#uiSettingsForm').before(alert);
                     
-                    // Apply changes immediately
-                    applyChanges();
-                    
-                    // Reload the page after a short delay
+                    // Reload page after 1 second
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000);
                 }
             },
             error: function(xhr) {
-                // Show error message
+                const errors = xhr.responseJSON.errors;
+                let errorMessage = 'Failed to update UI settings. Please try again.';
+                
+                if (errors && errors.header_logo) {
+                    errorMessage = errors.header_logo[0];
+                }
+                
                 const alert = $('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                    'Failed to update UI settings. Please try again.' +
+                    errorMessage +
                     '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                     '</div>');
-                form.before(alert);
-                
-                // Re-enable submit button
-                submitButton.prop('disabled', false);
+                $('#uiSettingsForm').before(alert);
             }
         });
-        
-        // Prevent default form submission
-        return false;
     });
 
-    // Apply initial settings on page load
+    // Add change event listeners for all form controls
+    $('#uiSettingsForm select, #uiSettingsForm input[type="checkbox"]').on('change', function() {
+        applyChanges();
+        $(document).trigger('colorChanged'); // Trigger color change event
+        });
+        
+    // Add input event listeners for color pickers
+    $('#logoHeaderColorPicker, #navbarColorPicker, #sidebarColorPicker').on('input', function() {
+        applyChanges();
+        $(document).trigger('colorChanged'); // Trigger color change event
+    });
+
+    // Apply initial settings
     applyChanges();
 });
 </script>

@@ -54,6 +54,121 @@
         padding-bottom: 0 !important;
       }
 
+      /* Text contrast helpers */
+      [data-background-color="dark"] *,
+      [data-background-color="dark2"] *,
+      [data-background-color="blue"] *,
+      [data-background-color="purple"] *,
+      [data-background-color="green"] *,
+      [data-background-color="red"] *,
+      [data-background-color="orange"] * {
+        color: #ffffff !important;
+      }
+
+      [data-background-color="white"] *,
+      [data-background-color="light-blue"] * {
+        color: #1a2035 !important;
+      }
+
+      /* Override for specific elements that need different colors */
+      .notification {
+        color: #ffffff !important;
+      }
+
+      .nav-search .form-control {
+        color: inherit !important;
+      }
+
+      .dropdown-menu {
+        color: #1a2035 !important;
+      }
+
+      .dropdown-menu * {
+        color: #1a2035 !important;
+      }
+
+      /* Improve sidebar navigation contrast */
+      .sidebar[data-background-color="dark"] .nav .nav-item a,
+      .sidebar[data-background-color="dark2"] .nav .nav-item a {
+        color: #ffffff !important;
+      }
+
+      .sidebar[data-background-color="white"] .nav .nav-item a {
+        color: #1a2035 !important;
+      }
+
+      /* Improve active state visibility */
+      .nav-item.active > a {
+        background: rgba(255, 255, 255, 0.15) !important;
+      }
+
+      .sidebar[data-background-color="white"] .nav-item.active > a {
+        background: rgba(0, 0, 0, 0.05) !important;
+      }
+
+      /* Navbar text contrast */
+      .navbar[data-background-color="dark"] *,
+      .navbar[data-background-color="dark2"] *,
+      .navbar[data-background-color="blue"] *,
+      .navbar[data-background-color="purple"] *,
+      .navbar[data-background-color="green"] *,
+      .navbar[data-background-color="red"] *,
+      .navbar[data-background-color="orange"] * {
+        color: #ffffff !important;
+      }
+
+      .navbar[data-background-color="white"] *,
+      .navbar[data-background-color="light-blue"] * {
+        color: #1a2035 !important;
+      }
+
+      /* Logo header text contrast */
+      .logo-header[data-background-color="dark"] *,
+      .logo-header[data-background-color="dark2"] *,
+      .logo-header[data-background-color="blue"] *,
+      .logo-header[data-background-color="purple"] *,
+      .logo-header[data-background-color="green"] *,
+      .logo-header[data-background-color="red"] *,
+      .logo-header[data-background-color="orange"] * {
+        color: #ffffff !important;
+      }
+
+      .logo-header[data-background-color="white"] *,
+      .logo-header[data-background-color="light-blue"] * {
+        color: #1a2035 !important;
+      }
+
+      /* Improve button contrast */
+      .btn-toggle {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: inherit !important;
+      }
+
+      /* Improve dropdown contrast */
+      .dropdown-menu {
+        background: #ffffff !important;
+      }
+
+      .dropdown-menu a:hover {
+        background: rgba(0, 0, 0, 0.05) !important;
+      }
+
+      /* Improve search contrast */
+      .nav-search .form-control {
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      .nav-search .form-control::placeholder {
+        color: inherit !important;
+        opacity: 0.7;
+      }
+
+      /* Improve notification badge contrast */
+      .notification {
+        background: #f25961 !important;
+        color: #ffffff !important;
+      }
+
       /* Navbar positioning */
       .navbar-header.navbar-bottom, 
       .main-header.navbar-bottom {
@@ -147,6 +262,147 @@
           right: 0 !important;
         }
       }
+
+      /* Dynamic text color classes */
+      .text-dynamic-dark {
+        color: #1a2035 !important;
+      }
+      
+      .text-dynamic-light {
+        color: #ffffff !important;
+      }
+      
+      /* Icon color adjustments */
+      .text-dynamic-dark i {
+        color: #1a2035 !important;
+      }
+      
+      .text-dynamic-light i {
+        color: #ffffff !important;
+      }
+      
+      /* Specific adjustments for sidebar */
+      .sidebar[data-background-color] .nav .nav-item a {
+        color: inherit !important;
+      }
+      
+      .sidebar[data-background-color] .nav .nav-item a i {
+        color: inherit !important;
+      }
+      
+      /* Logo text adjustments */
+      .logo-header .logo span {
+        transition: color 0.3s ease;
+      }
+      
+      .text-dynamic-dark .logo span,
+      .text-dynamic-dark .profile-username {
+        color: #1a2035 !important;
+      }
+      
+      .text-dynamic-light .logo span,
+      .text-dynamic-light .profile-username {
+        color: #ffffff !important;
+      }
+      
+      /* Navbar elements */
+      .navbar-header .navbar-nav .nav-item > a {
+        color: inherit !important;
+      }
+      
+      .navbar-header .navbar-nav .nav-item > a i {
+        color: inherit !important;
+      }
+      
+      /* Search bar adjustments */
+      .nav-search .form-control {
+        color: inherit !important;
+        background: rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      .nav-search .form-control::placeholder {
+        color: inherit !important;
+        opacity: 0.7;
+      }
+      
+      /* Dropdown adjustments */
+      .dropdown-menu {
+        background: #ffffff !important;
+      }
+      
+      .dropdown-menu * {
+        color: #1a2035 !important;
+      }
+
+      /* Add these styles to fix the content overlap */
+      .main-panel {
+        position: relative;
+        z-index: 1;
+      }
+
+      .main-panel .container {
+        background: #fff;
+        position: relative;
+        z-index: 2;
+        min-height: calc(100vh - 70px);
+        padding-bottom: 30px;
+      }
+
+      .page-inner {
+        background: #fff;
+        position: relative;
+        z-index: 3;
+      }
+
+      .card {
+        background: #fff;
+        position: relative;
+        z-index: 4;
+        box-shadow: 0 1px 4px 0 rgba(0,0,0,.1);
+      }
+
+      /* Ensure proper stacking of navbar and sidebar */
+      .navbar-header, .main-header {
+        z-index: 1030 !important;
+      }
+
+      .sidebar {
+        z-index: 1029 !important;
+      }
+
+      /* Remove the hardcoded text-dark class and add dynamic color support */
+      .logo span.brand-text {
+        font-size: 1.2rem;
+        margin-left: 10px;
+        font-weight: bold;
+      }
+
+      .profile-username {
+        transition: color 0.3s ease;
+      }
+
+      .profile-username .op-7 {
+        opacity: 0.7;
+      }
+
+      /* Add dynamic font loading based on settings */
+      @php
+        $fonts = ['Public Sans', 'Roboto', 'Open Sans', 'Lato', 'Poppins', 'Montserrat'];
+        $selectedFont = $uiSettings->primary_font ?? 'Public Sans';
+        $fontScale = $uiSettings->font_size_scale ?? '1.0';
+      @endphp
+      
+      <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $selectedFont) }}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      
+      /* Apply font scale */
+      html {
+        font-size: {{ $fontScale * 100 }}% !important;
+      }
+      
+      /* Apply primary font */
+      body {
+        font-family: '{{ $selectedFont }}', sans-serif !important;
+      }
     </style>
   </head>
   <body>
@@ -174,18 +430,24 @@
                       {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}">
       <!-- Sidebar -->
       <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" 
+           style="background-color: {{ $uiSettings->sidebar_color }};"
            data-background-color="{{ $uiSettings->sidebar_color }}"
            style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto !important; transform: none !important;' : '' }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
-          <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
+          <div class="logo-header" 
+               style="background-color: {{ $uiSettings->logo_header_color }};"
+               data-background-color="{{ $uiSettings->logo_header_color }}">
             <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
-              <img
-                src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
-                alt="navbar brand"
-                class="navbar-brand"
-                height="20"
-              />
+              <div class="d-flex align-items-center">
+                <img
+                  src="{{ $uiSettings->header_logo ? asset('storage/' . $uiSettings->header_logo) : asset('assets/img/clam_logo.jpg') }}"
+                  alt="Logo"
+                  class="navbar-brand rounded-circle"
+                  style="width: 40px; height: 40px; object-fit: cover;"
+                />
+                <span class="brand-text">Clam Agency</span>
+              </div>
             </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
@@ -332,7 +594,7 @@
               <!-- Only show Reports module if the tenant's plan allows it -->
               @if(!$tenant->hasNoPlan() && $tenantPlan->reports_module)
               <li class="nav-item">
-              <a href="{{ route('tenant.reports.generate', ['slug' => $slug]) }}">
+              <a href="{{ route('tenant.reports.generate', ['slug' => session('tenant_slug')]) }}">
                   <i class="fas fa-chart-bar"></i>
                   <p>Reports</p>
                   
@@ -373,7 +635,7 @@
             <!-- Mobile Logo Header -->
             <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
               <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
-                <img src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+                <img src="{{ asset('assets/img/buksu_logo.png') }}" alt="navbar brand" class="navbar-brand" height="20" />
               </a>
               <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -391,6 +653,7 @@
 
           <!-- Navbar Header -->
           <nav class="navbar navbar-header navbar-expand-lg {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}" 
+               style="background-color: {{ $uiSettings->navbar_color }};"
                data-background-color="{{ $uiSettings->navbar_color }}"
                style="{{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
                       {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
@@ -759,6 +1022,52 @@
 
         // Initialize any additional plugins or components
         @stack('scripts')
+
+        // Add this function right after your existing scripts
+        function updateTextColors() {
+            function isLightColor(color) {
+                const hex = color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return brightness > 155;
+            }
+
+            // Get the elements
+            const logoHeader = $('.logo-header');
+            const navbar = $('.navbar-header');
+            const sidebar = $('.sidebar');
+
+            // Apply color classes based on background colors
+            if (isLightColor('{{ $uiSettings->logo_header_color }}')) {
+                logoHeader.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+            } else {
+                logoHeader.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+            }
+
+            if (isLightColor('{{ $uiSettings->navbar_color }}')) {
+                navbar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+                $('.profile-username').addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+            } else {
+                navbar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+                $('.profile-username').addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+            }
+
+            if (isLightColor('{{ $uiSettings->sidebar_color }}')) {
+                sidebar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+            } else {
+                sidebar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+            }
+        }
+
+        // Call the function on document ready
+        updateTextColors();
+
+        // Add event listener for color changes
+        $(document).on('colorChanged', function() {
+            updateTextColors();
+        });
       });
     </script>
   </body>

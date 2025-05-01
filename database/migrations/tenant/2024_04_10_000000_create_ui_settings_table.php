@@ -22,6 +22,9 @@ return new class extends Migration
             $table->boolean('is_sidebar_collapsed')->default(false);
             $table->boolean('is_navbar_fixed')->default(true);
             $table->boolean('is_sidebar_fixed')->default(true);
+            $table->string('header_logo')->nullable();
+            $table->string('primary_font')->default('Public Sans');
+            $table->string('font_size_scale')->default('1.0');
             $table->timestamps();
         });
     }

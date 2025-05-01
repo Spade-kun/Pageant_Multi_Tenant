@@ -20,7 +20,10 @@ class UiSettings extends Model
         'sidebar_position',
         'is_sidebar_collapsed',
         'is_navbar_fixed',
-        'is_sidebar_fixed'
+        'is_sidebar_fixed',
+        'header_logo',
+        'primary_font',
+        'font_size_scale'
     ];
 
     protected $casts = [

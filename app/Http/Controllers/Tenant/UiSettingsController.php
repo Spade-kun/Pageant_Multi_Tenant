@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class UiSettingsController extends Controller
 {
@@ -124,6 +127,38 @@ class UiSettingsController extends Controller
             $settings->tenant_id = $tenant->id;
         }
 
+        // Handle logo upload
+        if ($request->hasFile('header_logo')) {
+            $file = $request->file('header_logo');
+            
+            // Validate file
+            $request->validate([
+                'header_logo' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
+
+            // Delete old logo if exists
+            if ($settings->header_logo) {
+                $oldPath = str_replace('logos/', '', $settings->header_logo);
+                if (Storage::disk('public')->exists('logos/' . $oldPath)) {
+                    Storage::disk('public')->delete('logos/' . $oldPath);
+                }
+            }
+
+            // Generate unique filename
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Ensure the logos directory exists
+            if (!Storage::disk('public')->exists('logos')) {
+                Storage::disk('public')->makeDirectory('logos');
+            }
+            
+            // Store the file directly in the public disk
+            $file->storeAs('logos', $filename, 'public');
+            
+            // Store the relative path in database
+            $settings->header_logo = 'logos/' . $filename;
+        }
+
         // Update settings with new values
         $settings->logo_header_color = $request->logo_header_color;
         $settings->navbar_color = $request->navbar_color;
@@ -133,6 +168,8 @@ class UiSettingsController extends Controller
         $settings->is_sidebar_collapsed = $request->has('is_sidebar_collapsed');
         $settings->is_navbar_fixed = $request->has('is_navbar_fixed');
         $settings->is_sidebar_fixed = $request->has('is_sidebar_fixed');
+        $settings->primary_font = $request->primary_font;
+        $settings->font_size_scale = $request->font_size_scale;
         
         $settings->save();
 
@@ -140,7 +177,8 @@ class UiSettingsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'UI settings updated successfully',
-                'settings' => $settings
+                'settings' => $settings,
+                'logo_url' => $settings->header_logo ? asset('storage/' . $settings->header_logo) : null
             ]);
         }
 
