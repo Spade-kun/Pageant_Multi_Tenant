@@ -272,6 +272,90 @@ Route::middleware(['auth:tenant'])->group(function () {
     Route::put('/{slug}/ui-settings', [UiSettingsController::class, 'update'])
         ->name('tenant.ui-settings.update');
     
+    // System Update Routes (Owner Only)
+    Route::middleware(['auth:tenant'])->group(function () {
+        Route::get('/{slug}/updates', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->index();
+        })->name('tenant.updates.index');
+
+        Route::get('/{slug}/updates/check', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
+        })->name('tenant.updates.check');
+
+        Route::post('/{slug}/updates/update', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update();
+        })->name('tenant.updates.update');
+    });
+    
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
 });

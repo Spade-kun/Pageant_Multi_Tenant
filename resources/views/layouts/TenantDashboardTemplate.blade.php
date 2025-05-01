@@ -716,6 +716,16 @@
                   <p>UI Customization</p>
                 </a>
               </li>
+
+              <li class="nav-item">
+                <a href="{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}">
+                    <i class="fas fa-sync"></i>
+                    <p>System Updates</p>
+                    @if(isset($isNewVersionAvailable) && $isNewVersionAvailable)
+                        <span class="badge badge-success">New!</span>
+                    @endif
+                </a>
+              </li>
               @endif
               @endif
             </ul>

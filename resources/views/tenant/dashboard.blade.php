@@ -9,6 +9,12 @@
     // Get tenant's current plan
     $tenant = App\Models\Tenant::where('slug', $slug)->first();
     $tenantPlan = $tenant->plan;
+
+    // Check for updates
+    $updater = app(\Codedge\Updater\UpdaterManager::class);
+    $isNewVersionAvailable = $updater->source()->isNewVersionAvailable();
+    $currentVersion = $updater->source()->getVersionInstalled();
+    $newVersion = $isNewVersionAvailable ? $updater->source()->getVersionAvailable() : null;
 @endphp
 
 @if($tenant->hasNoPlan())
@@ -22,6 +28,49 @@
 @endif
 
 <div class="row">
+    <!-- System Updates Card (Only visible to owners) -->
+    @if(auth()->guard('tenant')->user()->role === 'owner')
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center {{ $isNewVersionAvailable ? 'icon-warning' : 'icon-success' }} bubble-shadow-small">
+                            <i class="fas fa-sync"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">{{ __('System Updates') }}</p>
+                            <h4 class="card-title">
+                                @if($isNewVersionAvailable)
+                                    {{ __('New version available!') }}
+                                @else
+                                    {{ __('System is up to date') }}
+                                @endif
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action mt-3">
+                    <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" class="btn {{ $isNewVersionAvailable ? 'btn-warning' : 'btn-success' }} btn-round">
+                        <span class="btn-label">
+                            <i class="fas fa-{{ $isNewVersionAvailable ? 'download' : 'check' }}"></i>
+                        </span>
+                        @if($isNewVersionAvailable)
+                            {{ __('Update Available') }}
+                            <span class="badge bg-success ml-2">v{{ $newVersion }}</span>
+                        @else
+                            {{ __('Check Updates') }}
+                            <span class="badge bg-info ml-2">v{{ $currentVersion }}</span>
+                        @endif
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Always show these cards for basic features -->
     <!-- User Management Card -->
     <div class="col-sm-6 col-md-4">

@@ -3,3 +3,143 @@
 
   Press Ctrl+C to stop the server
 
+  2025-05-01 15:22:53 /admin/dashboard ................................................ ~ 2s
+  2025-05-01 15:22:56 /admin/dashboard .......................................... ~ 548.39ms
+  2025-05-01 15:22:56 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.13ms
+  2025-05-01 15:22:56 /assets/css/bootstrap.min.css .............................. ~ 79.20ms
+  2025-05-01 15:22:56 /assets/css/demo.css ....................................... ~ 99.52ms
+  2025-05-01 15:22:56 /assets/css/kaiadmin.min.css .............................. ~ 102.07ms
+  2025-05-01 15:22:56 /assets/css/plugins.min.css ............................... ~ 103.26ms
+  2025-05-01 15:22:56 /assets/css/fonts.min.css ................................. ~ 107.73ms
+  2025-05-01 15:22:56 /assets/js/core/jquery-3.7.1.min.js ....................... ~ 110.15ms
+  2025-05-01 15:22:56 /assets/img/kaiadmin/logo_light.svg ........................ ~ 10.22ms
+  2025-05-01 15:22:56 /assets/img/profile.jpg ..................................... ~ 6.35ms
+  2025-05-01 15:22:56 /assets/js/core/popper.min.js ............................... ~ 5.25ms
+  2025-05-01 15:22:56 /assets/js/core/bootstrap.min.js ........................... ~ 12.01ms
+  2025-05-01 15:22:56 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js . ~ 15.03ms
+  2025-05-01 15:22:56 /assets/js/plugin/chart.js/chart.min.js .................... ~ 14.39ms
+  2025-05-01 15:22:56 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js . ~ 30.58ms
+  2025-05-01 15:22:56 /assets/js/plugin/chart-circle/circles.min.js .............. ~ 27.05ms
+  2025-05-01 15:22:56 /assets/js/plugin/datatables/datatables.min.js ............ ~ 525.86ms
+  2025-05-01 15:22:56 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js  ~ 527.42ms
+  2025-05-01 15:22:56 /assets/js/plugin/sweetalert/sweetalert.min.js ............ ~ 527.81ms
+  2025-05-01 15:22:56 /assets/js/kaiadmin.min.js ................................ ~ 509.07ms
+  2025-05-01 15:22:56 /assets/js/setting-demo.js ................................ ~ 506.99ms
+  2025-05-01 15:22:57 /assets/js/demo.js .......................................... ~ 4.20ms
+  2025-05-01 15:22:57 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 4.33ms
+  2025-05-01 15:22:57 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 4.19ms
+  2025-05-01 15:22:57 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 3.33ms
+  2025-05-01 15:22:57 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 2.80ms
+  2025-05-01 15:22:57 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.09ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
