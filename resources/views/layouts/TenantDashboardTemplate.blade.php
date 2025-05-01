@@ -13,11 +13,68 @@
       type="image/x-icon"
     />
 
+    @php
+        $tenant = App\Models\Tenant::where('slug', session('tenant_slug'))->first();
+        $uiSettings = App\Models\UiSettings::where('tenant_id', $tenant->id)->first();
+        if (!$uiSettings) {
+            $uiSettings = new App\Models\UiSettings([
+                'logo_header_color' => 'dark',
+                'navbar_color' => 'white',
+                'sidebar_color' => 'dark',
+                'navbar_position' => 'top',
+                'sidebar_position' => 'left',
+                'is_sidebar_collapsed' => false,
+                'is_navbar_fixed' => true,
+                'is_sidebar_fixed' => true,
+                'primary_font' => 'Public Sans',
+                'font_size_scale' => '1.0'
+            ]);
+        }
+        $selectedFont = $uiSettings->primary_font ?? 'Public Sans';
+        $fontScale = $uiSettings->font_size_scale ?? '1.0';
+    @endphp
+
+    <!-- Load all possible Google Fonts upfront -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <!-- Fonts and icons -->
     <script src="{{ asset('assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
+      // Function to apply font to all elements except icons
+      function applyFont(fontFamily) {
+        document.documentElement.style.setProperty('--primary-font', `'${fontFamily}', sans-serif`);
+        
+        // Apply to body
+        document.body.style.setProperty('font-family', `'${fontFamily}', sans-serif`, 'important');
+        
+        // Apply to all elements except icons
+        const elements = document.querySelectorAll('*:not(.fa):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(.fas):not(.far):not(.fab):not(.icon-*)');
+        elements.forEach(element => {
+          if (!element.classList.contains('fa') && 
+              !element.classList.contains('fas') && 
+              !element.classList.contains('far') && 
+              !element.classList.contains('fab') &&
+              !element.className.includes('icon-')) {
+            element.style.setProperty('font-family', `'${fontFamily}', sans-serif`, 'important');
+          }
+        });
+      }
+
+      // Load fonts using WebFont
       WebFont.load({
-        google: { families: ["Public Sans:300,400,500,600,700"] },
+        google: { 
+          families: [
+            'Public Sans:300,400,500,600,700',
+            'Roboto:300,400,500,600,700',
+            'Open Sans:300,400,500,600,700',
+            'Lato:300,400,700',
+            'Poppins:300,400,500,600,700',
+            'Montserrat:300,400,500,600,700'
+          ]
+        },
         custom: {
           families: [
             "Font Awesome 5 Solid",
@@ -29,7 +86,14 @@
         },
         active: function () {
           sessionStorage.fonts = true;
+          // Apply the selected font
+          applyFont('{{ $selectedFont }}');
         },
+      });
+
+      // Apply font immediately and after page load
+      document.addEventListener('DOMContentLoaded', function() {
+        applyFont('{{ $selectedFont }}');
       });
     </script>
 
@@ -43,6 +107,72 @@
 
     <!-- Custom CSS for navbar positioning -->
     <style>
+      :root {
+        --primary-font: '{{ $selectedFont }}', sans-serif;
+      }
+
+      /* Apply primary font to everything except icons */
+      *:not(.fa):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(.fas):not(.far):not(.fab):not(.icon-*) {
+        font-family: var(--primary-font) !important;
+      }
+
+      /* Preserve icon fonts */
+      .fa,
+      .fas,
+      .far,
+      .fab,
+      .fa-solid,
+      .fa-regular,
+      .fa-brands,
+      [class^="icon-"] {
+        font-family: inherit !important;
+      }
+
+      /* Specific element overrides */
+      body, 
+      .sidebar,
+      .navbar,
+      .logo-header,
+      .main-panel,
+      h1, h2, h3, h4, h5, h6,
+      .btn,
+      input,
+      select,
+      textarea,
+      .nav-item > a > p,
+      .card,
+      .card-title,
+      .card-body,
+      .page-title,
+      .breadcrumbs,
+      .profile-username,
+      .dropdown-menu,
+      .notification,
+      .nav-search,
+      .form-control {
+        font-family: var(--primary-font) !important;
+      }
+
+      /* Ensure icons use their proper font families */
+      .fa, .fas {
+        font-family: 'Font Awesome 5 Free' !important;
+        font-weight: 900;
+      }
+      
+      .far {
+        font-family: 'Font Awesome 5 Free' !important;
+        font-weight: 400;
+      }
+      
+      .fab {
+        font-family: 'Font Awesome 5 Brands' !important;
+        font-weight: 400;
+      }
+
+      [class^="icon-"] {
+        font-family: 'simple-line-icons' !important;
+      }
+
       /* Main wrapper styles */
       .wrapper.navbar-bottom .main-panel {
         padding-bottom: 70px !important;
@@ -385,44 +515,13 @@
         opacity: 0.7;
       }
 
-      /* Add dynamic font loading based on settings */
-      @php
-        $fonts = ['Public Sans', 'Roboto', 'Open Sans', 'Lato', 'Poppins', 'Montserrat'];
-        $selectedFont = $uiSettings->primary_font ?? 'Public Sans';
-        $fontScale = $uiSettings->font_size_scale ?? '1.0';
-      @endphp
-      
-      <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $selectedFont) }}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      
       /* Apply font scale */
       html {
         font-size: {{ $fontScale * 100 }}% !important;
       }
-      
-      /* Apply primary font */
-      body {
-        font-family: '{{ $selectedFont }}', sans-serif !important;
-      }
     </style>
   </head>
   <body>
-    @php
-        $tenant = App\Models\Tenant::where('slug', session('tenant_slug'))->first();
-        $uiSettings = App\Models\UiSettings::where('tenant_id', $tenant->id)->first();
-        if (!$uiSettings) {
-            $uiSettings = new App\Models\UiSettings([
-                'logo_header_color' => 'dark',
-                'navbar_color' => 'white',
-                'sidebar_color' => 'dark',
-                'navbar_position' => 'top',
-                'sidebar_position' => 'left',
-                'is_sidebar_collapsed' => false,
-                'is_navbar_fixed' => true,
-                'is_sidebar_fixed' => true
-            ]);
-        }
-    @endphp
-
     <div class="wrapper {{ $uiSettings->is_sidebar_collapsed ? 'sidebar-collapse' : '' }} 
                       {{ $uiSettings->is_navbar_fixed ? 'navbar-fixed' : '' }} 
                       {{ $uiSettings->is_sidebar_fixed ? 'sidebar-fixed' : '' }} 

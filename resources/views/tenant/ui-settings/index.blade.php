@@ -204,7 +204,23 @@ $(document).ready(function() {
     // Font preview functionality
     $('#primaryFont').on('change', function() {
         const selectedFont = $(this).val();
-        $('body').css('font-family', selectedFont);
+        
+        // Update CSS variable
+        document.documentElement.style.setProperty('--primary-font', `'${selectedFont}', sans-serif`);
+        
+        // Apply to all elements
+        document.body.style.setProperty('font-family', `'${selectedFont}', sans-serif`, 'important');
+        
+        const elements = document.querySelectorAll('*');
+        elements.forEach(element => {
+            element.style.setProperty('font-family', `'${selectedFont}', sans-serif`, 'important');
+        });
+        
+        // Force reflow
+        void document.documentElement.offsetHeight;
+        
+        // Save to session storage
+        sessionStorage.setItem('selectedFont', selectedFont);
     });
 
     // Font size scale functionality
@@ -310,8 +326,10 @@ $(document).ready(function() {
         }
 
         // Apply font
-        $('body').css('font-family', primaryFont);
-        $('html').css('font-size', `${parseFloat(fontScale) * 100}%`);
+        const elements = document.querySelectorAll('body, .sidebar, .navbar, .logo-header, .main-panel, h1, h2, h3, h4, h5, h6, .btn, input, select, textarea, .nav-item, .card, .card-title, .card-body, .page-title, .breadcrumbs, .profile-username, .dropdown-menu, .notification, .nav-search, .form-control');
+        elements.forEach(element => {
+            element.style.fontFamily = `'${primaryFont}', sans-serif`;
+        });
         
         // Apply navbar position - completely remove and reapply classes
         wrapper.removeClass('navbar-bottom navbar-top');
