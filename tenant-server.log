@@ -561,3 +561,185 @@
   2025-05-02 15:48:30 /assets/js/setting-demo.js .................................. ~ 0.28ms
   2025-05-02 15:48:30 /assets/js/demo.js .......................................... ~ 0.21ms
   2025-05-02 15:48:32 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.32ms
+  2025-05-02 15:52:09 /aglayan/updates ................................................ ~ 6s
+  2025-05-02 15:52:15 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.37ms
+  2025-05-02 15:52:15 /assets/css/bootstrap.min.css ............................... ~ 2.31ms
+  2025-05-02 15:52:15 /assets/css/plugins.min.css ................................. ~ 8.20ms
+  2025-05-02 15:52:15 /assets/css/kaiadmin.min.css ................................ ~ 0.24ms
+  2025-05-02 15:52:15 /assets/css/demo.css ........................................ ~ 0.20ms
+  2025-05-02 15:52:15 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 0.26ms
+  2025-05-02 15:52:15 /assets/img/buksu_logo.png .................................. ~ 1.81ms
+  2025-05-02 15:52:15 /assets/img/profile.jpg ..................................... ~ 0.24ms
+  2025-05-02 15:52:15 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 0.19ms
+  2025-05-02 15:52:15 /assets/css/fonts.min.css ................................... ~ 0.27ms
+  2025-05-02 15:52:15 /assets/js/core/popper.min.js ............................... ~ 2.33ms
+  2025-05-02 15:52:16 /assets/js/core/bootstrap.min.js ............................ ~ 2.15ms
+  2025-05-02 15:52:16 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.22ms
+  2025-05-02 15:52:16 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 0.16ms
+  2025-05-02 15:52:16 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 0.16ms
+  2025-05-02 15:52:16 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 0.15ms
+  2025-05-02 15:52:16 /assets/js/plugin/datatables/datatables.min.js .............. ~ 0.40ms
+  2025-05-02 15:52:16 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js .. ~ 0.20ms
+  2025-05-02 15:52:16 /assets/js/plugin/jsvectormap/jsvectormap.min.js ............ ~ 0.19ms
+  2025-05-02 15:52:16 /assets/js/plugin/jsvectormap/world.js ...................... ~ 0.19ms
+  2025-05-02 15:52:16 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 0.21ms
+  2025-05-02 15:52:16 /assets/js/kaiadmin.min.js .................................. ~ 0.17ms
+  2025-05-02 15:52:16 /assets/js/setting-demo.js .................................. ~ 0.43ms
+  2025-05-02 15:52:16 /assets/js/demo.js .......................................... ~ 0.19ms
+  2025-05-02 15:52:16 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.28ms
+  2025-05-02 15:52:16 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 1.59ms
+  2025-05-02 15:52:16 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 3.48ms
+  2025-05-02 15:52:16 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.23ms
+  2025-05-02 15:52:17 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms
+  2025-05-02 15:53:04 /aglayan/updates ................................................ ~ 5s
+  2025-05-02 15:53:04 /aglayan/updates ............................................... ~ 10s
+  2025-05-02 15:53:10 /assets/js/plugin/webfont/webfont.min.js ........................ ~ 5s
+  2025-05-02 15:53:15 /assets/css/bootstrap.min.css ............................. ~ 512.59ms
+  2025-05-02 15:53:15 /assets/css/plugins.min.css ............................... ~ 515.97ms
+  2025-05-02 15:53:15 /assets/css/kaiadmin.min.css ................................ ~ 7.03ms
+  2025-05-02 15:53:15 /assets/css/demo.css ........................................ ~ 8.87ms
+  2025-05-02 15:53:15 /storage/logos/1746077176_Clam_logo.jpg .................... ~ 23.61ms
+  2025-05-02 15:53:15 /assets/img/buksu_logo.png ................................. ~ 30.26ms
+  2025-05-02 15:53:15 /assets/img/profile.jpg ..................................... ~ 0.74ms
+  2025-05-02 15:53:15 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 0.32ms
+  2025-05-02 15:53:15 /assets/css/fonts.min.css ................................... ~ 0.19ms
+  2025-05-02 15:53:15 /assets/js/core/popper.min.js ............................... ~ 0.22ms
+  2025-05-02 15:53:15 /assets/js/core/bootstrap.min.js ............................ ~ 0.38ms
+  2025-05-02 15:53:15 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 6.40ms
+  2025-05-02 15:53:15 /assets/js/plugin/chart.js/chart.min.js .................... ~ 11.37ms
+  2025-05-02 15:53:15 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js . ~ 13.38ms
+  2025-05-02 15:53:15 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 7.86ms
+  2025-05-02 15:53:15 /assets/js/plugin/datatables/datatables.min.js .............. ~ 0.18ms
+  2025-05-02 15:53:15 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js .. ~ 0.21ms
+  2025-05-02 15:53:15 /assets/js/plugin/jsvectormap/jsvectormap.min.js ............ ~ 0.30ms
+  2025-05-02 15:53:15 /assets/js/plugin/jsvectormap/world.js ...................... ~ 1.37ms
+  2025-05-02 15:53:15 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 5.60ms
+  2025-05-02 15:53:15 /assets/js/kaiadmin.min.js .................................. ~ 7.49ms
+  2025-05-02 15:53:15 /assets/js/setting-demo.js .................................. ~ 0.18ms
+  2025-05-02 15:53:15 /assets/js/demo.js .......................................... ~ 0.20ms
+  2025-05-02 15:53:16 /assets/fonts/fontawesome/fa-solid-900.woff2 .............. ~ 516.92ms
+  2025-05-02 15:53:16 /assets/fonts/fontawesome/fa-regular-400.woff2 ............ ~ 518.08ms
+  2025-05-02 15:53:16 /assets/fonts/fontawesome/fa-brands-400.woff2 ............. ~ 518.68ms
+  2025-05-02 15:53:16 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 519.71ms
+  2025-05-02 15:53:16 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.26ms
+  PHP Fatal error:  Maximum execution time of 60 seconds exceeded in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\app\Http\Controllers\Tenant\UpdateController.php on line 156
+  2025-05-02 15:53:21 /aglayan/updates/update ...................................... ~ 1m 4s
+  2025-05-02 15:54:25 ............................................................. ~ 2m 37s
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-02 15:59:09 /aglayan/updates ................................................ ~ 7s
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-02 16:02:35 /assets/img/buksu_logo.png .................................. ~ 0.25ms
+  2025-05-02 16:02:35 /assets/img/profile.jpg ..................................... ~ 0.20ms
+  2025-05-02 16:02:35 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 0.17ms
+  2025-05-02 16:02:35 /assets/js/core/popper.min.js ............................... ~ 0.17ms
+  2025-05-02 16:02:35 /assets/js/core/bootstrap.min.js ............................ ~ 0.63ms
+  2025-05-02 16:02:35 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.25ms
+  2025-05-02 16:02:35 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 0.28ms
+  2025-05-02 16:02:35 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 0.19ms
+  2025-05-02 16:02:35 /assets/js/core/popper.min.js.map ............................... ~ 1s
+  2025-05-02 16:02:36 /assets/js/core/bootstrap.min.js.map ...................... ~ 512.34ms
+  2025-05-02 16:02:36 /assets/js/plugin/chart-circle/circles.min.js ............. ~ 515.91ms
+  2025-05-02 16:02:37 /assets/js/plugin/datatables/datatables.min.js .............. ~ 1.71ms
+  2025-05-02 16:02:37 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js .. ~ 2.35ms
+  2025-05-02 16:02:37 /assets/js/plugin/jsvectormap/jsvectormap.min.js ............ ~ 0.11ms
+  2025-05-02 16:02:37 /assets/js/plugin/jsvectormap/world.js ...................... ~ 0.19ms
+  2025-05-02 16:02:37 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 0.15ms
+  2025-05-02 16:02:37 /assets/js/kaiadmin.min.js .................................. ~ 0.15ms
+  2025-05-02 16:02:37 /assets/js/setting-demo.js .................................. ~ 0.16ms
+  2025-05-02 16:02:37 /assets/js/demo.js .......................................... ~ 0.19ms
+  2025-05-02 16:02:37 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 0.19ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-02 16:03:41 /aglayan/updates ............................................... ~ 14s
+  2025-05-02 16:03:55 /aglayan/updates ................................................ ~ 6s
+  2025-05-02 16:04:02 /assets/css/bootstrap.min.css ............................... ~ 0.44ms
+  2025-05-02 16:04:02 /assets/js/plugin/webfont/webfont.min.js .................... ~ 2.82ms
+  2025-05-02 16:04:02 /assets/css/plugins.min.css ................................. ~ 0.74ms
+  2025-05-02 16:04:02 /assets/css/kaiadmin.min.css ................................ ~ 0.31ms
+  2025-05-02 16:04:02 /assets/css/demo.css ........................................ ~ 0.75ms
+  2025-05-02 16:04:02 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 3.90ms
+  2025-05-02 16:04:02 /assets/img/buksu_logo.png ................................. ~ 13.42ms
+  2025-05-02 16:04:02 /assets/img/profile.jpg ..................................... ~ 0.22ms
+  2025-05-02 16:04:03 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 0.18ms
+  2025-05-02 16:04:03 /assets/css/fonts.min.css ................................... ~ 0.21ms
+  2025-05-02 16:04:03 /assets/js/core/popper.min.js ............................... ~ 0.36ms
+  2025-05-02 16:04:03 /assets/js/core/bootstrap.min.js ............................ ~ 0.27ms
+  2025-05-02 16:04:05 /assets/css/bootstrap.min.css.map ............................... ~ 2s
+  2025-05-02 16:04:08 /assets/css/demo.css.map .................................... ~ 0.42ms
+  2025-05-02 16:04:08 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 1.10ms
+  2025-05-02 16:04:08 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.13ms
+  2025-05-02 16:04:08 /assets/js/core/popper.min.js.map ............................... ~ 1s
+  2025-05-02 16:04:11 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.70ms
+  2025-05-02 16:04:11 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.33ms
+  2025-05-02 16:04:11 /assets/js/core/bootstrap.min.js.map ............................ ~ 1s
+  2025-05-02 16:04:13 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.14ms
+  2025-05-02 16:04:13 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 0.10ms
+  2025-05-02 16:04:13 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 0.27ms
+  2025-05-02 16:04:13 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 0.12ms
+  2025-05-02 16:04:13 /assets/js/plugin/datatables/datatables.min.js .............. ~ 0.12ms
+  2025-05-02 16:04:13 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js .. ~ 0.21ms
+  2025-05-02 16:04:13 /assets/js/plugin/jsvectormap/jsvectormap.min.js ............ ~ 0.14ms
+  2025-05-02 16:04:13 /assets/js/plugin/jsvectormap/world.js ...................... ~ 0.16ms
+  2025-05-02 16:04:14 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 0.25ms
+  2025-05-02 16:04:14 /assets/js/kaiadmin.min.js .................................. ~ 0.83ms
+  2025-05-02 16:04:14 /assets/js/setting-demo.js .................................. ~ 0.12ms
+  2025-05-02 16:04:14 /assets/js/demo.js .......................................... ~ 0.19ms
+  2025-05-02 16:04:15 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms
+  2025-05-02 16:04:28 /aglayan/updates ................................................ ~ 6s
+  2025-05-02 16:04:28 /assets/js/plugin/webfont/webfont.min.js ........................ ~ 7s
+  2025-05-02 16:04:35 /assets/css/bootstrap.min.css ............................... ~ 0.29ms
+  2025-05-02 16:04:35 /assets/css/plugins.min.css ................................. ~ 0.27ms
+  2025-05-02 16:04:35 /assets/css/kaiadmin.min.css ................................ ~ 0.21ms
+  2025-05-02 16:04:35 /assets/css/demo.css ........................................ ~ 0.27ms
+  2025-05-02 16:04:35 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 3.37ms
+  2025-05-02 16:04:35 /assets/img/buksu_logo.png .................................. ~ 0.27ms
+  2025-05-02 16:04:36 /assets/img/profile.jpg ..................................... ~ 0.29ms
+  2025-05-02 16:04:36 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 0.30ms
+  2025-05-02 16:04:36 /assets/css/fonts.min.css ................................... ~ 0.41ms
+  2025-05-02 16:04:36 /assets/js/core/popper.min.js ............................... ~ 0.17ms
+  2025-05-02 16:04:36 /assets/js/core/bootstrap.min.js ............................ ~ 0.15ms
+  2025-05-02 16:04:36 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 1.47ms
+  2025-05-02 16:04:37 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.25ms
+  2025-05-02 16:04:37 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.16ms
+  2025-05-02 16:04:38 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 0.23ms
+  2025-05-02 16:04:38 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 0.21ms
+  2025-05-02 16:04:38 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.17ms
+  2025-05-02 16:04:38 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.18ms
+  2025-05-02 16:04:38 /assets/css/demo.css.map .................................... ~ 0.17ms
+  2025-05-02 16:04:38 /assets/css/bootstrap.min.css.map ............................... ~ 1s
+  2025-05-02 16:04:39 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 0.22ms
+  2025-05-02 16:04:39 /assets/js/core/popper.min.js.map ......................... ~ 507.48ms
+  2025-05-02 16:04:40 /assets/js/core/bootstrap.min.js.map ............................ ~ 1s
+  2025-05-02 16:04:40 /assets/js/plugin/datatables/datatables.min.js .................. ~ 1s
+  2025-05-02 16:04:40 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js ...... ~ 1s
+  2025-05-02 16:04:41 /assets/js/plugin/jsvectormap/jsvectormap.min.js ............ ~ 9.04ms
+  2025-05-02 16:04:41 /assets/js/plugin/jsvectormap/world.js ...................... ~ 0.23ms
+  2025-05-02 16:04:41 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 0.19ms
+  2025-05-02 16:04:41 /assets/js/kaiadmin.min.js .................................. ~ 0.20ms
+  2025-05-02 16:04:41 /assets/js/setting-demo.js .................................. ~ 0.29ms
+  2025-05-02 16:04:41 /assets/js/demo.js .......................................... ~ 0.20ms
+  2025-05-02 16:04:43 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms

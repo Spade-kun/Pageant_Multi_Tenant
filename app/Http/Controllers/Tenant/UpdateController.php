@@ -72,6 +72,7 @@ class UpdateController extends Controller
 
     public function update(Request $request)
     {
+        set_time_limit(0); // Prevent timeout for long-running update
         try {
             $targetVersion = $request->input('version');
             $currentVersion = $this->updater->source()->getVersionInstalled();
@@ -142,6 +143,16 @@ class UpdateController extends Controller
                 return redirect()->back()->with('error', 'Failed to extract release zip.');
             }
 
+            // Detect the actual code subfolder inside the extracted directory
+            $subfolders = array_filter(glob($extractPath . '/*'), 'is_dir');
+            if (count($subfolders) === 1) {
+                $actualSource = $subfolders[0];
+                \Log::info('Detected code subfolder: ' . $actualSource);
+            } else {
+                $actualSource = $extractPath;
+                \Log::warning('Could not uniquely detect code subfolder, using extract path directly.');
+            }
+
             // Backup current app (excluding critical folders/files)
             $rootPath = base_path();
             $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
@@ -178,8 +189,8 @@ class UpdateController extends Controller
             }
 
             // Copy extracted files to app root (excluding critical folders/files)
-            $this->copyUpdateFiles($extractPath, $rootPath, $exclude);
-            \Log::info('Update files copied from ' . $extractPath . ' to ' . $rootPath);
+            $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
+            \Log::info('Update files copied from ' . $actualSource . ' to ' . $rootPath);
 
             // Update SELF_UPDATER_VERSION_INSTALLED in .env
             $this->updateEnvVersion($targetVersion);
