@@ -328,7 +328,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', function($slug) {
+        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -352,7 +352,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             if (auth()->guard('tenant')->user()->role !== 'owner') {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
-            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update();
+            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
         })->name('tenant.updates.update');
     });
     

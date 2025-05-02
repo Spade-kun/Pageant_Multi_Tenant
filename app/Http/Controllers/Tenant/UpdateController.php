@@ -7,6 +7,7 @@ use Codedge\Updater\UpdaterManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
+use Codedge\Updater\Models\Release;
 
 class UpdateController extends Controller
 {
@@ -87,27 +88,156 @@ class UpdateController extends Controller
                 return redirect()->back()->with('error', 'Selected version is not available.');
             }
 
-            // Compare versions to determine if it's an upgrade or downgrade
-            $isDowngrade = version_compare($targetVersion, $currentVersion, '<');
-            
-            if ($isDowngrade) {
-                // Add warning for downgrade
-                session()->flash('warning', 'You are about to downgrade the system. This may cause compatibility issues.');
+            $updatePath = storage_path('app/updater');
+            if (!file_exists($updatePath)) {
+                if (!mkdir($updatePath, 0755, true)) {
+                    \Log::error('Failed to create update directory: ' . $updatePath);
+                    return redirect()->back()->with('error', 'Failed to create update directory. Please check directory permissions.');
+                }
+            }
+            if (!is_writable($updatePath)) {
+                \Log::error('Update directory is not writable: ' . $updatePath);
+                return redirect()->back()->with('error', 'Update directory is not writable. Please check directory permissions.');
             }
 
-            // Perform the update/downgrade
-            $this->updater->source()->setVersionAvailable($targetVersion);
-            $this->updater->source()->update();
+            // Get the download URL for the release
+            $vendor = config('self-update.repository_types.github.repository_vendor');
+            $repo = config('self-update.repository_types.github.repository_name');
+            $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
+            $releaseData = json_decode($response->getBody(), true);
 
-            $message = $isDowngrade ? 
-                "System has been successfully downgraded to version {$targetVersion}!" :
-                "System has been successfully updated to version {$targetVersion}!";
+            if (!isset($releaseData['zipball_url'])) {
+                \Log::error('Could not find download URL for version: ' . $targetVersion);
+                return redirect()->back()->with('error', 'Could not find download URL for the selected version.');
+            }
 
-            return redirect()->back()->with('success', $message);
+            $zipUrl = $releaseData['zipball_url'];
+            $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
+
+            // Download the zip file
+            try {
+                $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
+                if (!file_exists($zipFile)) {
+                    \Log::error('Failed to download release zip file.');
+                    return redirect()->back()->with('error', 'Failed to download release zip file.');
+                }
+                \Log::info('Downloaded release zip to: ' . $zipFile);
+            } catch (\Exception $e) {
+                \Log::error('Error downloading release zip: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Error downloading release zip: ' . $e->getMessage());
+            }
+
+            // Extract the zip file
+            $extractPath = $updatePath . DIRECTORY_SEPARATOR . "extracted-v{$targetVersion}";
+            if (!file_exists($extractPath)) {
+                mkdir($extractPath, 0755, true);
+            }
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFile) === TRUE) {
+                $zip->extractTo($extractPath);
+                $zip->close();
+                \Log::info('Extracted release zip to: ' . $extractPath);
+            } else {
+                \Log::error('Failed to extract release zip.');
+                return redirect()->back()->with('error', 'Failed to extract release zip.');
+            }
+
+            // Backup current app (excluding critical folders/files)
+            $rootPath = base_path();
+            $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
+            $exclude = ['.env', 'storage', 'vendor', '.git', 'node_modules', 'public/uploads', 'public/storage'];
+            $zipBackup = new \ZipArchive();
+            if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($rootPath, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+                foreach ($files as $file) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
+                    $skip = false;
+                    foreach ($exclude as $ex) {
+                        if (stripos($relativePath, $ex) === 0) {
+                            $skip = true;
+                            break;
+                        }
+                    }
+                    if (!$skip) {
+                        if ($file->isDir()) {
+                            $zipBackup->addEmptyDir($relativePath);
+                        } else {
+                            $zipBackup->addFile($filePath, $relativePath);
+                        }
+                    }
+                }
+                $zipBackup->close();
+                \Log::info('Backup created at: ' . $backupFile);
+            } else {
+                \Log::error('Failed to create backup zip.');
+                return redirect()->back()->with('error', 'Failed to create backup zip.');
+            }
+
+            // Copy extracted files to app root (excluding critical folders/files)
+            $this->copyUpdateFiles($extractPath, $rootPath, $exclude);
+            \Log::info('Update files copied from ' . $extractPath . ' to ' . $rootPath);
+
+            // Update SELF_UPDATER_VERSION_INSTALLED in .env
+            $this->updateEnvVersion($targetVersion);
+            \Log::info('Updated SELF_UPDATER_VERSION_INSTALLED in .env to ' . $targetVersion);
+
+            // Clear config cache
+            \Artisan::call('config:clear');
+
+            // Run composer install --no-dev
+            $composerOutput = null;
+            $composerReturn = null;
+            exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
+            \Log::info('composer install --no-dev output: ' . print_r($composerOutput, true));
+            if ($composerReturn !== 0) {
+                return redirect()->back()->with('error', 'Update failed during composer install. Check logs for details.');
+            }
+
+            // Run php artisan migrate
+            try {
+                \Artisan::call('migrate', ['--force' => true]);
+                \Log::info('php artisan migrate output: ' . \Artisan::output());
+            } catch (\Exception $e) {
+                \Log::error('php artisan migrate failed: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Update failed during migration. Check logs for details.');
+            }
+
+            return redirect()->back()->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
-            \Log::error('Update failed: ' . $e->getMessage());
+            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Update failed: ' . $e->getMessage());
         }
+    }
+
+    // Recursively copy files from source to destination, skipping excluded folders/files
+    protected function copyUpdateFiles($source, $destination, $exclude = [])
+    {
+        $dir = opendir($source);
+        @mkdir($destination, 0755, true);
+        while(false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                $srcPath = $source . DIRECTORY_SEPARATOR . $file;
+                $destPath = $destination . DIRECTORY_SEPARATOR . $file;
+                $skip = false;
+                foreach ($exclude as $ex) {
+                    if (stripos($file, $ex) === 0) {
+                        $skip = true;
+                        break;
+                    }
+                }
+                if ($skip) continue;
+                if (is_dir($srcPath)) {
+                    $this->copyUpdateFiles($srcPath, $destPath, $exclude);
+                } else {
+                    copy($srcPath, $destPath);
+                }
+            }
+        }
+        closedir($dir);
     }
 
     protected function getReleases()
@@ -149,5 +279,23 @@ class UpdateController extends Controller
             \Log::error('Error fetching releases: ' . $e->getMessage());
             return [];
         }
+    }
+
+    // Update the SELF_UPDATER_VERSION_INSTALLED value in the .env file
+    protected function updateEnvVersion($newVersion)
+    {
+        $envPath = base_path('.env');
+        if (!file_exists($envPath)) {
+            \Log::error('.env file not found at: ' . $envPath);
+            return false;
+        }
+        $envContent = file_get_contents($envPath);
+        $envContent = preg_replace(
+            '/^SELF_UPDATER_VERSION_INSTALLED=.*$/m',
+            'SELF_UPDATER_VERSION_INSTALLED=' . $newVersion,
+            $envContent
+        );
+        file_put_contents($envPath, $envContent);
+        return true;
     }
 } 
