@@ -240,6 +240,10 @@ class UpdateController extends Controller
                         break;
                     }
                 }
+                // Skip .log files and any file ending with .log
+                if (is_file($srcPath) && preg_match('/\.log$/i', $file)) {
+                    $skip = true;
+                }
                 if ($skip) continue;
                 if (is_dir($srcPath)) {
                     $this->copyUpdateFiles($srcPath, $destPath, $exclude);
