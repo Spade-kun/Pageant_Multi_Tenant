@@ -156,7 +156,19 @@ class UpdateController extends Controller
             // Backup current app (excluding critical folders/files)
             $rootPath = base_path();
             $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
-            $exclude = ['.env', 'storage', 'vendor', '.git', 'node_modules', 'public/uploads', 'public/storage'];
+            $exclude = [
+                '.env',
+                'storage',
+                'vendor',
+                '.git',
+                'node_modules',
+                'public/uploads',
+                'public/storage',
+                '*.log',  // Exclude all log files
+                'storage/logs',  // Exclude logs directory
+                'admin-server.log',  // Specific log file
+                'laravel.log'  // Laravel log file
+            ];
             $zipBackup = new \ZipArchive();
             if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
                 $files = new \RecursiveIteratorIterator(
@@ -168,7 +180,14 @@ class UpdateController extends Controller
                     $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
                     $skip = false;
                     foreach ($exclude as $ex) {
-                        if (stripos($relativePath, $ex) === 0) {
+                        // Handle wildcard patterns
+                        if (strpos($ex, '*') !== false) {
+                            $pattern = str_replace('*', '.*', $ex);
+                            if (preg_match('/' . $pattern . '/', $relativePath)) {
+                                $skip = true;
+                                break;
+                            }
+                        } else if (stripos($relativePath, $ex) === 0) {
                             $skip = true;
                             break;
                         }
@@ -244,13 +263,21 @@ class UpdateController extends Controller
                 $relativePath = str_replace($destination, '', $destPath);
                 $skip = false;
                 foreach ($exclude as $ex) {
-                    if (stripos($relativePath, $ex) === 0) {
+                    // Handle wildcard patterns
+                    if (strpos($ex, '*') !== false) {
+                        $pattern = str_replace('*', '.*', $ex);
+                        if (preg_match('/' . $pattern . '/', $file)) {
+                            $skip = true;
+                            break;
+                        }
+                    } else if (stripos($relativePath, $ex) === 0) {
                         $skip = true;
                         break;
                     }
                 }
                 
                 if ($skip) {
+                    \Log::info("Skipping excluded file/directory: {$relativePath}");
                     continue;
                 }
                 
@@ -261,6 +288,12 @@ class UpdateController extends Controller
                     }
                     $this->copyUpdateFiles($srcPath, $destPath, $exclude);
                 } else {
+                    // Skip if destination file is in use
+                    if (file_exists($destPath) && !is_writable($destPath)) {
+                        \Log::info("Skipping file in use: {$destPath}");
+                        continue;
+                    }
+                    
                     // Ensure the destination directory exists
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {

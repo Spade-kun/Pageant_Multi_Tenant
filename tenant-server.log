@@ -1552,3 +1552,197 @@
   2025-05-03 23:34:59 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 4.73ms
   2025-05-03 23:34:59 /assets/js/custom-scripts.js ................................ ~ 3.40ms
   2025-05-03 23:35:00 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.35ms
+  2025-05-03 23:37:38 /aglayan/updates/update ........................................ ~ 47s
+  2025-05-03 23:38:26 /aglayan/updates ................................................ ~ 6s
+  2025-05-03 23:38:32 /aglayan/updates ................................................ ~ 6s
+  2025-05-03 23:38:32 /aglayan/updates ............................................... ~ 12s
+  2025-05-03 23:38:45 /assets/css/bootstrap.min.css ............................... ~ 0.37ms
+  2025-05-03 23:38:45 /assets/js/plugin/webfont/webfont.min.js .................... ~ 2.61ms
+  2025-05-03 23:38:45 /assets/css/demo.css ........................................ ~ 4.36ms
+  2025-05-03 23:38:45 /assets/css/kaiadmin.min.css ................................ ~ 7.36ms
+  2025-05-03 23:38:45 /assets/css/plugins.min.css ................................. ~ 9.97ms
+  2025-05-03 23:38:45 /storage/logos/1746077176_Clam_logo.jpg .................... ~ 12.45ms
+  2025-05-03 23:38:45 /assets/img/buksu_logo.png .................................. ~ 0.20ms
+  2025-05-03 23:38:45 /assets/css/fonts.min.css ................................... ~ 0.20ms
+  2025-05-03 23:38:45 /assets/img/profile.jpg ..................................... ~ 0.45ms
+  2025-05-03 23:38:45 /assets/js/core/jquery.3.2.1.min.js ....................... ~ 507.13ms
+  2025-05-03 23:38:45 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-03 23:38:45 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 2s
+  2025-05-03 23:38:45 /assets/js/core/popper.min.js ................................... ~ 2s
+  2025-05-03 23:38:45 /assets/js/core/bootstrap.min.js ................................ ~ 2s
+  2025-05-03 23:38:46 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ...... ~ 2s
+  2025-05-03 23:38:48 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 6.61ms
+  2025-05-03 23:38:48 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 7.67ms
+  2025-05-03 23:38:48 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 8.63ms
+  2025-05-03 23:38:48 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 4.73ms
+  2025-05-03 23:38:48 /assets/js/custom-scripts.js ................................ ~ 3.82ms
+  2025-05-03 23:38:48 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.18ms
+  2025-05-03 23:38:55 /aglayan/updates ................................................ ~ 5s
+  2025-05-03 23:39:00 /aglayan/updates ................................................ ~ 6s
+  2025-05-03 23:39:06 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.32ms
+  2025-05-03 23:39:06 /assets/css/bootstrap.min.css ............................... ~ 1.48ms
+  2025-05-03 23:39:06 /assets/css/plugins.min.css ................................. ~ 3.04ms
+  2025-05-03 23:39:06 /assets/css/kaiadmin.min.css ................................ ~ 0.19ms
+  2025-05-03 23:39:06 /assets/css/demo.css ........................................ ~ 0.25ms
+  2025-05-03 23:39:06 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 1.93ms
+  2025-05-03 23:39:06 /assets/img/buksu_logo.png .................................. ~ 3.51ms
+  2025-05-03 23:39:06 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-03 23:39:06 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-03 23:39:06 /assets/img/profile.jpg ......................................... ~ 1s
+  2025-05-03 23:39:07 /assets/js/core/popper.min.js ............................... ~ 8.84ms
+  2025-05-03 23:39:08 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 2.53ms
+  2025-05-03 23:39:08 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.19ms
+  2025-05-03 23:39:08 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.28ms
+  2025-05-03 23:39:08 /assets/js/core/bootstrap.min.js ............................ ~ 1.26ms
+  2025-05-03 23:39:08 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-03 23:39:08 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 504.48ms
+  2025-05-03 23:39:08 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 505.61ms
+  2025-05-03 23:39:08 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js  ~ 505.83ms
+  2025-05-03 23:39:09 /assets/js/custom-scripts.js ................................ ~ 0.75ms
+  2025-05-03 23:39:09 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.10ms
+  2025-05-03 23:41:30 /aglayan/updates ................................................ ~ 5s
+  2025-05-03 23:41:35 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.59ms
+  2025-05-03 23:41:35 /assets/css/bootstrap.min.css ............................... ~ 2.94ms
+  2025-05-03 23:41:35 /assets/css/demo.css ........................................ ~ 2.63ms
+  2025-05-03 23:41:35 /assets/css/plugins.min.css ................................. ~ 8.25ms
+  2025-05-03 23:41:35 /assets/css/kaiadmin.min.css ............................... ~ 13.89ms
+  2025-05-03 23:41:35 /storage/logos/1746077176_Clam_logo.jpg .................... ~ 13.50ms
+  2025-05-03 23:41:35 /assets/img/buksu_logo.png ................................. ~ 14.63ms
+  2025-05-03 23:41:36 /assets/css/fonts.min.css ................................... ~ 0.28ms
+  2025-05-03 23:41:36 /assets/img/profile.jpg ..................................... ~ 2.36ms
+  2025-05-03 23:41:36 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-03 23:41:36 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 501.32ms
+  2025-05-03 23:41:36 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-03 23:41:36 /assets/js/core/popper.min.js ................................... ~ 2s
+  2025-05-03 23:41:36 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-03 23:41:37 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ...... ~ 1s
+  2025-05-03 23:41:38 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 5.21ms
+  2025-05-03 23:41:38 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 3.59ms
+  2025-05-03 23:41:38 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 4.59ms
+  2025-05-03 23:41:38 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 5.53ms
+  2025-05-03 23:41:38 /assets/js/custom-scripts.js ................................ ~ 4.12ms
+  2025-05-03 23:41:38 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms
+  2025-05-03 23:41:41 /aglayan/updates/update ........................................ ~ 34s
+  2025-05-03 23:42:15 /aglayan/updates ................................................ ~ 7s
+  2025-05-03 23:42:22 /assets/css/bootstrap.min.css ............................... ~ 0.27ms
+  2025-05-03 23:42:22 /assets/js/plugin/webfont/webfont.min.js .................... ~ 2.26ms
+  2025-05-03 23:42:22 /assets/css/plugins.min.css ................................. ~ 0.67ms
+  2025-05-03 23:42:22 /assets/css/kaiadmin.min.css ................................ ~ 1.03ms
+  2025-05-03 23:42:22 /assets/css/demo.css ........................................ ~ 1.66ms
+  2025-05-03 23:42:22 /storage/logos/1746077176_Clam_logo.jpg ..................... ~ 8.08ms
+  2025-05-03 23:42:22 /assets/img/buksu_logo.png ................................. ~ 10.03ms
+  2025-05-03 23:42:22 /assets/img/profile.jpg ..................................... ~ 0.20ms
+  2025-05-03 23:42:22 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-03 23:42:23 /assets/css/fonts.min.css ................................... ~ 0.32ms
+  2025-05-03 23:42:23 /assets/js/core/popper.min.js ............................... ~ 2.35ms
+  2025-05-03 23:42:23 /assets/js/core/bootstrap.min.js ............................ ~ 5.16ms
+  2025-05-03 23:42:23 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 506.37ms
+  2025-05-03 23:42:24 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.39ms
+  2025-05-03 23:42:24 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 1.64ms
+  2025-05-03 23:42:24 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 2.69ms
+  2025-05-03 23:42:24 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 512.18ms
+  2025-05-03 23:42:25 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.52ms
+  2025-05-03 23:42:25 /assets/js/custom-scripts.js ................................ ~ 1.25ms
+  2025-05-03 23:42:25 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 508.78ms
+  2025-05-03 23:42:25 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.19ms
+  2025-05-03 23:43:30 /aglayan/updates ................................................ ~ 5s
+  2025-05-03 23:43:36 /aglayan/updates ................................................ ~ 5s
+  2025-05-03 23:43:42 /assets/css/bootstrap.min.css ............................... ~ 1.63ms
+  2025-05-03 23:43:42 /assets/js/plugin/webfont/webfont.min.js ................... ~ 33.25ms
+  2025-05-03 23:43:42 /assets/css/demo.css ....................................... ~ 47.26ms
+  2025-05-03 23:43:42 /assets/css/kaiadmin.min.css ............................... ~ 51.91ms
+  2025-05-03 23:43:42 /assets/css/plugins.min.css ................................ ~ 81.78ms
+  2025-05-03 23:43:42 /storage/logos/1746077176_Clam_logo.jpg .................... ~ 87.94ms
+  2025-05-03 23:43:42 /assets/img/buksu_logo.png .................................. ~ 0.31ms
+  2025-05-03 23:43:42 /assets/css/fonts.min.css ................................... ~ 0.72ms
+  2025-05-03 23:43:42 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-03 23:43:42 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 2s
+  2025-05-03 23:43:43 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 2s
+  2025-05-03 23:43:42 /assets/img/profile.jpg ......................................... ~ 3s
+  2025-05-03 23:43:42 /assets/js/core/popper.min.js ................................... ~ 3s
+  2025-05-03 23:43:42 /assets/js/core/bootstrap.min.js ................................ ~ 3s
+  2025-05-03 23:43:44 /assets/fonts/fontawesome/fa-solid-900.woff2 .................... ~ 1s
+  2025-05-03 23:43:46 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 9.80ms
+  2025-05-03 23:43:46 /assets/fonts/fontawesome/fa-brands-400.woff2 .............. ~ 10.70ms
+  2025-05-03 23:43:46 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 3.96ms
+  2025-05-03 23:43:46 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 4.25ms
+  2025-05-03 23:43:46 /assets/js/custom-scripts.js ................................ ~ 2.90ms
+  2025-05-03 23:43:46 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-03 23:44:42 /aglayan/updates ................................................ ~ 1s
+  2025-05-03 23:44:43 /favicon.ico ................................................ ~ 0.21ms
+  2025-05-03 23:44:51 / ......................................................... ~ 513.25ms
+  2025-05-03 23:44:51 /tenant/login ............................................. ~ 997.64ms
+  2025-05-03 23:44:52 / ......................................................... ~ 518.51ms
+  2025-05-03 23:44:53 /tenant/login ............................................. ~ 498.47ms
+  2025-05-03 23:44:53 / ......................................................... ~ 497.55ms
+  2025-05-03 23:44:54 /tenant/login ................................................... ~ 1s
+  2025-05-03 23:44:55 / ......................................................... ~ 511.21ms
+  2025-05-03 23:44:55 /tenant/login ............................................. ~ 999.96ms
+  2025-05-03 23:44:56 / ......................................................... ~ 512.50ms
+  2025-05-03 23:44:57 /tenant/login ................................................... ~ 1s
+  2025-05-03 23:44:58 / ............................................................... ~ 1s
+  2025-05-03 23:44:59 /tenant/login ............................................. ~ 511.04ms
+  2025-05-03 23:45:00 / ............................................................... ~ 1s
+  2025-05-03 23:45:00 /aglayan/updates .......................................... ~ 502.12ms
+  2025-05-03 23:45:01 /aglayan/updates .......................................... ~ 510.42ms
+  2025-05-03 23:45:02 /favicon.ico ................................................ ~ 0.30ms
+  2025-05-03 23:45:11 /aglayan/updates .......................................... ~ 504.16ms
+  2025-05-03 23:45:12 /aglayan/updates .......................................... ~ 508.16ms
+  2025-05-03 23:45:12 /aglayan/updates ................................................ ~ 1s
+  2025-05-03 23:45:13 /favicon.ico ................................................ ~ 0.20ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-03 23:47:54 /aglayan/updates ................................................ ~ 1s
+  2025-05-03 23:47:55 /aglayan/updates .......................................... ~ 510.05ms
+  2025-05-03 23:47:56 /favicon.ico ................................................ ~ 0.21ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-03 23:48:02 /aglayan/updates ................................................ ~ 1s
+  2025-05-03 23:48:03 /favicon.ico ................................................ ~ 0.19ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-03 23:49:24 /aglayan/updates ................................................ ~ 8s
+  2025-05-03 23:49:33 /aglayan/updates ................................................ ~ 5s
+  2025-05-03 23:49:38 /assets/css/bootstrap.min.css ............................... ~ 0.91ms
+  2025-05-03 23:49:38 /assets/css/demo.css ........................................ ~ 3.05ms
+  2025-05-03 23:49:38 /assets/js/plugin/webfont/webfont.min.js .................... ~ 5.54ms
+  2025-05-03 23:49:38 /assets/css/plugins.min.css ................................. ~ 7.21ms
+  2025-05-03 23:49:38 /assets/css/kaiadmin.min.css ................................ ~ 9.41ms
+  2025-05-03 23:49:38 /storage/logos/1746077176_Clam_logo.jpg .................... ~ 14.24ms
+  2025-05-03 23:49:38 /assets/img/buksu_logo.png .................................. ~ 0.20ms
+  2025-05-03 23:49:38 /assets/img/profile.jpg ..................................... ~ 0.18ms
+  2025-05-03 23:49:38 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-03 23:49:39 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 510.84ms
+  2025-05-03 23:49:39 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-03 23:49:39 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-03 23:49:39 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-03 23:49:40 /assets/js/core/bootstrap.min.js .......................... ~ 523.04ms
+  2025-05-03 23:49:40 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 4.49ms
+  2025-05-03 23:49:40 /assets/js/custom-scripts.js ................................ ~ 2.21ms
+  2025-05-03 23:49:40 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.24ms
+  2025-05-03 23:49:40 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 1.28ms
+  2025-05-03 23:49:40 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.24ms
+  2025-05-03 23:49:40 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 1.24ms
+  2025-05-03 23:49:40 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.19ms
