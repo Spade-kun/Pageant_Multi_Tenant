@@ -78,7 +78,7 @@ class UpdateController extends Controller
             $currentVersion = $this->updater->source()->getVersionInstalled();
 
             if (empty($targetVersion)) {
-                return redirect()->back()->with('error', 'Please select a version to update to.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Please select a version to update to.');
             }
 
             // Validate if the selected version exists in releases
@@ -86,19 +86,19 @@ class UpdateController extends Controller
             $validVersion = collect($releases)->where('version', $targetVersion)->first();
 
             if (!$validVersion) {
-                return redirect()->back()->with('error', 'Selected version is not available.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Selected version is not available.');
             }
 
             $updatePath = storage_path('app/updater');
             if (!file_exists($updatePath)) {
                 if (!mkdir($updatePath, 0755, true)) {
                     \Log::error('Failed to create update directory: ' . $updatePath);
-                    return redirect()->back()->with('error', 'Failed to create update directory. Please check directory permissions.');
+                    return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Failed to create update directory. Please check directory permissions.');
                 }
             }
             if (!is_writable($updatePath)) {
                 \Log::error('Update directory is not writable: ' . $updatePath);
-                return redirect()->back()->with('error', 'Update directory is not writable. Please check directory permissions.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Update directory is not writable. Please check directory permissions.');
             }
 
             // Get the download URL for the release
@@ -109,7 +109,7 @@ class UpdateController extends Controller
 
             if (!isset($releaseData['zipball_url'])) {
                 \Log::error('Could not find download URL for version: ' . $targetVersion);
-                return redirect()->back()->with('error', 'Could not find download URL for the selected version.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Could not find download URL for the selected version.');
             }
 
             $zipUrl = $releaseData['zipball_url'];
@@ -120,12 +120,12 @@ class UpdateController extends Controller
                 $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
                 if (!file_exists($zipFile)) {
                     \Log::error('Failed to download release zip file.');
-                    return redirect()->back()->with('error', 'Failed to download release zip file.');
+                    return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Failed to download release zip file.');
                 }
                 \Log::info('Downloaded release zip to: ' . $zipFile);
             } catch (\Exception $e) {
                 \Log::error('Error downloading release zip: ' . $e->getMessage());
-                return redirect()->back()->with('error', 'Error downloading release zip: ' . $e->getMessage());
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Error downloading release zip: ' . $e->getMessage());
             }
 
             // Extract the zip file
@@ -140,7 +140,7 @@ class UpdateController extends Controller
                 \Log::info('Extracted release zip to: ' . $extractPath);
             } else {
                 \Log::error('Failed to extract release zip.');
-                return redirect()->back()->with('error', 'Failed to extract release zip.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Failed to extract release zip.');
             }
 
             // Detect the actual code subfolder inside the extracted directory
@@ -185,12 +185,16 @@ class UpdateController extends Controller
                 \Log::info('Backup created at: ' . $backupFile);
             } else {
                 \Log::error('Failed to create backup zip.');
-                return redirect()->back()->with('error', 'Failed to create backup zip.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Failed to create backup zip.');
             }
 
             // Copy extracted files to app root (excluding critical folders/files)
             $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
             \Log::info('Update files copied from ' . $actualSource . ' to ' . $rootPath);
+
+            // Clean up extracted folder
+            $this->deleteDirectory($extractPath);
+            \Log::info('Cleaned up extracted folder: ' . $extractPath);
 
             // Update SELF_UPDATER_VERSION_INSTALLED in .env
             $this->updateEnvVersion($targetVersion);
@@ -205,7 +209,7 @@ class UpdateController extends Controller
             exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
             \Log::info('composer install --no-dev output: ' . print_r($composerOutput, true));
             if ($composerReturn !== 0) {
-                return redirect()->back()->with('error', 'Update failed during composer install. Check logs for details.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Update failed during composer install. Check logs for details.');
             }
 
             // Run php artisan migrate
@@ -214,13 +218,14 @@ class UpdateController extends Controller
                 \Log::info('php artisan migrate output: ' . \Artisan::output());
             } catch (\Exception $e) {
                 \Log::error('php artisan migrate failed: ' . $e->getMessage());
-                return redirect()->back()->with('error', 'Update failed during migration. Check logs for details.');
+                return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Update failed during migration. Check logs for details.');
             }
 
-            return redirect()->back()->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
+            // Redirect to updates page after success
+            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
             \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            return redirect()->back()->with('error', 'Update failed: ' . $e->getMessage());
+            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])->with('error', 'Update failed: ' . $e->getMessage());
         }
     }
 
@@ -239,10 +244,6 @@ class UpdateController extends Controller
                         $skip = true;
                         break;
                     }
-                }
-                // Skip .log files and any file ending with .log
-                if (is_file($srcPath) && preg_match('/\.log$/i', $file)) {
-                    $skip = true;
                 }
                 if ($skip) continue;
                 if (is_dir($srcPath)) {
@@ -312,5 +313,25 @@ class UpdateController extends Controller
         );
         file_put_contents($envPath, $envContent);
         return true;
+    }
+
+    // Delete a directory and its contents
+    protected function deleteDirectory($dir)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
+            } else {
+                unlink($file->getRealPath());
+            }
+        }
+        rmdir($dir);
     }
 } 
