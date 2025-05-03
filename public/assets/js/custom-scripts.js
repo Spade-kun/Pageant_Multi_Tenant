@@ -1,55 +1,54 @@
-// Function to update text colors based on background colors
-function updateTextColors() {
-    function isLightColor(color) {
-        const hex = color.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        return brightness > 155;
+// Function to determine if text should be black or white based on background color
+function getContrastYIQ(hexcolor) {
+    hexcolor = hexcolor.replace('#', '');
+    if (hexcolor.length === 3) {
+        hexcolor = hexcolor[0] + hexcolor[0] + hexcolor[1] + hexcolor[1] + hexcolor[2] + hexcolor[2];
     }
+    var r = parseInt(hexcolor.substr(0, 2), 16);
+    var g = parseInt(hexcolor.substr(2, 2), 16);
+    var b = parseInt(hexcolor.substr(4, 2), 16);
+    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? '#000000' : '#ffffff';
+}
 
+function updateTextColors() {
     // Get the elements
     const logoHeader = $('.logo-header');
     const navbar = $('.navbar-header');
     const sidebar = $('.sidebar');
 
-    // Apply color classes based on background colors
-    if (isLightColor('{{ $uiSettings->logo_header_color }}')) {
-        // If background is light, use dark text
-        logoHeader.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
-        $('.brand-text').css('color', '#000000');
-    } else {
-        // If background is dark, use light text
-        logoHeader.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
-        $('.brand-text').css('color', '#ffffff');
-    }
+    // Get background colors from data attribute or style
+    let logoHeaderColor = logoHeader.attr('data-background-color') || logoHeader.css('background-color');
+    let navbarColor = navbar.attr('data-background-color') || navbar.css('background-color');
+    let sidebarColor = sidebar.attr('data-background-color') || sidebar.css('background-color');
 
-    if (isLightColor('{{ $uiSettings->navbar_color }}')) {
-        // If background is light, use dark text
-        navbar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
-        $('.profile-username').css('color', '#000000');
-        $('.profile-username .op-7').css('color', '#000000');
-        $('.profile-username .fw-bold').css('color', '#000000');
-    } else {
-        // If background is dark, use light text
-        navbar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
-        $('.profile-username').css('color', '#ffffff');
-        $('.profile-username .op-7').css('color', '#ffffff');
-        $('.profile-username .fw-bold').css('color', '#ffffff');
+    // If color is in rgb format, convert to hex
+    function rgbToHex(rgb) {
+        if (!rgb) return '#ffffff';
+        if (rgb[0] === '#') return rgb;
+        var result = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        return result ? "#" + (
+            (1 << 24) + (parseInt(result[1]) << 16) + (parseInt(result[2]) << 8) + parseInt(result[3])
+        ).toString(16).slice(1) : '#ffffff';
     }
+    logoHeaderColor = rgbToHex(logoHeaderColor);
+    navbarColor = rgbToHex(navbarColor);
+    sidebarColor = rgbToHex(sidebarColor);
 
-    if (isLightColor('{{ $uiSettings->sidebar_color }}')) {
-        // If background is light, use dark text
-        sidebar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
-        $('.sidebar .nav-item p').css('color', '#000000');
-        $('.sidebar .nav-item i').css('color', '#000000');
-    } else {
-        // If background is dark, use light text
-        sidebar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
-        $('.sidebar .nav-item p').css('color', '#ffffff');
-        $('.sidebar .nav-item i').css('color', '#ffffff');
-    }
+    // Set text color for logo header
+    const logoTextColor = getContrastYIQ(logoHeaderColor);
+    $('.brand-text').css('color', logoTextColor);
+
+    // Set text color for navbar
+    const navbarTextColor = getContrastYIQ(navbarColor);
+    $('.profile-username').css('color', navbarTextColor);
+    $('.profile-username .op-7').css('color', navbarTextColor);
+    $('.profile-username .fw-bold').css('color', navbarTextColor);
+
+    // Set text color for sidebar
+    const sidebarTextColor = getContrastYIQ(sidebarColor);
+    $('.sidebar .nav-item p').css('color', sidebarTextColor);
+    $('.sidebar .nav-item i').css('color', sidebarTextColor);
 }
 
 // Initialize when document is ready
@@ -140,7 +139,6 @@ $(document).ready(function () {
         $(this).parent().find('.selected').removeClass('selected');
         $(this).addClass('selected');
     });
-
 
     // Call the function on document ready
     updateTextColors();
