@@ -234,22 +234,45 @@ class UpdateController extends Controller
     {
         $dir = opendir($source);
         @mkdir($destination, 0755, true);
+        
         while(false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
                 $srcPath = $source . DIRECTORY_SEPARATOR . $file;
                 $destPath = $destination . DIRECTORY_SEPARATOR . $file;
+                
+                // Check if this path should be excluded
+                $relativePath = str_replace($destination, '', $destPath);
                 $skip = false;
                 foreach ($exclude as $ex) {
-                    if (stripos($file, $ex) === 0) {
+                    if (stripos($relativePath, $ex) === 0) {
                         $skip = true;
                         break;
                     }
                 }
-                if ($skip) continue;
+                
+                if ($skip) {
+                    continue;
+                }
+                
                 if (is_dir($srcPath)) {
+                    // Create directory if it doesn't exist
+                    if (!file_exists($destPath)) {
+                        mkdir($destPath, 0755, true);
+                    }
                     $this->copyUpdateFiles($srcPath, $destPath, $exclude);
                 } else {
-                    copy($srcPath, $destPath);
+                    // Ensure the destination directory exists
+                    $destDir = dirname($destPath);
+                    if (!file_exists($destDir)) {
+                        mkdir($destDir, 0755, true);
+                    }
+                    
+                    // Copy the file and set proper permissions
+                    if (copy($srcPath, $destPath)) {
+                        chmod($destPath, 0644); // Set file permissions to 644
+                    } else {
+                        \Log::error("Failed to copy file: {$srcPath} to {$destPath}");
+                    }
                 }
             }
         }
