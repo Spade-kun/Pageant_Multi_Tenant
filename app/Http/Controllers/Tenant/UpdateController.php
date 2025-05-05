@@ -156,7 +156,7 @@ class UpdateController extends Controller
             // Backup current app (excluding critical folders/files)
             $rootPath = base_path();
             $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
-            $exclude = ['.env', 'storage', 'vendor', '.git', 'node_modules', 'public/uploads', 'public/storage'];
+            $exclude = ['.env', 'storage', 'vendor', '.git', 'node_modules', 'public/uploads', 'public/storage', '*.log', 'storage/logs', 'admin-server.log', 'tenant-server.log', 'laravel.log'];
             $zipBackup = new \ZipArchive();
             if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
                 $files = new \RecursiveIteratorIterator(

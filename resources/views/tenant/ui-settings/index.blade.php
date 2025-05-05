@@ -155,9 +155,9 @@
                         <button type="submit" class="btn btn-primary" id="saveChanges">
                             <i class="fa fa-save"></i> Save Changes
                         </button>
-                        <button type="button" class="btn btn-danger" id="resetDefaults">
+                        <!-- <button type="button" class="btn btn-danger" id="resetDefaults">
                             <i class="fa fa-undo"></i> Reset to Defaults
-                        </button>
+                        </button> -->
                     </div>
                 </form>
             </div>
@@ -233,11 +233,11 @@ $(document).ready(function() {
     $('#resetDefaults').click(function(e) {
         e.preventDefault();
         if (confirm('Are you sure you want to reset all UI settings to defaults?')) {
-            // Add default values here
+            // Add default values based on DashboardTemplate.blade.php
             const defaults = {
-                logo_header_color: '#1a2035',
-                navbar_color: '#ffffff',
-                sidebar_color: '#1a2035',
+                logo_header_color: '#1a2035', // dark
+                navbar_color: '#ffffff', // white
+                sidebar_color: '#1a2035', // dark
                 primary_font: 'Public Sans',
                 font_size_scale: '1.0',
                 navbar_position: 'top',
@@ -503,14 +503,14 @@ $(document).ready(function() {
     $('#uiSettingsForm select, #uiSettingsForm input[type="checkbox"]').on('change', function() {
         applyChanges();
         $(document).trigger('colorChanged'); // Trigger color change event
-        });
-        
+    });
+    
     // Add input event listeners for color pickers
     $('#logoHeaderColorPicker, #navbarColorPicker, #sidebarColorPicker').on('input', function() {
         applyChanges();
         $(document).trigger('colorChanged'); // Trigger color change event
     });
-
+    
     // Apply initial settings
     applyChanges();
 });

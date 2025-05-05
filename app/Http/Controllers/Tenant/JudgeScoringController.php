@@ -165,7 +165,7 @@ class JudgeScoringController extends Controller
             'event_id' => 'required|exists:tenant.events,id',
             'contestant_id' => 'required|exists:tenant.contestants,id',
             'category_id' => 'required|exists:tenant.categories,id',
-            'raw_score' => 'required|numeric|min:0|max:100',
+            'raw_score' => 'required|numeric|min:1|max:10',
             'comments' => 'nullable|string'
         ]);
 
@@ -179,7 +179,9 @@ class JudgeScoringController extends Controller
         }
 
         $rawScore = $request->raw_score;
-        $weightedScore = ($rawScore * $category->percentage) / 100;
+        // Scale the 1-10 score to percentage basis for weighting calculation
+        $scaledScore = ($rawScore / 10) * 100; 
+        $weightedScore = ($scaledScore * $category->percentage) / 100;
 
         $judgeEmail = session('tenant_user.email');
         $judge = DB::connection('tenant')

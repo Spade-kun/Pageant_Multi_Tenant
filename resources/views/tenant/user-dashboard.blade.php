@@ -40,7 +40,7 @@
                     <h3 class="card-title">
                         {{ DB::connection('tenant')->table('judges')->count() }}
                     </h3>
-</div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
@@ -148,6 +148,156 @@
                                                 ->count() }}
                                         </span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leaderboard -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-gradient-primary text-black">
+                                <h5 class="mb-0"><i class="fas fa-trophy mr-2 "></i> Event Leaderboard</h5>
+                            </div>
+                            <div class="card-body">
+                                @php
+                                    // Get all contestants for this event
+                                    $contestants = DB::connection('tenant')
+                                        ->table('scores')
+                                        ->join('contestants', 'scores.contestant_id', '=', 'contestants.id')
+                                        ->where('scores.event_id', $event->id)
+                                        ->select('contestants.id', 'contestants.name')
+                                        ->distinct()
+                                        ->get();
+                                    
+                                    // Calculate total score for each contestant
+                                    $leaderboard = [];
+                                    foreach ($contestants as $contestant) {
+                                        $totalScore = DB::connection('tenant')
+                                            ->table('scores')
+                                            ->where('event_id', $event->id)
+                                            ->where('contestant_id', $contestant->id)
+                                            ->sum('weighted_score');
+                                        
+                                        // Count how many categories were scored
+                                        $scoredCategories = DB::connection('tenant')
+                                            ->table('scores')
+                                            ->where('event_id', $event->id)
+                                            ->where('contestant_id', $contestant->id)
+                                            ->count();
+                                            
+                                        // Get total number of categories for this event
+                                        $totalCategories = DB::connection('tenant')
+                                            ->table('categories')
+                                            ->count();
+                                            
+                                        $completionPercentage = $totalCategories > 0 ? 
+                                            ($scoredCategories / $totalCategories) * 100 : 0;
+                                        
+                                        $leaderboard[] = [
+                                            'id' => $contestant->id,
+                                            'name' => $contestant->name,
+                                            'total_score' => $totalScore,
+                                            'scored_categories' => $scoredCategories,
+                                            'completion' => $completionPercentage
+                                        ];
+                                    }
+                                    
+                                    // Sort by total score (highest to lowest)
+                                    usort($leaderboard, function($a, $b) {
+                                        return $b['total_score'] <=> $a['total_score'];
+                                    });
+                                @endphp
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th width="5%" class="text-center">Rank</th>
+                                                <th width="20%">Contestant</th>
+                                                <th width="60%">Score Progress</th>
+                                                <th width="15%" class="text-right">Total Score</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($leaderboard as $index => $contestant)
+                                                <tr class="{{ $index < 3 ? 'table-'.($index == 0 ? 'warning' : ($index == 1 ? 'light' : 'secondary')) : '' }}">
+                                                    <td class="text-center">
+                                                        @if($index == 0)
+                                                            <div class="position-relative">
+                                                                <span class="badge badge-warning position-relative" style="font-size: 1.1rem;">
+                                                                    <i class="fas fa-crown" style="color: #FFD700;"></i> 1
+                                                                </span>
+                                                            </div>
+                                                        @elseif($index == 1)
+                                                            <div class="position-relative">
+                                                                <span class="badge badge-light position-relative" style="font-size: 1rem;">
+                                                                    <i class="fas fa-medal" style="color: #C0C0C0;"></i> 2
+                                                                </span>
+                                                            </div>
+                                                        @elseif($index == 2)
+                                                            <div class="position-relative">
+                                                                <span class="badge badge-secondary position-relative" style="font-size: 0.9rem;">
+                                                                    <i class="fas fa-medal" style="color: #CD7F32;"></i> 3
+                                                                </span>
+                                                            </div>
+                                                        @else
+                                                            <span class="badge badge-light">{{ $index + 1 }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="{{ $index < 3 ? 'font-weight-bold' : '' }}">
+                                                        {{ $contestant['name'] }}
+                                                        @if($contestant['completion'] < 100)
+                                                            <span class="badge badge-info ml-1">
+                                                                <i class="fas fa-hourglass-half"></i> In Progress
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @php
+                                                            // Get max possible total score
+                                                            $categories = DB::connection('tenant')
+                                                                ->table('categories')
+                                                                ->sum('percentage');
+                                                            
+                                                            // Calculate percentage of max score
+                                                            $maxPossibleScore = $categories; // 100% per category
+                                                            $percentage = $maxPossibleScore > 0 ? ($contestant['total_score'] / $maxPossibleScore) * 100 : 0;
+                                                            $percentage = min(100, $percentage); // Cap at 100%
+                                                            
+                                                            // Determine bar color
+                                                            $barColor = 'primary';
+                                                            if ($index == 0) $barColor = 'warning';
+                                                            elseif ($index == 1) $barColor = 'info';
+                                                            elseif ($index == 2) $barColor = 'success';
+                                                        @endphp
+                                                        <div class="progress" style="height: 25px; box-shadow: inset 0 1px 2px rgba(0,0,0,.1);">
+                                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-{{ $barColor }}" 
+                                                                role="progressbar" 
+                                                                style="width: {{ $percentage }}%;" 
+                                                                aria-valuenow="{{ $percentage }}" 
+                                                                aria-valuemin="0" 
+                                                                aria-valuemax="100">
+                                                                {{ number_format($percentage, 1) }}%
+                                                            </div>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            {{ $contestant['scored_categories'] }} of {{ $totalCategories }} categories scored
+                                                        </small>
+                                                    </td>
+                                                    <td class="text-right font-weight-bold {{ $index == 0 ? 'text-warning' : ($index == 1 ? 'text-info' : ($index == 2 ? 'text-success' : '')) }}" style="font-size: 1.1rem;">
+                                                        {{ number_format($contestant['total_score'], 2) }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center py-4">
+                                                        <div class="alert alert-light">
+                                                            <i class="fas fa-info-circle mr-2"></i> No scores available yet.
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

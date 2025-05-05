@@ -39,10 +39,11 @@
                 <input type="hidden" name="category_id" value="{{ $category->id }}">
 
                 <div class="form-group">
-                    <label for="raw_score">Raw Score (0-100)</label>
+                    <label for="raw_score">Raw Score (1-10)</label>
                     <input type="number" class="form-control" id="raw_score" name="raw_score" 
-                           min="0" max="100" step="0.1" required
+                           min="1" max="10" step="0.1" required
                            value="{{ old('raw_score', $existingScore ? $existingScore->raw_score : '') }}">
+                    <small class="form-text text-muted">Enter a score between 1 and 10.</small>
                 </div>
 
                 <div class="form-group">
@@ -72,7 +73,9 @@
         
         function calculateWeightedScore() {
             const rawScore = parseFloat($('#raw_score').val()) || 0;
-            const weightedScore = (rawScore * categoryPercentage) / 100;
+            // Convert 1-10 score to percentage basis for weighting
+            const scaledScore = (rawScore / 10) * 100;
+            const weightedScore = (scaledScore * categoryPercentage) / 100;
             $('#weighted_score').text(weightedScore.toFixed(2));
         }
 
