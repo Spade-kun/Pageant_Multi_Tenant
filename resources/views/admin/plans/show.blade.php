@@ -5,10 +5,10 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header bg-gradient-primary">
                     <h3 class="card-title">Plan Details: {{ $plan->name }}</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.plans.edit', $plan) }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('admin.plans.edit', $plan) }}" class="btn btn-light btn-sm">
                             <i class="fas fa-edit"></i> Edit Plan
                         </a>
                     </div>
@@ -170,32 +170,42 @@
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h4>Subscribed Tenants</h4>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Tenant Name</th>
-                                            <th>Email</th>
-                                            <th>Subscription Start</th>
-                                            <th>Subscription End</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($plan->tenants as $tenant)
-                                            <tr>
-                                                <td>{{ $tenant->name }}</td>
-                                                <td>{{ $tenant->email }}</td>
-                                                <td>{{ $tenant->subscription_starts_at ? $tenant->subscription_starts_at->format('M d, Y') : 'N/A' }}</td>
-                                                <td>{{ $tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('M d, Y') : 'N/A' }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="4" class="text-center">No tenants subscribed to this plan.</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                            <div class="card">
+                                <div class="card-header bg-gradient-primary">
+                                    <h4 class="card-title m-0">Subscribed Tenants</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered datatables">
+                                            <thead>
+                                                <tr>
+                                                   
+                                                    <th>Pageant Name</th>
+                                                    <th>Status</th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($plan->tenants as $tenant)
+                                                    <tr>
+                                                      
+                                                        <td>{{ $tenant->pageant_name ?? 'N/A' }}</td>
+                                                        <td>
+                                                            <span class="badge badge-{{ $tenant->is_active ? 'success' : 'danger' }}">
+                                                                {{ $tenant->is_active ? 'Active' : 'Inactive' }}
+                                                            </span>
+                                                        </td>
+                                                       
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="7" class="text-center">No tenants subscribed to this plan.</td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -204,4 +214,15 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('.datatables').DataTable({
+            responsive: true,
+            order: [[4, 'desc']]
+        });
+    });
+</script>
+@endpush 

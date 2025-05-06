@@ -845,7 +845,7 @@
                data-background-color="{{ $uiSettings->navbar_color }}"
                style="background-color: {{ $uiSettings->navbar_color }}; 
                      {{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
-                     {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
+                      {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
                      {{ $uiSettings->is_sidebar_collapsed ? ($uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 76px); left: 0; right: 76px;' : 'width: calc(100% - 76px); left: 76px; right: 0;') : '' }}">
             <div class="container-fluid">
               <nav class="navbar navbar-header-left navbar-expand-lg p-0">
@@ -1029,9 +1029,9 @@
             <button type="button" class="btn btn-primary reset-layout-btn">
               <i class="fas fa-sync-alt me-2"></i> Reset Layout
             </button>
-          </div>
-        </div>
-      </div>
+              </div>
+            </div>
+              </div>
     </div>
 
     <!--   Core JS Files   -->
@@ -1134,6 +1134,6 @@
       });
     </script>
 
-    @stack('scripts')
+        @stack('scripts')
   </body>
 </html>

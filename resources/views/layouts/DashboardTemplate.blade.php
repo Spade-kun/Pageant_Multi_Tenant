@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+    <title>Pageant Management System - Admin</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -40,21 +40,83 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
+
+    <!-- Custom Admin Template Styles -->
+    <style>
+      .brand-text {
+        font-size: 1.2rem;
+        margin-left: 10px;
+        font-weight: bold;
+        color: #ffffff !important;
+      }
+      
+      .sidebar[data-background-color="dark2"] .nav .nav-item a,
+      .sidebar[data-background-color="dark2"] .nav .nav-item a i {
+        color: #ffffff !important;
+      }
+      
+      .sidebar[data-background-color="dark2"] .nav .nav-item.active > a {
+        background: rgba(255, 255, 255, 0.15) !important;
+      }
+      
+      .navbar-header-transparent {
+        background-color: #1a2035 !important;
+      }
+      
+      .navbar-header .navbar-nav .nav-item > a,
+      .navbar-header .navbar-nav .nav-item > a i {
+        color: #ffffff !important;
+      }
+      
+      .navbar-header .nav-search .form-control {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+      }
+      
+      .navbar-header .nav-search .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+      
+      .navbar-header .btn-search i {
+        color: #ffffff !important;
+      }
+      
+      /* Admin specific card headers */
+      .card-header.bg-gradient-primary {
+        background: #1a2035 !important;
+        color: #ffffff !important;
+      }
+      
+      .dropdown-menu * {
+        color: #1a2035 !important;
+      }
+      
+      .logo-header[data-background-color="dark2"] {
+        background-color: #1a2035 !important;
+      }
+      
+      .sidebar[data-background-color="dark2"] {
+        background-color: #1a2035 !important;
+      }
+    </style>
   </head>
   <body>
     <div class="wrapper">
       <!-- Sidebar -->
-      <div class="sidebar" data-background-color="dark">
+      <div class="sidebar" data-background-color="dark2">
         <div class="sidebar-logo">
           <!-- Logo Header -->
-          <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
-              <img
-                src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
-                alt="navbar brand"
-                class="navbar-brand"
-                height="20"
-              />
+          <div class="logo-header" data-background-color="dark2">
+            <a href="{{ route('admin.dashboard') }}" class="logo">
+              <div class="d-flex align-items-center">
+                <img
+                  src="{{ asset('assets/img/clam_logo.jpg') }}"
+                  alt="Logo"
+                  class="navbar-brand rounded-circle"
+                  style="width: 40px; height: 40px; object-fit: cover;"
+                />
+                <span class="brand-text text-white ml-2">Clam Admin</span>
+              </div>
             </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
@@ -113,18 +175,8 @@
                   <p>Plan Requests</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-users"></i>
-                  <p>User Management</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-cog"></i>
-                  <p>System Settings</p>
-                </a>
-              </li>
+              
+              
             </ul>
           </div>
         </div>
@@ -135,14 +187,17 @@
         <div class="main-header">
           <div class="main-header-logo">
             <!-- Logo Header -->
-            <div class="logo-header" data-background-color="dark">
-              <a href="index.html" class="logo">
-                <img
-                  src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}"
-                  alt="navbar brand"
-                  class="navbar-brand"
-                  height="20"
-                />
+            <div class="logo-header" data-background-color="dark2">
+              <a href="{{ route('admin.dashboard') }}" class="logo">
+                <div class="d-flex align-items-center">
+                  <img
+                    src="{{ asset('assets/img/clam_logo.jpg') }}"
+                    alt="Logo"
+                    class="navbar-brand rounded-circle"
+                    style="width: 40px; height: 40px; object-fit: cover;"
+                  />
+                  <span class="brand-text text-white ml-2">Clam Admin</span>
+                </div>
               </a>
               <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -159,7 +214,7 @@
             <!-- End Logo Header -->
           </div>
           <!-- Navbar Header -->
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom" style="background-color: #1a2035;">
             <div class="container-fluid">
               <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
                 <div class="input-group">
