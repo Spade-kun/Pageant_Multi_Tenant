@@ -288,12 +288,14 @@ class UpdateController extends Controller
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
         if (!is_dir($source)) {
+            \Log::info("Source directory not found: {$source}");
             return;
         }
         
         $dir = opendir($source);
         if (!file_exists($destination)) {
             @mkdir($destination, 0755, true);
+            \Log::info("Created destination directory: {$destination}");
         }
         
         while(false !== ($file = readdir($dir))) {
@@ -320,13 +322,15 @@ class UpdateController extends Controller
                 }
                 
                 if ($skip) {
+                    \Log::info("Skipping excluded file: {$destPath}");
                     continue;
                 }
                 
                 if (is_dir($srcPath)) {
-                    // Create directory if it doesn't exist (don't overwrite existing directories)
+                    // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
                         mkdir($destPath, 0755, true);
+                        \Log::info("Created directory: {$destPath}");
                     }
                     
                     // Recursively copy directory contents 
@@ -336,16 +340,26 @@ class UpdateController extends Controller
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {
                         mkdir($destDir, 0755, true);
+                        \Log::info("Created parent directory: {$destDir}");
                     }
                     
-                    // Only copy if source file is newer or destination doesn't exist
-                    if (!file_exists($destPath) || filemtime($srcPath) > filemtime($destPath)) {
-                        // Try to copy the file, but don't fail if it's in use
-                        @copy($srcPath, $destPath);
+                    // If destination file exists and is read-only or in use, try to make it writable
+                    if (file_exists($destPath)) {
+                        @chmod($destPath, 0644);
                         
-                        if (file_exists($destPath)) {
-                            chmod($destPath, 0644);
+                        // If file can't be written to, attempt to delete it first
+                        if (!is_writable($destPath)) {
+                            @unlink($destPath);
+                            \Log::info("Removed write-protected file: {$destPath}");
                         }
+                    }
+                    
+                    // ALWAYS copy files, regardless of timestamp
+                    if (@copy($srcPath, $destPath)) {
+                        @chmod($destPath, 0644);
+                        \Log::info("Copied file: {$srcPath} → {$destPath}");
+                    } else {
+                        \Log::warning("Failed to copy file: {$srcPath} → {$destPath}");
                     }
                 }
             }
@@ -444,5 +458,63 @@ class UpdateController extends Controller
         }
         
         @rmdir($dir);
+    }
+
+    /**
+     * Clean up stale project files that might interfere with updates
+     */
+    protected function cleanupProjectFiles()
+    {
+        \Log::info("Starting pre-update cleanup...");
+        
+        // Directories that should be cleaned up
+        $directoriesToClean = [
+            base_path('bootstrap/cache'),
+            storage_path('framework/cache'),
+            storage_path('framework/views'),
+        ];
+        
+        foreach ($directoriesToClean as $directory) {
+            if (is_dir($directory)) {
+                $this->cleanDirectory($directory);
+                \Log::info("Cleaned directory: {$directory}");
+            }
+        }
+        
+        // Specific files to remove
+        $filesToRemove = [
+            base_path('bootstrap/cache/config.php'),
+            base_path('bootstrap/cache/routes.php'),
+            base_path('bootstrap/cache/services.php'),
+        ];
+        
+        foreach ($filesToRemove as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+                \Log::info("Removed file: {$file}");
+            }
+        }
+        
+        \Log::info("Pre-update cleanup completed");
+    }
+
+    /**
+     * Clean a directory without removing the directory itself
+     */
+    protected function cleanDirectory($directory)
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+        
+        $files = new \FilesystemIterator($directory);
+        
+        foreach ($files as $file) {
+            if ($file->isDir() && !$file->isLink()) {
+                $this->deleteDirectory($file->getPathname());
+            } else {
+                @unlink($file->getPathname());
+            }
+        }
     }
 } 
