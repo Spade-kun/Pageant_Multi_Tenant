@@ -330,6 +330,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
+        // Show pending page first, then process the update via AJAX
         Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
@@ -354,8 +355,60 @@ Route::middleware(['auth:tenant'])->group(function () {
             if (auth()->guard('tenant')->user()->role !== 'owner') {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
-            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
+            
+            // Show the pending page
+            return view('tenant.updates.pending', [
+                'slug' => $slug,
+                'version' => $request->input('version')
+            ]);
         })->name('tenant.updates.update');
+
+        // Process the actual update via AJAX
+        Route::post('/{slug}/updates/process', function($slug, \Illuminate\Http\Request $request) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return response()->json(['error' => 'Only tenant owners can access system updates.'], 403);
+            }
+            
+            try {
+                // Create an instance of the UpdateSystemRequest with the input from the request
+                $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
+                $updateRequest->replace($request->all());
+                
+                // Validate the request
+                if (!$updateRequest->authorize() || !$updateRequest->passes()) {
+                    return response()->json(['error' => 'Invalid version format.'], 400);
+                }
+                
+                // Run the update process
+                app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
+                
+                // Return success response
+                return response()->json(['success' => true, 'message' => 'Update completed successfully.']);
+            } catch (\Exception $e) {
+                // Return error response
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        })->name('tenant.updates.process');
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
