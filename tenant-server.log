@@ -5330,3 +5330,206 @@
   2025-05-07 12:57:55 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ............ ~ 7.83ms
   2025-05-07 12:57:55 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................ ~ 26.19ms
   2025-05-07 12:57:55 /assets/js/custom-scripts.js .............................................. ~ 47.65ms
+  2025-05-07 13:02:12 /sanjose/updates ............................................................... ~ 8s
+  2025-05-07 13:02:12 /assets/js/plugin/webfont/webfont.min.js ....................................... ~ 8s
+  2025-05-07 13:02:21 /assets/css/bootstrap.min.css .............................................. ~ 1.64ms
+  2025-05-07 13:02:21 /assets/css/demo.css ....................................................... ~ 6.54ms
+  2025-05-07 13:02:21 /assets/css/plugins.min.css ................................................ ~ 9.38ms
+  2025-05-07 13:02:21 /assets/css/kaiadmin.min.css .............................................. ~ 11.71ms
+  2025-05-07 13:02:21 /assets/img/clam_logo.jpg ................................................. ~ 13.83ms
+  2025-05-07 13:02:21 /assets/img/buksu_logo.png ................................................ ~ 15.32ms
+  2025-05-07 13:02:21 /assets/img/profile.jpg .................................................... ~ 0.16ms
+  2025-05-07 13:02:21 /assets/css/fonts.min.css .................................................. ~ 0.14ms
+  2025-05-07 13:02:21 /assets/js/core/jquery.3.2.1.min.js ...................................... ~ 497.45ms
+  2025-05-07 13:02:21 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ..................... ~ 2s
+  2025-05-07 13:02:21 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ........... ~ 3s
+  2025-05-07 13:02:22 /assets/js/core/popper.min.js .................................................. ~ 3s
+  2025-05-07 13:02:25 /assets/js/core/bootstrap.min.js .......................................... ~ 16.17ms
+  2025-05-07 13:02:25 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................ ~ 18.64ms
+  2025-05-07 13:02:25 /assets/fonts/fontawesome/fa-solid-900.woff2 .............................. ~ 33.48ms
+  2025-05-07 13:02:25 /assets/fonts/fontawesome/fa-regular-400.woff2 ............................ ~ 35.00ms
+  2025-05-07 13:02:25 /assets/fonts/fontawesome/fa-brands-400.woff2 .............................. ~ 0.55ms
+  2025-05-07 13:02:25 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ............ ~ 0.21ms
+  2025-05-07 13:02:25 /assets/js/custom-scripts.js ............................................... ~ 1.44ms
+  2025-05-07 13:02:47 /sanjose/updates ............................................................... ~ 5s
+  2025-05-07 13:02:47 /assets/js/plugin/webfont/webfont.min.js ....................................... ~ 5s
+  2025-05-07 13:02:53 /assets/css/bootstrap.min.css .............................................. ~ 0.72ms
+  2025-05-07 13:02:53 /assets/css/plugins.min.css ................................................ ~ 4.05ms
+  2025-05-07 13:02:53 /assets/css/kaiadmin.min.css ............................................... ~ 0.58ms
+  2025-05-07 13:02:53 /assets/css/demo.css ....................................................... ~ 0.20ms
+  2025-05-07 13:02:53 /assets/img/clam_logo.jpg .................................................. ~ 0.24ms
+  2025-05-07 13:02:53 /assets/img/buksu_logo.png ................................................. ~ 3.66ms
+  2025-05-07 13:02:53 /assets/js/core/jquery.3.2.1.min.js ...................................... ~ 501.68ms
+  2025-05-07 13:02:53 /assets/css/fonts.min.css ................................................ ~ 504.43ms
+  2025-05-07 13:02:53 /assets/img/profile.jpg .................................................. ~ 507.44ms
+  2025-05-07 13:02:54 /assets/js/core/popper.min.js .............................................. ~ 6.13ms
+  2025-05-07 13:02:54 /assets/js/core/bootstrap.min.js ........................................... ~ 0.20ms
+  2025-05-07 13:02:54 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ............... ~ 516.22ms
+  2025-05-07 13:02:54 /assets/fonts/fontawesome/fa-solid-900.woff2 ............................... ~ 0.33ms
+  2025-05-07 13:02:54 /assets/fonts/fontawesome/fa-regular-400.woff2 ............................. ~ 2.02ms
+  2025-05-07 13:02:54 /assets/fonts/fontawesome/fa-brands-400.woff2 .............................. ~ 3.53ms
+  2025-05-07 13:02:54 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ........... ~ 1s
+  2025-05-07 13:02:55 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................. ~ 0.76ms
+  2025-05-07 13:02:55 /assets/js/custom-scripts.js ............................................... ~ 1.91ms
+  2025-05-07 13:02:55 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ............ ~ 5.35ms
+  2025-05-07 13:02:55 /assets/img/kaiadmin/favicon.ico ........................................... ~ 0.25ms
+  2025-05-07 13:05:42 /sanjose/updates ............................................................... ~ 5s
+  2025-05-07 13:05:47 /assets/js/plugin/webfont/webfont.min.js ................................... ~ 0.25ms
+  2025-05-07 13:05:47 /assets/css/bootstrap.min.css .............................................. ~ 0.64ms
+  2025-05-07 13:05:47 /assets/css/demo.css ...................................................... ~ 14.39ms
+  2025-05-07 13:05:47 /assets/css/plugins.min.css ............................................... ~ 19.05ms
+  2025-05-07 13:05:47 /assets/css/kaiadmin.min.css .............................................. ~ 24.71ms
+  2025-05-07 13:05:47 /assets/img/clam_logo.jpg ................................................. ~ 26.65ms
+  2025-05-07 13:05:47 /assets/img/buksu_logo.png ................................................ ~ 30.00ms
+  2025-05-07 13:05:48 /assets/img/profile.jpg .................................................... ~ 0.53ms
+  2025-05-07 13:05:48 /assets/js/core/jquery.3.2.1.min.js ...................................... ~ 508.96ms
+  2025-05-07 13:05:48 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ............... ~ 502.86ms
+  2025-05-07 13:05:48 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ........... ~ 1s
+  2025-05-07 13:05:48 /assets/css/fonts.min.css ...................................................... ~ 1s
+  2025-05-07 13:05:48 /assets/js/core/popper.min.js .................................................. ~ 1s
+  2025-05-07 13:05:49 /assets/js/core/bootstrap.min.js ............................................... ~ 1s
+  2025-05-07 13:05:50 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................ ~ 18.94ms
+  2025-05-07 13:05:50 /assets/js/custom-scripts.js .............................................. ~ 13.81ms
+  2025-05-07 13:05:50 /assets/fonts/fontawesome/fa-solid-900.woff2 .............................. ~ 16.33ms
+  2025-05-07 13:05:50 /assets/fonts/fontawesome/fa-regular-400.woff2 ............................ ~ 18.09ms
+  2025-05-07 13:05:50 /assets/fonts/fontawesome/fa-brands-400.woff2 ............................. ~ 11.74ms
+  2025-05-07 13:05:50 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ............ ~ 9.68ms
+  2025-05-07 13:05:50 /assets/img/kaiadmin/favicon.ico ........................................... ~ 0.28ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-07 13:06:53 /sanjose/updates ............................................................... ~ 8s
+  2025-05-07 13:07:01 /assets/js/plugin/webfont/webfont.min.js ................................... ~ 0.38ms
+  2025-05-07 13:07:01 /assets/css/bootstrap.min.css .............................................. ~ 2.81ms
+  2025-05-07 13:07:01 /assets/css/plugins.min.css ................................................ ~ 5.88ms
+  2025-05-07 13:07:01 /assets/css/kaiadmin.min.css .............................................. ~ 10.39ms
+  2025-05-07 13:07:01 /assets/css/demo.css ...................................................... ~ 10.48ms
+  2025-05-07 13:07:01 /assets/img/clam_logo.jpg ................................................. ~ 12.27ms
+  2025-05-07 13:07:01 /assets/img/buksu_logo.png ................................................ ~ 14.10ms
+  2025-05-07 13:07:01 /assets/img/profile.jpg .................................................... ~ 0.16ms
+  2025-05-07 13:07:02 /assets/js/core/jquery.3.2.1.min.js ............................................ ~ 1s
+  2025-05-07 13:07:02 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ............... ~ 496.37ms
+  2025-05-07 13:07:02 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ..... ~ 999.06ms
+  2025-05-07 13:07:02 /assets/js/core/popper.min.js ............................................ ~ 999.99ms
+  2025-05-07 13:07:02 /assets/css/fonts.min.css ...................................................... ~ 1s
+  2025-05-07 13:07:03 /assets/js/core/bootstrap.min.js ......................................... ~ 510.05ms
+  2025-05-07 13:07:03 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................. ~ 7.23ms
+  2025-05-07 13:07:03 /assets/js/custom-scripts.js ............................................... ~ 4.36ms
+  2025-05-07 13:07:03 /assets/fonts/fontawesome/fa-solid-900.woff2 ............................... ~ 0.23ms
+  2025-05-07 13:07:04 /assets/fonts/fontawesome/fa-regular-400.woff2 ............................. ~ 0.21ms
+  2025-05-07 13:07:04 /assets/fonts/fontawesome/fa-brands-400.woff2 .............................. ~ 0.24ms
+  2025-05-07 13:07:04 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ............ ~ 1.79ms
+  2025-05-07 13:07:05 /sanjose/dashboard ............................................................. ~ 4s
+  2025-05-07 13:07:10 /assets/js/plugin/webfont/webfont.min.js ................................... ~ 0.34ms
+  2025-05-07 13:07:10 /assets/css/bootstrap.min.css ............................................ ~ 524.03ms
+  2025-05-07 13:07:10 /assets/css/plugins.min.css .............................................. ~ 526.30ms
+  2025-05-07 13:07:10 /assets/css/kaiadmin.min.css ............................................. ~ 530.76ms
+  2025-05-07 13:07:10 /assets/css/demo.css ....................................................... ~ 9.58ms
+  2025-05-07 13:07:10 /assets/img/clam_logo.jpg ................................................. ~ 12.43ms
+  2025-05-07 13:07:10 /assets/img/buksu_logo.png ................................................. ~ 0.82ms
+  2025-05-07 13:07:10 /assets/js/core/jquery.3.2.1.min.js ...................................... ~ 504.22ms
+  2025-05-07 13:07:10 /assets/img/profile.jpg .................................................. ~ 507.11ms
+  2025-05-07 13:07:11 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ..................... ~ 1s
+  2025-05-07 13:07:11 /assets/css/fonts.min.css ...................................................... ~ 1s
+  2025-05-07 13:07:12 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ........... ~ 2s
+  2025-05-07 13:07:11 /assets/js/core/popper.min.js .................................................. ~ 3s
+  2025-05-07 13:07:11 /assets/js/core/bootstrap.min.js ............................................... ~ 3s
+  2025-05-07 13:07:12 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ..................... ~ 2s
+  2025-05-07 13:07:14 /assets/js/custom-scripts.js ............................................... ~ 3.89ms
+  2025-05-07 13:07:14 /assets/fonts/fontawesome/fa-solid-900.woff2 ............................... ~ 3.73ms
+  2025-05-07 13:07:14 /sanjose/updates ............................................................... ~ 4s
+  2025-05-07 13:07:14 /assets/fonts/fontawesome/fa-regular-400.woff2 ................................. ~ 4s
+  2025-05-07 13:07:14 /assets/fonts/fontawesome/fa-brands-400.woff2 .................................. ~ 4s
+  2025-05-07 13:07:14 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ................ ~ 4s
+  2025-05-07 13:07:19 /assets/js/plugin/webfont/webfont.min.js ................................... ~ 0.19ms
+  2025-05-07 13:07:19 /assets/css/bootstrap.min.css .............................................. ~ 0.43ms
+  2025-05-07 13:07:19 /assets/css/demo.css ....................................................... ~ 2.67ms
+  2025-05-07 13:07:19 /assets/css/plugins.min.css ................................................ ~ 7.93ms
+  2025-05-07 13:07:19 /assets/css/kaiadmin.min.css .............................................. ~ 10.31ms
+  2025-05-07 13:07:19 /assets/img/clam_logo.jpg ................................................. ~ 12.61ms
+  2025-05-07 13:07:19 /assets/img/buksu_logo.png ................................................. ~ 0.20ms
+  2025-05-07 13:07:19 /assets/img/profile.jpg .................................................... ~ 0.19ms
+  2025-05-07 13:07:19 /assets/js/core/jquery.3.2.1.min.js ............................................ ~ 1s
+  2025-05-07 13:07:20 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ............... ~ 507.55ms
+  2025-05-07 13:07:20 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js ........... ~ 1s
+  2025-05-07 13:07:20 /assets/css/fonts.min.css ...................................................... ~ 1s
+  2025-05-07 13:07:20 /assets/js/core/bootstrap.min.js ............................................... ~ 1s
+  2025-05-07 13:07:20 /assets/js/core/popper.min.js .................................................. ~ 1s
+  2025-05-07 13:07:21 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ................ ~ 18.05ms
+  2025-05-07 13:07:21 /assets/js/custom-scripts.js .............................................. ~ 17.05ms
+  2025-05-07 13:07:21 /assets/fonts/fontawesome/fa-brands-400.woff2 ............................. ~ 17.90ms
+  2025-05-07 13:07:21 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0 ........... ~ 20.14ms
+  2025-05-07 13:07:21 /assets/fonts/fontawesome/fa-solid-900.woff2 .............................. ~ 14.48ms
+  2025-05-07 13:07:21 /assets/fonts/fontawesome/fa-regular-400.woff2 ............................ ~ 16.34ms
+  2025-05-07 13:07:27 /sanjose/updates/update ....................................................... ~ 43s
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:10 /sanjose/updates ........................................................... ~ 1.02ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:10 /favicon.ico ............................................................... ~ 0.94ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:49 /sanjose/updates ........................................................... ~ 1.02ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:49 /favicon.ico ............................................................. ~ 526.70ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:50 /sanjose/updates ........................................................... ~ 0.62ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:50 /favicon.ico ............................................................... ~ 2.06ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:51 /favicon.ico ............................................................. ~ 512.76ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:51 /sanjose/dashboard ............................................................. ~ 3s
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:08:55 /favicon.ico ............................................................. ~ 491.22ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:09:25 /sanjose/dashboard ......................................................... ~ 1.09ms
+  PHP Warning:  require_once(C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php): Failed to open stream: No such file or directory in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  PHP Fatal error:  Uncaught Error: Failed opening required 'C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\public/index.php' (include_path='C:\xampp\php\PEAR') in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+  Stack trace:
+  #0 {main}
+  thrown in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php on line 23
+  2025-05-07 13:09:25 /favicon.ico ............................................................... ~ 3.53ms
+  2025-05-07 13:09:25 ............................................................................. ~ 1m 2s
