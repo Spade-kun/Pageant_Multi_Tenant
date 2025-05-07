@@ -120,6 +120,8 @@ class UpdateController extends Controller
 
     public function update(UpdateSystemRequest $request)
     {
+        $targetVersion = $request->input('version');
+        
         // Prevent timeout for long-running update
         set_time_limit(0);
         ini_set('memory_limit', '512M');
