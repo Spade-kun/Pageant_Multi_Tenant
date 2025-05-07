@@ -28,3 +28,52 @@
 
   Press Ctrl+C to stop the server
 
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-07 16:03:20 /tenant/register ................................................ ~ 1s
+  2025-05-07 16:03:20 /images/logo.jpg ................................................ ~ 2s
+  2025-05-07 16:03:25 /favicon.ico ................................................ ~ 0.24ms
+  2025-05-07 16:03:42 /favicon.ico ................................................ ~ 0.31ms
+  2025-05-07 16:03:43 /tenant/login ................................................... ~ 3s
+  2025-05-07 16:03:46 /images/logo.jpg ............................................ ~ 0.15ms
+  2025-05-07 16:03:48 /favicon.ico ................................................ ~ 0.26ms
+  2025-05-07 16:04:06 /tenant/login ................................................... ~ 4s
+  2025-05-07 16:04:10 /sanjose/dashboard .............................................. ~ 3s
+  2025-05-07 16:04:13 /assets/css/bootstrap.min.css ............................... ~ 0.76ms
+  2025-05-07 16:04:13 /assets/js/plugin/webfont/webfont.min.js .................... ~ 8.83ms
+  2025-05-07 16:04:13 /assets/css/plugins.min.css ................................ ~ 12.17ms
+  2025-05-07 16:04:13 /assets/css/demo.css ....................................... ~ 20.81ms
+  2025-05-07 16:04:13 /assets/img/clam_logo.jpg .................................. ~ 24.40ms
+  2025-05-07 16:04:13 /assets/css/kaiadmin.min.css ............................... ~ 31.65ms
+  2025-05-07 16:04:13 /assets/img/buksu_logo.png .................................. ~ 0.26ms
+  2025-05-07 16:04:13 /assets/img/profile.jpg ..................................... ~ 0.32ms
+  2025-05-07 16:04:13 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-07 16:04:14 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 511.33ms
+  2025-05-07 16:04:14 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-07 16:04:14 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-07 16:04:14 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-07 16:04:15 /assets/js/core/bootstrap.min.js .......................... ~ 531.01ms
+  2025-05-07 16:04:16 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 6.46ms
+  2025-05-07 16:04:16 /assets/js/custom-scripts.js ................................ ~ 6.96ms
+  2025-05-07 16:04:16 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.26ms
+  2025-05-07 16:04:16 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 1.19ms
+  2025-05-07 16:04:16 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.43ms
+  2025-05-07 16:04:16 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.19ms
+  2025-05-07 16:04:40 /sanjose/reports/generate ....................................... ~ 1s
+  2025-05-07 16:04:42 /favicon.ico .................................................... ~ 1s
+  2025-05-07 16:06:08 /sanjose/logout ................................................. ~ 1s
+  2025-05-07 16:06:10 /tenant/login ................................................... ~ 1s
+  2025-05-07 16:06:11 /images/logo.jpg ............................................ ~ 0.28ms
+  2025-05-07 16:06:12 /favicon.ico ................................................ ~ 0.25ms
