@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\ScoreController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 // Tenant Authentication
 Route::middleware('guest:tenant')->group(function () {
@@ -356,9 +357,37 @@ Route::middleware(['auth:tenant'])->group(function () {
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
-        Route::get('/{slug}/updates/update', function($slug) {
-            // Redirect to the updates index page
-            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+        Route::get('/{slug}/updates/update', function($slug, Request $request) {
+            // Verify tenant exists
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            
+            // Set up tenant database connection
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+            
+            // Get version from env or use a default
+            $version = env('SELF_UPDATER_VERSION_INSTALLED', '2.0.17');
+            
+            // Show the success view
+            return view('tenant.updates.success', [
+                'slug' => $slug,
+                'version' => $version
+            ]);
         });
     });
     
@@ -372,11 +401,11 @@ Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport
 Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
 Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
 
-// Handle direct GET access to the update URL - outside the middleware for guaranteed access
-Route::get('/{slug}/updates/update-redirect', function($slug) {
-    // Redirect to the updates index page
-    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-});
+// // Handle direct GET access to the update URL - outside the middleware for guaranteed access
+// Route::get('/{slug}/updates/update-redirect', function($slug) {
+//     // Redirect to the updates index page
+//     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+// });
 
 // Google OAuth Routes
 Route::get('/tenant/auth/google', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
