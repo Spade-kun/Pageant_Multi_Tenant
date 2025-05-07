@@ -6,3 +6,10 @@
   2025-05-08 00:46:36 /admin/login .................................................... ~ 2s
   2025-05-08 00:46:36 /images/logo.jpg ................................................ ~ 2s
   2025-05-08 00:46:43 /favicon.ico ................................................ ~ 0.19ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+

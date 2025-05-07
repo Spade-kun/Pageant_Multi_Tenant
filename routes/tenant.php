@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\ScoreController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 // Tenant Authentication
 Route::middleware('guest:tenant')->group(function () {
@@ -209,8 +210,6 @@ Route::middleware(['auth:tenant'])->group(function () {
         ->name('tenant.categories.store');
     Route::get('/{slug}/categories/{id}/edit', [CategoryController::class, 'edit'])
         ->name('tenant.categories.edit');
-    Route::get('/{slug}/categories/{id}', [CategoryController::class, 'show'])
-        ->name('tenant.categories.show');
     Route::put('/{slug}/categories/{id}', [CategoryController::class, 'update'])
         ->name('tenant.categories.update');
     Route::delete('/{slug}/categories/{id}', [CategoryController::class, 'destroy'])
@@ -330,9 +329,15 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
-            // Set up tenant database connection
+        Route::post('/{slug}/updates/update', [\App\Http\Controllers\Tenant\UpdateController::class, 'update'])
+            ->name('tenant.updates.update');
+
+        // Handle direct GET access to the update URL
+        Route::get('/{slug}/updates/update', function($slug, Request $request) {
+            // Verify tenant exists
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            
+            // Set up tenant database connection
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
             Config::set('database.connections.tenant', [
                 'driver' => 'mysql',
@@ -350,29 +355,15 @@ Route::middleware(['auth:tenant'])->group(function () {
             ]);
             DB::purge('tenant');
             DB::reconnect('tenant');
-
-            if (auth()->guard('tenant')->user()->role !== 'owner') {
-                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
-            }
             
-            // Create an instance of the UpdateSystemRequest with the input from the request
-            $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
-            $updateRequest->replace($request->all());
+            // Get version from env or use a default
+            $version = env('SELF_UPDATER_VERSION_INSTALLED', '2.0.17');
             
-            // Validate the request
-            if (!$updateRequest->authorize() || !$updateRequest->passes()) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->withErrors($updateRequest->validator())
-                    ->withInput();
-            }
-            
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
-        })->name('tenant.updates.update');
-
-        // Handle direct GET access to the update URL
-        Route::get('/{slug}/updates/update', function($slug) {
-            // Redirect to the updates index page
-            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+            // Show the success view
+            return view('tenant.updates.success', [
+                'slug' => $slug,
+                'version' => $version
+            ]);
         });
     });
     
@@ -386,11 +377,11 @@ Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport
 Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
 Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
 
-// Handle direct GET access to the update URL - outside the middleware for guaranteed access
-Route::get('/{slug}/updates/update-redirect', function($slug) {
-    // Redirect to the updates index page
-    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-});
+// // Handle direct GET access to the update URL - outside the middleware for guaranteed access
+// Route::get('/{slug}/updates/update-redirect', function($slug) {
+//     // Redirect to the updates index page
+//     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+// });
 
 // Google OAuth Routes
 Route::get('/tenant/auth/google', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');

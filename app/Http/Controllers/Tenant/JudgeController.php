@@ -7,8 +7,6 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use App\Http\Requests\Tenant\StoreJudgeRequest;
-use App\Http\Requests\Tenant\UpdateJudgeRequest;
 
 class JudgeController extends Controller
 {
@@ -58,7 +56,7 @@ class JudgeController extends Controller
         ]);
     }
 
-    public function store(StoreJudgeRequest $request, $slug)
+    public function store(Request $request, $slug)
     {
         $this->setTenantConnection($slug);
         
@@ -125,7 +123,7 @@ class JudgeController extends Controller
         return view('tenant.judges.edit', compact('judge', 'slug'));
     }
 
-    public function update(UpdateJudgeRequest $request, $slug, $judge)
+    public function update(Request $request, $slug, $judge)
     {
         $this->setTenantConnection($slug);
         

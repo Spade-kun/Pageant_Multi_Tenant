@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\Tenant\StoreContestantRequest;
-use App\Http\Requests\Tenant\UpdateContestantRequest;
 
 class ContestantController extends Controller
 {
@@ -50,7 +48,7 @@ class ContestantController extends Controller
         return view('tenant.contestants.create', compact('slug'));
     }
 
-    public function store(StoreContestantRequest $request, $slug)
+    public function store(Request $request, $slug)
     {
         $this->setTenantConnection($slug);
         
@@ -111,7 +109,7 @@ class ContestantController extends Controller
         return view('tenant.contestants.edit', compact('contestant', 'slug'));
     }
 
-    public function update(UpdateContestantRequest $request, $slug, $id)
+    public function update(Request $request, $slug, $id)
     {
         $this->setTenantConnection($slug);
         

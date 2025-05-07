@@ -2919,3 +2919,61 @@
   2025-05-08 02:42:06 /assets/js/custom-scripts.js ................................ ~ 0.16ms
   2025-05-08 02:42:06 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 503.68ms
   2025-05-08 02:42:07 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.25ms
+  2025-05-08 02:43:58 /sanjose/updates ................................................ ~ 3s
+  2025-05-08 02:43:58 /assets/js/plugin/webfont/webfont.min.js ........................ ~ 4s
+  2025-05-08 02:44:02 /assets/css/bootstrap.min.css ............................... ~ 1.97ms
+  2025-05-08 02:44:02 /assets/css/plugins.min.css ................................ ~ 11.30ms
+  2025-05-08 02:44:02 /assets/css/kaiadmin.min.css ................................ ~ 0.15ms
+  2025-05-08 02:44:03 /assets/css/demo.css ........................................ ~ 0.23ms
+  2025-05-08 02:44:03 /assets/img/clam_logo.jpg ................................... ~ 1.88ms
+  2025-05-08 02:44:03 /assets/img/buksu_logo.png .................................. ~ 4.36ms
+  2025-05-08 02:44:03 /assets/img/profile.jpg ..................................... ~ 0.18ms
+  2025-05-08 02:44:03 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 2s
+  2025-05-08 02:44:05 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-08 02:44:05 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-08 02:44:06 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 515.95ms
+  2025-05-08 02:44:05 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-08 02:44:05 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-08 02:44:06 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js  ~ 510.87ms
+  2025-05-08 02:44:07 /assets/js/custom-scripts.js ................................ ~ 2.15ms
+  PHP Fatal error:  Declaration of App\Http\Requests\Tenant\UpdateSystemRequest::validated(): array must be compatible with Illuminate\Foundation\Http\FormRequest::validated($key = null, $default = null) in C:\GITHUB_REPOSITORIES\Pageant_Multi_Tenant\app\Http\Requests\Tenant\UpdateSystemRequest.php on line 45
+  2025-05-08 02:44:07 /sanjose/updates/update ......................................... ~ 3s
+  2025-05-08 02:44:07 /assets/fonts/fontawesome/fa-solid-900.woff2 .................... ~ 3s
+  2025-05-08 02:44:11 /assets/fonts/fontawesome/fa-regular-400.woff2 ............ ~ 525.73ms
+  2025-05-08 02:44:11 /assets/fonts/fontawesome/fa-brands-400.woff2 ............. ~ 526.12ms
+  2025-05-08 02:44:11 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 3.51ms
+  2025-05-08 02:44:17 /assets/js/core/jquery.3.2.1.min.js ....................... ~ 503.88ms
+  2025-05-08 02:44:17 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-08 02:44:18 /assets/fonts/fontawesome/fa-solid-900.woff2 .................... ~ 1s
+  2025-05-08 02:44:19 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 2.16ms
+  2025-05-08 02:44:19 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 3.56ms
+  2025-05-08 02:44:19 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 5.32ms
+  2025-05-08 02:44:19 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.50ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-08 02:49:01 /sanjose/updates ................................................ ~ 8s
+  2025-05-08 02:49:12 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.28ms
+  2025-05-08 02:49:12 /assets/css/bootstrap.min.css ............................... ~ 0.21ms
+  2025-05-08 02:49:12 /assets/css/plugins.min.css ................................. ~ 0.17ms
+  2025-05-08 02:49:12 /assets/css/kaiadmin.min.css ................................ ~ 0.19ms
+  2025-05-08 02:49:12 /assets/css/demo.css ........................................ ~ 0.16ms
+  2025-05-08 02:49:12 /assets/img/clam_logo.jpg ................................... ~ 0.20ms
+  2025-05-08 02:49:12 /assets/img/buksu_logo.png .................................. ~ 2.31ms
+  2025-05-08 02:49:12 /assets/css/fonts.min.css ................................... ~ 0.40ms
+  2025-05-08 02:49:12 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-08 02:49:12 /assets/img/profile.jpg ......................................... ~ 1s
+  2025-05-08 02:49:13 /assets/js/core/popper.min.js ............................... ~ 2.54ms
+  2025-05-08 02:49:13 /assets/js/core/bootstrap.min.js ............................ ~ 9.61ms
+  2025-05-08 02:49:13 /assets/fonts/fontawesome/fa-solid-900.woff2 ............... ~ 11.65ms
+  2025-05-08 02:49:13 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.23ms
+  2025-05-08 02:49:13 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.32ms
+  2025-05-08 02:49:13 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.27ms
+  2025-05-08 02:49:13 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 504.11ms
+  2025-05-08 02:49:14 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-08 02:49:14 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ...... ~ 1s
+  2025-05-08 02:49:15 /assets/js/custom-scripts.js ................................ ~ 2.25ms

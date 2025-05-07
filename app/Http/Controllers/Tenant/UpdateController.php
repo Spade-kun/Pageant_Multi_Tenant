@@ -9,9 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
 use Codedge\Updater\Models\Release;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
 
 class UpdateController extends Controller
 {
@@ -62,56 +59,22 @@ class UpdateController extends Controller
         if (count($subfolders) === 1) {
             // Check if this folder has typical application files
             $potentialRoot = $subfolders[0];
-            if (file_exists($potentialRoot . '/artisan') && 
-                file_exists($potentialRoot . '/composer.json')) {
-                \Log::info('Detected Laravel app root in subfolder: ' . $potentialRoot);
+            if (file_exists($potentialRoot . '/artisan') || 
+                file_exists($potentialRoot . '/composer.json') || 
+                file_exists($potentialRoot . '/package.json')) {
                 return $potentialRoot;
             }
         }
         
         // Check if the root of extract has the application files
-        if (file_exists($extractPath . '/artisan') && 
-            file_exists($extractPath . '/composer.json')) {
-            \Log::info('Detected Laravel app root in extract path: ' . $extractPath);
+        if (file_exists($extractPath . '/artisan') || 
+            file_exists($extractPath . '/composer.json') || 
+            file_exists($extractPath . '/package.json')) {
             return $extractPath;
         }
         
-        // Try finding artisan file by recursively searching
-        $artisanFiles = $this->findFilesByNameRecursive($extractPath, 'artisan');
-        if (count($artisanFiles) > 0) {
-            $artisanFile = $artisanFiles[0];
-            $possibleRoot = dirname($artisanFile);
-            \Log::info('Found artisan file, using directory as app root: ' . $possibleRoot);
-            return $possibleRoot;
-        }
-        
         // If we can't identify a typical structure, default to the extraction root
-        \Log::warning('Could not detect app root, using extract path: ' . $extractPath);
         return $extractPath;
-    }
-    
-    /**
-     * Find all files with a specific name in a directory recursively
-     * 
-     * @param string $directory Directory to search in
-     * @param string $filename Filename to search for
-     * @return array Found file paths
-     */
-    protected function findFilesByNameRecursive($directory, $filename)
-    {
-        $result = [];
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-        
-        foreach ($files as $file) {
-            if ($file->isFile() && $file->getBasename() === $filename) {
-                $result[] = $file->getRealPath();
-            }
-        }
-        
-        return $result;
     }
 
     public function index()
@@ -155,70 +118,268 @@ class UpdateController extends Controller
         }
     }
 
-    /**
-     * Handle the system update request.
-     */
-    public function update(UpdateSystemRequest $request): JsonResponse
+    public function update($request)
     {
+        // Prevent timeout for long-running update
+        set_time_limit(0);
+        ini_set('memory_limit', '512M');
+        
+        // Disable logging for update process to avoid filling logs
+        $originalLogLevel = config('app.log_level');
+        config(['app.log_level' => 'emergency']);
+
         try {
-            $validated = $request->validated();
-            $version = $validated['version'];
+            // Get the version from the request
+            $targetVersion = $request->input('version');
+            
+            if (empty($targetVersion)) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'No version was specified for the update.');
+            }
+            
+            $currentVersion = $this->updater->source()->getVersionInstalled();
 
-            // Log the update attempt
-            Log::info('System update initiated', [
-                'version' => $version,
-                'tenant' => auth()->guard('tenant')->user()->id
-            ]);
+            // Validate if the selected version exists in releases
+            $releases = $this->getReleases();
+            $validVersion = collect($releases)->where('version', $targetVersion)->first();
 
-            // Run the update command
-            Artisan::call('system:update', [
-                '--version' => $version,
-                '--tenant' => auth()->guard('tenant')->user()->id
-            ]);
+            if (!$validVersion) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Selected version is not available.');
+            }
 
-            return response()->json([
-                'message' => 'System update completed successfully',
-                'version' => $version
-            ]);
+            $updatePath = storage_path('app/updater');
+            if (!file_exists($updatePath)) {
+                if (!mkdir($updatePath, 0755, true)) {
+                    \Log::error('Failed to create update directory: ' . $updatePath);
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Failed to create update directory. Please check directory permissions.');
+                }
+            }
+            
+            if (!is_writable($updatePath)) {
+                \Log::error('Update directory is not writable: ' . $updatePath);
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Update directory is not writable. Please check directory permissions.');
+            }
+            
+            // Check if there's a release asset zip file 
+            $zipUrl = null;
+            if (!empty($validVersion['assets'])) {
+                foreach ($validVersion['assets'] as $asset) {
+                    if (preg_match('/\.zip$/', $asset['name'])) {
+                        $zipUrl = $asset['download_url'];
+                        \Log::info('Found release asset ZIP: ' . $asset['name']);
+                        break;
+                    }
+                }
+            }
+            
+            // If no ZIP asset found, use GitHub source code ZIP
+            if (!$zipUrl) {
+                // Get the download URL for the release source code
+                $vendor = config('self-update.repository_types.github.repository_vendor');
+                $repo = config('self-update.repository_types.github.repository_name');
+                $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
+                $releaseData = json_decode($response->getBody(), true);
 
+                if (!isset($releaseData['zipball_url'])) {
+                    \Log::error('Could not find download URL for version: ' . $targetVersion);
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Could not find download URL for the selected version.');
+                }
+
+                $zipUrl = $releaseData['zipball_url'];
+            }
+            
+            $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
+
+            // Download the zip file
+            try {
+                $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
+                if (!file_exists($zipFile)) {
+                    \Log::error('Failed to download release zip file.');
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Failed to download release zip file.');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error downloading release zip: ' . $e->getMessage());
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Error downloading release zip: ' . $e->getMessage());
+            }
+
+            // Extract the zip file
+            $extractPath = $updatePath . DIRECTORY_SEPARATOR . "extracted-v{$targetVersion}";
+            if (!file_exists($extractPath)) {
+                if (!mkdir($extractPath, 0755, true)) {
+                    \Log::error('Failed to create extract directory: ' . $extractPath);
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Failed to create extract directory. Please check directory permissions.');
+                }
+            }
+            
+            try {
+                $zip = new \ZipArchive();
+                $zipOpenResult = $zip->open($zipFile);
+                
+                if ($zipOpenResult === TRUE) {
+                    if (!$zip->extractTo($extractPath)) {
+                        throw new \Exception("ZipArchive failed to extract files");
+                    }
+                    $zip->close();
+                } else {
+                    throw new \Exception("Failed to open zip file. Error code: " . $zipOpenResult);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to extract release zip: ' . $e->getMessage());
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Failed to extract release zip: ' . $e->getMessage());
+            }
+
+            // Detect the actual code subfolder inside the extracted directory
+            $actualSource = $this->detectSourceCodeRoot($extractPath);
+
+            // Define which files and folders to exclude from updates and backups
+            $exclude = [
+                '.env',
+                'storage',
+                'vendor',
+                '.git',
+                'node_modules',
+                'public/uploads',
+                'public/storage',
+                '*.log',  // Exclude all log files
+                'storage/logs',  // Exclude logs directory
+                'bootstrap/cache',  // Exclude cache directory
+                'admin-server.log',  // Specific log file
+                'laravel.log',  // Laravel log file
+                '.env.backup',
+                '.DS_Store',
+                'phpunit.xml'
+            ];
+
+            // Backup current app (excluding critical folders/files)
+            $rootPath = base_path();
+            $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
+            
+            $zipBackup = new \ZipArchive();
+            if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($rootPath, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+                
+                foreach ($files as $file) {
+                    $filePath = $file->getRealPath();
+                    if (empty($filePath)) {
+                        continue; // Skip files with empty paths
+                    }
+                    
+                    $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
+                    if (empty($relativePath)) {
+                        continue; // Skip empty relative paths
+                    }
+                    
+                    $skip = false;
+                    foreach ($exclude as $ex) {
+                        // Handle wildcard patterns
+                        if (strpos($ex, '*') !== false) {
+                            $pattern = str_replace('*', '.*', $ex);
+                            if (preg_match('/' . $pattern . '/', $relativePath)) {
+                                $skip = true;
+                                break;
+                            }
+                        } else if (stripos($relativePath, $ex) === 0) {
+                            $skip = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!$skip) {
+                        if ($file->isDir()) {
+                            $zipBackup->addEmptyDir($relativePath);
+                        } else {
+                            try {
+                                $zipBackup->addFile($filePath, $relativePath);
+                            } catch (\Exception $e) {
+                                \Log::warning("Failed to add file to backup: {$filePath} - Error: " . $e->getMessage());
+                            }
+                        }
+                    }
+                }
+                
+                $zipBackup->close();
+            } else {
+                \Log::error('Failed to create backup zip.');
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Failed to create backup zip.');
+            }
+
+            // Copy extracted files to app root (excluding critical folders/files)
+            $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
+
+            // Clean up extracted folder
+            $this->deleteDirectory($extractPath);
+            
+            // Update SELF_UPDATER_VERSION_INSTALLED in .env
+            $this->updateEnvVersion($targetVersion);
+
+            // Clear caches
+            \Artisan::call('config:clear');
+            \Artisan::call('cache:clear');
+            \Artisan::call('view:clear');
+            \Artisan::call('route:clear');
+
+            // Run composer install --no-dev
+            $composerOutput = null;
+            $composerReturn = null;
+            exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
+            
+            if ($composerReturn !== 0) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Update failed during composer install. Check logs for details.');
+            }
+
+            // Run php artisan migrate
+            try {
+                \Artisan::call('migrate', ['--force' => true]);
+            } catch (\Exception $e) {
+                \Log::error('php artisan migrate failed: ' . $e->getMessage());
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Update failed during migration. Check logs for details.');
+            }
+
+            // Restore original log level
+            config(['app.log_level' => $originalLogLevel]);
+            
+            // Redirect to success page after update
+            return redirect()->to("/{$this->getSlug()}/updates/update");
         } catch (\Exception $e) {
-            Log::error('System update failed', [
-                'error' => $e->getMessage(),
-                'tenant' => auth()->guard('tenant')->user()->id
-            ]);
-
-            return response()->json([
-                'message' => 'System update failed',
-                'error' => $e->getMessage()
-            ], 500);
+            // Restore original log level
+            config(['app.log_level' => $originalLogLevel]);
+            
+            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
+                ->with('error', 'Update failed: ' . $e->getMessage());
         }
     }
 
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
-        \Log::info("Starting copy from $source to $destination");
-        
         if (!is_dir($source)) {
-            \Log::error("Source directory does not exist: $source");
             return;
         }
         
         $dir = opendir($source);
         if (!$dir) {
-            \Log::error("Failed to open directory: $source");
+            \Log::warning("Failed to open directory: {$source}");
             return;
         }
         
         if (!file_exists($destination)) {
-            \Log::info("Creating destination directory: $destination");
             mkdir($destination, 0755, true);
         }
-        
-        $fileCount = 0;
-        $dirCount = 0;
-        $skipCount = 0;
-        $errorCount = 0;
         
         while(false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
@@ -227,15 +388,12 @@ class UpdateController extends Controller
                 
                 // Skip invalid paths
                 if (empty($srcPath) || empty($destPath)) {
-                    \Log::warning("Skipping invalid path for file: $file");
-                    $skipCount++;
                     continue;
                 }
                 
                 // Check if this path should be excluded
                 $relativePath = ltrim(str_replace($destination, '', $destPath), DIRECTORY_SEPARATOR);
                 if (empty($relativePath)) {
-                    $skipCount++;
                     continue;
                 }
                 
@@ -255,27 +413,21 @@ class UpdateController extends Controller
                 }
                 
                 if ($skip) {
-                    \Log::debug("Skipping excluded path: $relativePath");
-                    $skipCount++;
                     continue;
                 }
                 
                 if (is_dir($srcPath)) {
-                    $dirCount++;
                     // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
-                        \Log::debug("Creating directory: $destPath");
                         mkdir($destPath, 0755, true);
                     }
                     
                     // Recursively copy directory contents 
                     $this->copyUpdateFiles($srcPath, $destPath, $exclude);
                 } else {
-                    $fileCount++;
                     // Make sure destination directory exists
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {
-                        \Log::debug("Creating parent directory: $destDir");
                         mkdir($destDir, 0755, true);
                     }
                     
@@ -287,35 +439,19 @@ class UpdateController extends Controller
                     
                     // Then copy the new file
                     try {
-                        if (!@copy($srcPath, $destPath)) {
-                            \Log::warning("Failed to copy file: $srcPath to $destPath");
-                            $errorCount++;
-                        } else {
-                            // Set appropriate permissions for the copied file
+                        @copy($srcPath, $destPath);
+                        
                         if (file_exists($destPath)) {
-                                if (pathinfo($destPath, PATHINFO_BASENAME) === 'artisan') {
-                                    \Log::info("Making artisan executable: $destPath");
-                                    @chmod($destPath, 0755);
-                                } else {
-                                    @chmod($destPath, 0644);
-                                }
-                            }
+                            chmod($destPath, 0644);
                         }
                     } catch (\Exception $e) {
-                        \Log::warning("Exception copying file: $srcPath to $destPath - Error: " . $e->getMessage());
-                        $errorCount++;
+                        \Log::warning("Failed to copy file: {$srcPath} to {$destPath} - Error: " . $e->getMessage());
                     }
                 }
             }
         }
         
         closedir($dir);
-        \Log::info("Completed copying files from $source to $destination", [
-            'files_copied' => $fileCount,
-            'directories_created' => $dirCount,
-            'files_skipped' => $skipCount,
-            'errors' => $errorCount
-        ]);
     }
 
     protected function getReleases()
