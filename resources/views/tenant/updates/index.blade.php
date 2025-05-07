@@ -222,8 +222,16 @@ $(document).ready(function() {
                             <div class="alert alert-success">
                                 <h4>Update Available!</h4>
                                 <p>A new version (${latestVersion}) is available. Your current version is ${response.currentVersion}</p>
+                                <div class="d-flex justify-content-center my-3">
+                                    <div class="version-change d-flex align-items-center">
+                                        <span class="badge badge-secondary p-2 mr-2">v${response.currentVersion}</span>
+                                        <i class="fas fa-arrow-right mx-3"></i>
+                                        <span class="badge badge-success p-2 ml-2">v${latestVersion}</span>
+                                    </div>
+                                </div>
+                                <p>Clicking "Update Now" will start the update process. You will see a progress screen during the update. Do not close your browser during this process.</p>
                                 <button class="btn btn-primary" id="doUpdateBtn" data-version="${latestVersion}">
-                                    Update Now
+                                    <i class="fas fa-download mr-1"></i> Update Now
                                 </button>
                             </div>
                         `);
@@ -352,8 +360,17 @@ $(document).ready(function() {
     // Handle update button in modal
     $(document).on('click', '#doUpdateBtn', function() {
         const version = $(this).data('version');
-        $('#updateVersion').val(version);
-        $('#updateForm').removeClass('d-none').submit();
+        const currentVersion = '{{ $currentVersion }}';
+        const isUpgrade = compareVersions(version, currentVersion) > 0;
+        
+        // Show confirmation dialog before proceeding
+        if (confirm('Are you sure you want to ' + 
+                (isUpgrade ? 'update to' : 'downgrade to') + 
+                ' version ' + version + '? ' + 
+                (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
+            $('#updateVersion').val(version);
+            $('#updateForm').removeClass('d-none').submit();
+        }
     });
     
     // Sortable columns
