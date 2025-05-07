@@ -118,7 +118,7 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update($request)
     {
         // Prevent timeout for long-running update
         set_time_limit(0);
@@ -131,10 +131,9 @@ class UpdateController extends Controller
         try {
             // Get the version from the request
             $targetVersion = $request->input('version');
-            $slug = $this->getSlug();
             
             if (empty($targetVersion)) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'No version was specified for the update.');
             }
             
@@ -145,7 +144,7 @@ class UpdateController extends Controller
             $validVersion = collect($releases)->where('version', $targetVersion)->first();
 
             if (!$validVersion) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Selected version is not available.');
             }
 
@@ -153,14 +152,14 @@ class UpdateController extends Controller
             if (!file_exists($updatePath)) {
                 if (!mkdir($updatePath, 0755, true)) {
                     \Log::error('Failed to create update directory: ' . $updatePath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create update directory. Please check directory permissions.');
                 }
             }
             
             if (!is_writable($updatePath)) {
                 \Log::error('Update directory is not writable: ' . $updatePath);
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update directory is not writable. Please check directory permissions.');
             }
             
@@ -186,7 +185,7 @@ class UpdateController extends Controller
 
                 if (!isset($releaseData['zipball_url'])) {
                     \Log::error('Could not find download URL for version: ' . $targetVersion);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Could not find download URL for the selected version.');
                 }
 
@@ -200,12 +199,12 @@ class UpdateController extends Controller
                 $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
                 if (!file_exists($zipFile)) {
                     \Log::error('Failed to download release zip file.');
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to download release zip file.');
                 }
             } catch (\Exception $e) {
                 \Log::error('Error downloading release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Error downloading release zip: ' . $e->getMessage());
             }
 
@@ -214,7 +213,7 @@ class UpdateController extends Controller
             if (!file_exists($extractPath)) {
                 if (!mkdir($extractPath, 0755, true)) {
                     \Log::error('Failed to create extract directory: ' . $extractPath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create extract directory. Please check directory permissions.');
                 }
             }
@@ -233,7 +232,7 @@ class UpdateController extends Controller
                 }
             } catch (\Exception $e) {
                 \Log::error('Failed to extract release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to extract release zip: ' . $e->getMessage());
             }
 
@@ -312,7 +311,7 @@ class UpdateController extends Controller
                 $zipBackup->close();
             } else {
                 \Log::error('Failed to create backup zip.');
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to create backup zip.');
             }
 
@@ -337,7 +336,7 @@ class UpdateController extends Controller
             exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
             
             if ($composerReturn !== 0) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update failed during composer install. Check logs for details.');
             }
 
@@ -346,24 +345,22 @@ class UpdateController extends Controller
                 \Artisan::call('migrate', ['--force' => true]);
             } catch (\Exception $e) {
                 \Log::error('php artisan migrate failed: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update failed during migration. Check logs for details.');
             }
 
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // Store success message in session and redirect to the success page
-            session()->flash('update_success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
-            
-            // Redirect to success page after completion - using direct URL to avoid connection reset
-            return redirect()->to('/' . $slug . '/updates/update-success');
+            // Redirect to updates page after success
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
             \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            return redirect()->route('tenant.updates.index', ['slug' => $slug])
+            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }
     }

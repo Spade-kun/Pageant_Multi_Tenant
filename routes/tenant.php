@@ -352,163 +352,13 @@ Route::middleware(['auth:tenant'])->group(function () {
             if (auth()->guard('tenant')->user()->role !== 'owner') {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
-            
-            // Create controller and explicitly pass the slug to use in the request
-            $controller = app()->make(App\Http\Controllers\Tenant\UpdateController::class);
-            // Add the slug to the request
-            $request->merge(['slug' => $slug]);
-            return $controller->update($request);
+            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Return a simple HTML response without using blade templates
-            // or database connections to prevent any connection resets
-            $html = '<!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Update Successful</title>
-                <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-                <style>
-                    body {
-                        font-family: "Public Sans", sans-serif;
-                        background: linear-gradient(135deg, #3F081C 0%, #2a0513 100%);
-                        color: #333;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        height: 100vh;
-                        margin: 0;
-                        padding: 20px;
-                    }
-                    .container {
-                        max-width: 700px;
-                        width: 100%;
-                        background: white;
-                        border-radius: 10px;
-                        overflow: hidden;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                    }
-                    .header {
-                        background: #4CAF50;
-                        color: white;
-                        padding: 20px;
-                        text-align: center;
-                    }
-                    .content {
-                        padding: 30px;
-                        text-align: center;
-                    }
-                    .success-icon {
-                        font-size: 80px;
-                        color: #4CAF50;
-                        animation: pulse 1.5s infinite;
-                    }
-                    h1 {
-                        font-size: 24px;
-                        margin: 20px 0;
-                    }
-                    .badge {
-                        background: #4CAF50;
-                        color: white;
-                        padding: 5px 10px;
-                        border-radius: 20px;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }
-                    .info-box {
-                        background: #f0f7ff;
-                        border: 1px solid #d0e5ff;
-                        border-radius: 8px;
-                        padding: 15px;
-                        margin: 20px 0;
-                        text-align: left;
-                    }
-                    .info-box h3 {
-                        margin-top: 0;
-                        color: #0066cc;
-                        display: flex;
-                        align-items: center;
-                    }
-                    .info-box ul {
-                        margin-bottom: 0;
-                        padding-left: 20px;
-                    }
-                    .btn {
-                        display: inline-block;
-                        padding: 10px 20px;
-                        margin: 5px;
-                        border-radius: 5px;
-                        text-decoration: none;
-                        font-weight: 600;
-                        transition: all 0.3s;
-                    }
-                    .btn-primary {
-                        background: #0066cc;
-                        color: white;
-                    }
-                    .btn-secondary {
-                        background: #6c757d;
-                        color: white;
-                    }
-                    .btn:hover {
-                        opacity: 0.9;
-                        transform: translateY(-2px);
-                    }
-                    @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                        100% { transform: scale(1); }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h2><i class="fas fa-check-circle"></i> System Update Successful</h2>
-                    </div>
-                    <div class="content">
-                        <div class="success-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <h1>Your system has been successfully updated!</h1>
-                        
-                        <div class="info-box">
-                            <h3><i class="fas fa-info-circle"></i> Update Information</h3>
-                            <p>The update has been applied successfully. The following actions have been completed:</p>
-                            <ul>
-                                <li>System files have been updated</li>
-                                <li>Database migrations have been applied</li>
-                                <li>Cache has been cleared</li>
-                                <li>Composer dependencies have been updated</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <a href="/' . $slug . '/updates" class="btn btn-primary">
-                                <i class="fas fa-arrow-left"></i> Return to Updates Page
-                            </a>
-                            <a href="/' . $slug . '/dashboard" class="btn btn-secondary">
-                                <i class="fas fa-home"></i> Go to Dashboard
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <script>
-                    // Auto-redirect after 5 seconds
-                    setTimeout(function() {
-                        window.location.href = "/' . $slug . '/updates";
-                    }, 5000);
-                </script>
-            </body>
-            </html>';
-            
-            // Return the raw HTML response
-            return response($html);
+            // Redirect to the updates index page
+            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
     });
     
@@ -526,12 +376,4 @@ Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenan
 Route::get('/{slug}/updates/update-redirect', function($slug) {
     // Redirect to the updates index page
     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-});
-
-// Special route for handling update success without any database connections
-Route::get('/{slug}/updates/update-success', function($slug) {
-    return view('tenant.updates.success', [
-        'slug' => $slug,
-        'currentVersion' => 'Updated Version'
-    ]);
 });
