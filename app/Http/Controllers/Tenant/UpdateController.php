@@ -156,7 +156,26 @@ class UpdateController extends Controller
             // Backup current app (excluding critical folders/files)
             $rootPath = base_path();
             $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
-            $exclude = ['.env', 'storage', 'vendor', '.git', 'node_modules', 'public/uploads', 'public/storage', '*.log', 'storage/logs', 'admin-server.log', 'tenant-server.log', 'laravel.log'];
+            $exclude = [
+                '.env', 
+                'storage', 
+                'vendor', 
+                '.git', 
+                'node_modules', 
+                'public/uploads', 
+                'public/storage', 
+                '*.log', 
+                'storage/logs', 
+                'admin-server.log', 
+                'tenant-server.log', 
+                'laravel.log',
+                '.log',  // Adding generic .log extension
+                'logs',  // Any logs directory
+                'server.log', // Any server log
+                'debug.log',  // Any debug log
+                'error.log',  // Any error log
+                'app.log'     // Any app log
+            ];
             $zipBackup = new \ZipArchive();
             if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
                 $files = new \RecursiveIteratorIterator(
@@ -166,19 +185,15 @@ class UpdateController extends Controller
                 foreach ($files as $file) {
                     $filePath = $file->getRealPath();
                     $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
-                    $skip = false;
-                    foreach ($exclude as $ex) {
-                        if (stripos($relativePath, $ex) === 0) {
-                            $skip = true;
-                            break;
-                        }
+                    
+                    if ($this->shouldSkipFile($filePath, $relativePath, $exclude)) {
+                        continue;
                     }
-                    if (!$skip) {
-                        if ($file->isDir()) {
-                            $zipBackup->addEmptyDir($relativePath);
-                        } else {
-                            $zipBackup->addFile($filePath, $relativePath);
-                        }
+                    
+                    if ($file->isDir()) {
+                        $zipBackup->addEmptyDir($relativePath);
+                    } else {
+                        $zipBackup->addFile($filePath, $relativePath);
                     }
                 }
                 $zipBackup->close();
@@ -229,6 +244,32 @@ class UpdateController extends Controller
         }
     }
 
+    // Helper method to determine if a file should be skipped
+    protected function shouldSkipFile($filePath, $relativePath, $exclude = [])
+    {
+        // Skip log files by extension
+        if (pathinfo($filePath, PATHINFO_EXTENSION) === 'log') {
+            \Log::info("Skipping log file by extension: {$filePath}");
+            return true;
+        }
+        
+        // Skip files in use/locked
+        if (file_exists($filePath) && !is_readable($filePath)) {
+            \Log::info("Skipping unreadable file: {$filePath}");
+            return true;
+        }
+        
+        // Skip based on exclude patterns
+        foreach ($exclude as $ex) {
+            if (stripos($relativePath, $ex) !== false || stripos($filePath, $ex) !== false) {
+                \Log::info("Skipping excluded file: {$filePath} (matched pattern: {$ex})");
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
@@ -242,15 +283,8 @@ class UpdateController extends Controller
                 
                 // Check if this path should be excluded
                 $relativePath = str_replace($destination, '', $destPath);
-                $skip = false;
-                foreach ($exclude as $ex) {
-                    if (stripos($relativePath, $ex) === 0) {
-                        $skip = true;
-                        break;
-                    }
-                }
                 
-                if ($skip) {
+                if ($this->shouldSkipFile($destPath, $relativePath, $exclude)) {
                     continue;
                 }
                 
@@ -267,11 +301,22 @@ class UpdateController extends Controller
                         mkdir($destDir, 0755, true);
                     }
                     
-                    // Copy the file and set proper permissions
-                    if (copy($srcPath, $destPath)) {
-                        chmod($destPath, 0644); // Set file permissions to 644
-                    } else {
-                        \Log::error("Failed to copy file: {$srcPath} to {$destPath}");
+                    // Try to copy the file, but continue if it fails due to file being in use
+                    try {
+                        // Check if file is writable before attempting to copy
+                        if (file_exists($destPath) && !is_writable($destPath)) {
+                            \Log::warning("Skipping file that cannot be written to: {$destPath}");
+                            continue;
+                        }
+                        
+                        if (copy($srcPath, $destPath)) {
+                            chmod($destPath, 0644); // Set file permissions to 644
+                        } else {
+                            \Log::warning("Failed to copy file, but continuing: {$srcPath} to {$destPath}");
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning("Exception while copying file, skipping: {$srcPath} to {$destPath} - Error: " . $e->getMessage());
+                        continue;
                     }
                 }
             }
