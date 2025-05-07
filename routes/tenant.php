@@ -362,7 +362,7 @@ Route::middleware(['auth:tenant'])->group(function () {
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Set up tenant database connection to use layout
+            // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
             Config::set('database.connections.tenant', [
@@ -382,13 +382,15 @@ Route::middleware(['auth:tenant'])->group(function () {
             DB::purge('tenant');
             DB::reconnect('tenant');
 
-            // If we have a version parameter, show the update processing page
-            if (request()->has('version')) {
-                return view('tenant.updates.update-processing');
-            }
+            // Get the current version
+            $updaterManager = app(\Codedge\Updater\UpdaterManager::class);
+            $currentVersion = $updaterManager->source()->getVersionInstalled();
             
-            // Otherwise redirect to the updates index page
-            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+            // Show a success page instead of redirecting
+            return view('tenant.updates.success', [
+                'slug' => $slug,
+                'currentVersion' => $currentVersion
+            ]);
         });
     });
     
