@@ -353,15 +353,26 @@ Route::middleware(['auth:tenant'])->group(function () {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
-            // Create the form request manually
-            $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
-            $updateRequest->replace($request->all());
-            
             // Set the specific tenant slug in the session
             session(['tenant_slug' => $slug]);
             
-            // Call update with the properly prepared request
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
+            // Get the controller instance
+            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+            
+            // Call the update method with the version directly
+            $version = $request->input('version');
+            
+            if (empty($version)) {
+                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    ->with('error', 'No version was specified for the update.');
+            }
+            
+            // Create a custom request to bypass the type-hinting
+            $customRequest = new \Illuminate\Http\Request();
+            $customRequest->merge(['version' => $version]);
+            
+            // Call the controller method with the custom request
+            return $controller->update($customRequest);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL

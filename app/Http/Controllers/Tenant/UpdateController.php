@@ -85,7 +85,13 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(UpdateSystemRequest $request)
+    /**
+     * Handle the system update request
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update($request)
     {
         // Prevent timeout for long-running update
         set_time_limit(0);
@@ -96,15 +102,8 @@ class UpdateController extends Controller
         config(['app.log_level' => 'emergency']);
 
         try {
-            // Make sure the request is validated
-            try {
-                $validated = $request->validated();
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                    ->with('error', 'Invalid version provided. ' . $e->getMessage());
-            }
-            
-            $targetVersion = $validated['version'] ?? $request->input('version');
+            // Get version from request
+            $targetVersion = $request->input('version');
             
             if (empty($targetVersion)) {
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
