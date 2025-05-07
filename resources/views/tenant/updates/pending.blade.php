@@ -98,6 +98,9 @@
         ];
         
         let currentStep = 0;
+        let updateInProgress = true;
+        let updateCompleted = false;
+        let pauseAtStep = 3; // Pause at "Creating backup" step (70%) until AJAX completes
         
         // Add CSS for steps
         $('.step').css({
@@ -111,7 +114,18 @@
         
         // Start the progress animation
         const interval = setInterval(function() {
+            if (!updateInProgress && !updateCompleted) {
+                // If update failed, stop the animation
+                clearInterval(interval);
+                return;
+            }
+            
             if (currentStep < steps.length) {
+                // Only progress past the pause step if update is completed
+                if (currentStep >= pauseAtStep && !updateCompleted) {
+                    return; // Wait for AJAX to complete
+                }
+                
                 const step = steps[currentStep];
                 $('#update-progress').css('width', step.percent + '%');
                 $('#update-progress').attr('aria-valuenow', step.percent);
@@ -136,37 +150,56 @@
                     window.location.href = "{{ route('tenant.updates.index', ['slug' => $slug]) }}?updated=true";
                 }, 1500);
             }
-        }, 3000); // Update progress every 3 seconds
+        }, 2000); // Update progress every 2 seconds
         
         // Initiate the actual update in the background
         $.ajax({
             url: "{{ route('tenant.updates.process', ['slug' => $slug]) }}",
             type: "POST",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
             data: {
                 version: "{{ $version }}",
                 _token: "{{ csrf_token() }}"
             },
+            beforeSend: function() {
+                console.log('Starting update AJAX request to: {{ route("tenant.updates.process", ["slug" => $slug]) }}');
+                console.log('Version: {{ $version }}');
+            },
             success: function(response) {
+                console.log('Update succeeded:', response);
                 $('#update-status').removeClass('alert-info').addClass('alert-success');
                 $('#update-message').text('Update completed successfully!');
+                
+                // Continue the progress animation
+                updateCompleted = true;
                 
                 // Force redirect after success
                 setTimeout(function() {
                     window.location.href = "{{ route('tenant.updates.index', ['slug' => $slug]) }}?updated=true&status=success";
-                }, 1500);
+                }, 4000); // Wait a bit longer to show progress completion
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.error('Update failed with status:', status);
+                console.error('Error details:', error);
+                console.error('Response:', xhr.responseText);
+                
                 // Show error message
                 $('#update-status').removeClass('alert-info').addClass('alert-danger');
                 
                 let errorMessage = 'Update failed. Please check the logs for details.';
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;
+                    console.error('Server error message:', xhr.responseJSON.error);
                 }
                 
                 $('#update-message').text(errorMessage);
                 $('#update-progress').removeClass('progress-bar-animated progress-bar-striped bg-primary')
                     .addClass('bg-danger');
+                
+                // Stop the progress animation
+                updateInProgress = false;
                 
                 // Redirect after error with error status
                 setTimeout(function() {
