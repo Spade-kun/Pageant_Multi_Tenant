@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tenant;
 use App\Models\TenantUser;
+use App\Services\RecaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -16,6 +17,23 @@ use App\Mail\TenantUserRegistrationMail;
 
 class TenantController extends Controller
 {
+    /**
+     * The reCAPTCHA service
+     *
+     * @var RecaptchaService
+     */
+    protected $recaptchaService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param RecaptchaService $recaptchaService
+     */
+    public function __construct(RecaptchaService $recaptchaService)
+    {
+        $this->recaptchaService = $recaptchaService;
+    }
+
     /**
      * Show the tenant registration form.
      */
@@ -39,6 +57,18 @@ class TenantController extends Controller
         if ($slug) {
             // This is a tenant user registration
             $tenant = Tenant::where('slug', $slug)->firstOrFail();
+            
+            // Validate reCAPTCHA
+            $request->validate([
+                'g-recaptcha-response' => 'required',
+            ]);
+            
+            // Verify the reCAPTCHA token
+            if (!$this->recaptchaService->verifyV3($request->input('g-recaptcha-response'), 'register_user')) {
+                return back()
+                    ->withInput($request->except('password'))
+                    ->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.']);
+            }
             
             // Set up tenant database connection
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -108,6 +138,19 @@ class TenantController extends Controller
             }
         } else {
             // This is a tenant owner registration
+            
+            // Validate reCAPTCHA
+            $request->validate([
+                'g-recaptcha-response' => 'required',
+            ]);
+            
+            // Verify the reCAPTCHA token
+            if (!$this->recaptchaService->verifyV3($request->input('g-recaptcha-response'), 'register_tenant')) {
+                return back()
+                    ->withInput($request->except('password'))
+                    ->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.']);
+            }
+            
         try {
             // Log the registration attempt
             \Log::info('Tenant registration attempt', ['email' => $request->email]);

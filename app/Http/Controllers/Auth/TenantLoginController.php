@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\TenantUser;
+use App\Services\RecaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -13,6 +14,23 @@ use Illuminate\Support\Facades\Hash;
 
 class TenantLoginController extends Controller
 {
+    /**
+     * The reCAPTCHA service
+     *
+     * @var RecaptchaService
+     */
+    protected $recaptchaService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param RecaptchaService $recaptchaService
+     */
+    public function __construct(RecaptchaService $recaptchaService)
+    {
+        $this->recaptchaService = $recaptchaService;
+    }
+
     /**
      * Show the login form for tenants.
      */
@@ -29,7 +47,15 @@ class TenantLoginController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'g-recaptcha-response' => 'required',
         ]);
+
+        // Verify the reCAPTCHA token
+        if (!$this->recaptchaService->verifyV3($request->input('g-recaptcha-response'), 'login')) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.',
+            ])->onlyInput('email');
+        }
 
         \Log::info('Login attempt for: ' . $request->email);
 

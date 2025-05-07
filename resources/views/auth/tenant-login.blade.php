@@ -6,6 +6,25 @@
     <title>Glam Agency - Pageant Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.v3.site_key') }}"></script>
+    <script>
+        function onSubmit(token) {
+            document.getElementById("login-form").submit();
+        }
+        
+        function executeRecaptcha() {
+            grecaptcha.ready(function() {
+                grecaptcha.execute('{{ config('recaptcha.v3.site_key') }}', {action: 'login'})
+                    .then(function(token) {
+                        document.getElementById('g-recaptcha-response').value = token;
+                    });
+            });
+        }
+        
+        // Execute recaptcha on page load
+        window.onload = executeRecaptcha;
+    </script>
     <style>
         :root {
             --burgundy: #3F081C;
@@ -233,9 +252,11 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <form method="POST" action="{{ route('tenant.login') }}">
+        <form method="POST" action="{{ route('tenant.login') }}" id="login-form">
         @csrf
-
+        
+        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+        
         @if($errors->any())
             <div class="error-container">
                 <div class="error-message">

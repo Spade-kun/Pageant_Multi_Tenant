@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "biscolab/laravel-recaptcha": "*",
         "codedge/laravel-selfupdater": "^3.10",
         "guzzlehttp/guzzle": "^7.9",
         "intervention/image": "^3.11",

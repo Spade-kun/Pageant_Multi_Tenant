@@ -8,6 +8,21 @@
     <!-- Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.v3.site_key') }}"></script>
+    <script>
+        function executeRecaptcha() {
+            grecaptcha.ready(function() {
+                grecaptcha.execute('{{ config('recaptcha.v3.site_key') }}', {action: 'register_user'})
+                    .then(function(token) {
+                        document.getElementById('g-recaptcha-response').value = token;
+                    });
+            });
+        }
+        
+        // Execute recaptcha on page load
+        window.onload = executeRecaptcha;
+    </script>
     <style>
         :root {
             --burgundy: #3F081C;
@@ -219,8 +234,10 @@
             </div>
         @endif
 
-        <form action="{{ route('tenant.register', ['slug' => $tenant->slug]) }}" method="POST">
+        <form action="{{ route('tenant.register', ['slug' => $tenant->slug]) }}" method="POST" id="register-form">
             @csrf
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+            
             <div class="form-group">
                 <label for="name" class="form-label">Full Name</label>
                 <i class="fas fa-user input-icon"></i>
