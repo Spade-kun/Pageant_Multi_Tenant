@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
 use Codedge\Updater\Models\Release;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class UpdateController extends Controller
 {
@@ -152,50 +155,43 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(Request $request, $slug)
+    /**
+     * Handle the system update request.
+     */
+    public function update(UpdateSystemRequest $request): JsonResponse
     {
         try {
-            // Get the latest release
-            $release = $this->getLatestRelease();
-            
-            if (!$release) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'No updates available.');
-            }
+            $validated = $request->validated();
+            $version = $validated['version'];
 
-            // Download and extract the release
-            $zipPath = $this->downloadRelease($release['zipball_url']);
-            $extractPath = $this->extractRelease($zipPath);
+            // Log the update attempt
+            Log::info('System update initiated', [
+                'version' => $version,
+                'tenant' => auth()->guard('tenant')->user()->id
+            ]);
 
-            // Perform the update
-            $this->performUpdate($extractPath);
+            // Run the update command
+            Artisan::call('system:update', [
+                '--version' => $version,
+                '--tenant' => auth()->guard('tenant')->user()->id
+            ]);
 
-            // Clean up
-            $this->cleanup($zipPath, $extractPath);
-
-            // Redirect to success page
-            return redirect()->route('tenant.updates.success', [
-                'slug' => $slug,
-                'version' => $release['tag_name']
+            return response()->json([
+                'message' => 'System update completed successfully',
+                'version' => $version
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Update failed: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
-            
-            return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                ->with('error', 'Update failed: ' . $e->getMessage());
-        }
-    }
+            Log::error('System update failed', [
+                'error' => $e->getMessage(),
+                'tenant' => auth()->guard('tenant')->user()->id
+            ]);
 
-    public function success(Request $request, $slug)
-    {
-        $version = $request->query('version', 'latest');
-        
-        return view('tenant.updates.success', [
-            'slug' => $slug,
-            'version' => $version
-        ]);
+            return response()->json([
+                'message' => 'System update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Recursively copy files from source to destination, skipping excluded folders/files
@@ -296,7 +292,7 @@ class UpdateController extends Controller
                             $errorCount++;
                         } else {
                             // Set appropriate permissions for the copied file
-                            if (file_exists($destPath)) {
+                        if (file_exists($destPath)) {
                                 if (pathinfo($destPath, PATHINFO_BASENAME) === 'artisan') {
                                     \Log::info("Making artisan executable: $destPath");
                                     @chmod($destPath, 0755);
@@ -360,268 +356,6 @@ class UpdateController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error fetching releases: ' . $e->getMessage());
             return [];
-        }
-    }
-
-    /**
-     * Get the latest release from GitHub
-     * 
-     * @return array|null
-     */
-    protected function getLatestRelease()
-    {
-        try {
-            $vendor = config('self-update.repository_types.github.repository_vendor');
-            $repo = config('self-update.repository_types.github.repository_name');
-            $token = config('self-update.repository_types.github.private_access_token');
-
-            if (empty($token)) {
-                \Log::warning('GitHub access token is not configured. Please set SELF_UPDATER_GITHUB_PRIVATE_ACCESS_TOKEN in your .env file.');
-                return null;
-            }
-
-            $response = $this->client->get("repos/{$vendor}/{$repo}/releases/latest");
-            $release = json_decode($response->getBody(), true);
-
-            if (empty($release)) {
-                \Log::info('No latest release found for the repository.');
-                return null;
-            }
-
-            return [
-                'version' => ltrim($release['tag_name'], 'v'),
-                'released_at' => date('Y-m-d H:i:s', strtotime($release['published_at'])),
-                'description' => $release['body'],
-                'author' => $release['author']['login'],
-                'zipball_url' => $release['zipball_url'],
-                'assets' => collect($release['assets'])->map(function ($asset) {
-                    return [
-                        'name' => $asset['name'],
-                        'size' => $asset['size'],
-                        'download_url' => $asset['browser_download_url']
-                    ];
-                })->toArray()
-            ];
-        } catch (\Exception $e) {
-            \Log::error('Error fetching latest release: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Download a release from GitHub
-     * 
-     * @param string $url The URL to download from
-     * @return string The path to the downloaded file
-     */
-    protected function downloadRelease($url)
-    {
-        try {
-            $vendor = config('self-update.repository_types.github.repository_vendor');
-            $repo = config('self-update.repository_types.github.repository_name');
-            $token = config('self-update.repository_types.github.private_access_token');
-
-            \Log::info('Download release called with URL', ['url' => $url]);
-
-            if (empty($token)) {
-                throw new \Exception('GitHub access token is not configured');
-            }
-
-            // Extract version from URL if it's a tag URL
-            $version = null;
-            
-            // Try to get version from the API first
-            try {
-                $response = $this->client->get($url);
-                $release = json_decode($response->getBody(), true);
-                \Log::info('Release data from API', ['release' => $release]);
-                
-                if (!empty($release['tag_name'])) {
-                    $version = $release['tag_name'];
-                    \Log::info('Found version from API', ['version' => $version]);
-                }
-            } catch (\Exception $e) {
-                \Log::warning('Failed to get release from API', ['error' => $e->getMessage()]);
-            }
-
-            // If we couldn't get version from API, try to extract from URL
-            if (empty($version)) {
-                if (preg_match('/\/releases\/tags\/([^\/]+)$/', $url, $matches)) {
-                    $version = $matches[1];
-                    \Log::info('Found version from URL', ['version' => $version]);
-                } else if (preg_match('/\/releases\/latest$/', $url)) {
-                    \Log::info('Latest release URL detected');
-                }
-            }
-
-            if (empty($version)) {
-                \Log::error('Could not determine release version from URL', ['url' => $url]);
-                throw new \Exception('Could not determine release version');
-            }
-
-            // Remove 'v' prefix if present
-            $version = ltrim($version, 'v');
-            \Log::info('Final version to use', ['version' => $version]);
-
-            // Construct the download URL
-            $downloadUrl = "https://github.com/{$vendor}/{$repo}/archive/refs/tags/v{$version}.zip";
-            \Log::info('Downloading release from', ['url' => $downloadUrl]);
-
-            // Download the zip file
-            $downloadResponse = $this->client->get($downloadUrl, [
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Authorization' => 'token ' . $token
-                ],
-                'allow_redirects' => true
-            ]);
-
-            $tempPath = storage_path('app/updates');
-            if (!file_exists($tempPath)) {
-                mkdir($tempPath, 0755, true);
-            }
-
-            $zipPath = $tempPath . '/update.zip';
-            file_put_contents($zipPath, $downloadResponse->getBody());
-
-            return $zipPath;
-        } catch (\Exception $e) {
-            \Log::error('Error downloading release', ['error' => $e->getMessage()]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Extract a downloaded release
-     * 
-     * @param string $zipPath The path to the zip file
-     * @return string The path where the files were extracted
-     */
-    protected function extractRelease($zipPath)
-    {
-        try {
-            $tempPath = storage_path('app/updates/extracted');
-            if (!file_exists($tempPath)) {
-                mkdir($tempPath, 0755, true);
-            }
-
-            $zip = new \ZipArchive();
-            if ($zip->open($zipPath) === true) {
-                $zip->extractTo($tempPath);
-                $zip->close();
-                return $tempPath;
-            }
-
-            throw new \Exception('Failed to extract zip file');
-        } catch (\Exception $e) {
-            \Log::error('Error extracting release: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Perform the actual update
-     * 
-     * @param string $extractPath The path where the files were extracted
-     */
-    protected function performUpdate($extractPath)
-    {
-        try {
-            // Find the actual application root in the extracted files
-            $sourceRoot = $this->detectSourceCodeRoot($extractPath);
-            
-            // Define files and directories to exclude from the update
-            $exclude = [
-                '.env',
-                '.git',
-                'storage',
-                'vendor',
-                'node_modules',
-                'public/uploads',
-                'public/storage'
-            ];
-
-            // Copy the files
-            $this->copyUpdateFiles($sourceRoot, base_path(), $exclude);
-
-            // Run composer update
-            $this->runComposerUpdate();
-
-            // Run migrations
-            $this->runMigrations();
-
-            // Clear caches
-            $this->clearCaches();
-        } catch (\Exception $e) {
-            \Log::error('Error performing update: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Run composer update
-     */
-    protected function runComposerUpdate()
-    {
-        try {
-            $command = 'composer update --no-interaction --no-dev --optimize-autoloader';
-            exec($command, $output, $returnCode);
-
-            if ($returnCode !== 0) {
-                throw new \Exception('Composer update failed with code: ' . $returnCode);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error running composer update: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Run database migrations
-     */
-    protected function runMigrations()
-    {
-        try {
-            \Artisan::call('migrate', ['--force' => true]);
-        } catch (\Exception $e) {
-            \Log::error('Error running migrations: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Clear application caches
-     */
-    protected function clearCaches()
-    {
-        try {
-            \Artisan::call('config:clear');
-            \Artisan::call('cache:clear');
-            \Artisan::call('view:clear');
-            \Artisan::call('route:clear');
-        } catch (\Exception $e) {
-            \Log::error('Error clearing caches: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Clean up temporary files
-     * 
-     * @param string $zipPath The path to the zip file
-     * @param string $extractPath The path where files were extracted
-     */
-    protected function cleanup($zipPath, $extractPath)
-    {
-        try {
-            if (file_exists($zipPath)) {
-                unlink($zipPath);
-            }
-            if (file_exists($extractPath)) {
-                $this->deleteDirectory($extractPath);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error cleaning up: ' . $e->getMessage());
         }
     }
 

@@ -330,7 +330,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::get('/{slug}/updates/update', function($slug, \App\Http\Requests\Tenant\UpdateSystemRequest $request) {
+        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -355,37 +355,25 @@ Route::middleware(['auth:tenant'])->group(function () {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($request, $slug);
+            // Create an instance of the UpdateSystemRequest with the input from the request
+            $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
+            $updateRequest->replace($request->all());
+            
+            // Validate the request
+            if (!$updateRequest->authorize() || !$updateRequest->passes()) {
+                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    ->withErrors($updateRequest->validator())
+                    ->withInput();
+            }
+            
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
         })->name('tenant.updates.update');
 
-        // Success page route
-        Route::get('/{slug}/updates/success', function($slug) {
-            // Set up tenant database connection
-            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-
-            if (auth()->guard('tenant')->user()->role !== 'owner') {
-                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
-            }
-            
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->success(request(), $slug);
-        })->name('tenant.updates.success');
+        // Handle direct GET access to the update URL
+        Route::get('/{slug}/updates/update', function($slug) {
+            // Redirect to the updates index page
+            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+        });
     });
     
     // Logout
@@ -397,6 +385,12 @@ Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport
 // Score Routes
 Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
 Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
+
+// Handle direct GET access to the update URL - outside the middleware for guaranteed access
+Route::get('/{slug}/updates/update-redirect', function($slug) {
+    // Redirect to the updates index page
+    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+});
 
 // Google OAuth Routes
 Route::get('/tenant/auth/google', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
