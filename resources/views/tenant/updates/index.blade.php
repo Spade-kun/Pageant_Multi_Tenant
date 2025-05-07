@@ -90,7 +90,7 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
+                                                    <form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" id="update-form-{{ $release['version'] }}" onsubmit="showUpdateProgress('{{ $release['version'] }}')">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <input type="hidden" name="redirect_url" value="{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}">
@@ -139,11 +139,32 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" class="d-none">
+                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" class="d-none" onsubmit="showUpdateProgress('latest')">
                     @csrf
                     <input type="hidden" name="redirect_url" value="{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}">
                     <button type="submit" class="btn btn-primary">Install Update</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1" role="dialog" aria-labelledby="updateProgressModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateProgressModalLabel">Update in Progress</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Updating...</span>
+                    </div>
+                </div>
+                <p>System update is in progress. This may take a few minutes.</p>
+                <p>Please <strong>do not close</strong> this window during the update.</p>
+                <p class="mt-3" id="update-timer">The page will automatically refresh in <span id="countdown">60</span> seconds.</p>
             </div>
         </div>
     </div>
@@ -191,7 +212,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
+                `<form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" id="update-form-${release.version}" onsubmit="showUpdateProgress('${release.version}')">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <input type="hidden" name="redirect_url" value="${encodeURIComponent(route('tenant.updates.index', ['slug' => session('tenant_slug')])).replace(/%2F/g, '/')}">
@@ -228,6 +249,29 @@ $(document).ready(function() {
     }
 
     $('#checkUpdatesBtn').click(checkForUpdates);
+
+    // Function to be accessible globally
+    window.showUpdateProgress = function(version) {
+        // Show the progress modal
+        $('#updateProgressModal').modal('show');
+        
+        // Start countdown
+        let countdown = 60;
+        const countdownEl = document.getElementById('countdown');
+        const interval = setInterval(function() {
+            countdown--;
+            countdownEl.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                // Refresh the page to load the new version
+                window.location.href = "{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}";
+            }
+        }, 1000);
+        
+        // Return true to allow the form submission to continue
+        return true;
+    };
 });
 </script>
 @endpush 
