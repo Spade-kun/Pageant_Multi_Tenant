@@ -113,7 +113,18 @@
                   <p>Plan Requests</p>
                 </a>
               </li>
-              
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-users"></i>
+                  <p>User Management</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#">
+                  <i class="fas fa-cog"></i>
+                  <p>System Settings</p>
+                </a>
+              </li>
             </ul>
           </div>
         </div>

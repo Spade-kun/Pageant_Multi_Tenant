@@ -6,21 +6,6 @@
     <title>Glam Agency - Pageant Registration</title>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- reCAPTCHA v3 -->
-    <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.v3.site_key') }}"></script>
-    <script>
-        function executeRecaptcha() {
-            grecaptcha.ready(function() {
-                grecaptcha.execute('{{ config('recaptcha.v3.site_key') }}', {action: 'register_tenant'})
-                    .then(function(token) {
-                        document.getElementById('g-recaptcha-response').value = token;
-                    });
-            });
-        }
-        
-        // Execute recaptcha on page load
-        window.onload = executeRecaptcha;
-    </script>
     <style>
         :root {
             --burgundy: #3F081C;
@@ -231,10 +216,8 @@
             <span>Create Your Pageant Portal</span>
         </h1>
 
-        <form method="POST" action="{{ route('register') }}" id="register-form">
+        <form method="POST" action="{{ route('register') }}">
         @csrf
-        
-        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
         @if($errors->any())
                 <div class="error-container">

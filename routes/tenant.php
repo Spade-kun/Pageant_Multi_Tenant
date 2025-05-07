@@ -209,8 +209,6 @@ Route::middleware(['auth:tenant'])->group(function () {
         ->name('tenant.categories.store');
     Route::get('/{slug}/categories/{id}/edit', [CategoryController::class, 'edit'])
         ->name('tenant.categories.edit');
-    Route::get('/{slug}/categories/{id}', [CategoryController::class, 'show'])
-        ->name('tenant.categories.show');
     Route::put('/{slug}/categories/{id}', [CategoryController::class, 'update'])
         ->name('tenant.categories.update');
     Route::delete('/{slug}/categories/{id}', [CategoryController::class, 'destroy'])
@@ -330,14 +328,58 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', [\App\Http\Controllers\Tenant\UpdateController::class, 'update'])
-            ->name('tenant.updates.update');
+        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
 
-        // Handle direct GET access to the update URL
-        Route::get('/{slug}/updates/update', function($slug) {
-            // Redirect to the updates index page
-            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-        });
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            
+            // Set the specific tenant slug in the session
+            session(['tenant_slug' => $slug]);
+            
+            // Get the controller instance
+            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+            
+            // Call the update method with the version directly
+            $version = $request->input('version');
+            
+            if (empty($version)) {
+                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    ->with('error', 'No version was specified for the update.');
+            }
+            
+            // Create a custom request to bypass the type-hinting
+            $customRequest = new \Illuminate\Http\Request();
+            $customRequest->merge(['version' => $version]);
+            
+            // Call the controller method with the custom request
+            return $controller->update($customRequest);
+        })->name('tenant.updates.update');
+    });
+    
+    // Handle direct GET access to the update URL - place outside middleware to ensure it's always accessible
+    Route::get('/{slug}/updates/update', function($slug) {
+        // Redirect to the updates index page
+        return redirect()->route('tenant.updates.index', ['slug' => $slug]);
     });
     
     // Logout
@@ -349,18 +391,3 @@ Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport
 // Score Routes
 Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
 Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
-
-// Handle direct GET access to the update URL - outside the middleware for guaranteed access
-Route::get('/{slug}/updates/update-redirect', function($slug) {
-    // Redirect to the updates index page
-    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-});
-
-// Google OAuth Routes
-Route::get('/tenant/auth/google', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
-Route::get('/tenant/auth/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
-
-// Debug route - only available in local environment
-if (app()->environment('local')) {
-    Route::get('/tenant/auth/google/debug', [TenantLoginController::class, 'debugOAuth'])->name('tenant.google.debug');
-}

@@ -39,7 +39,7 @@
                                             <input type="checkbox" 
                                                 class="custom-control-input" 
                                                 id="contestant_{{ $contestant->id }}" 
-                                           name="contestant_ids[]" 
+                                           name="contestants[]" 
                                                 value="{{ $contestant->id }}"
                                            {{ in_array($contestant->id, $eventContestants) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="contestant_{{ $contestant->id }}">
@@ -60,7 +60,7 @@
                                             <input type="checkbox" 
                                                 class="custom-control-input" 
                                                 id="category_{{ $category->id }}" 
-                                           name="category_ids[]" 
+                                           name="categories[]" 
                                                 value="{{ $category->id }}"
                                            {{ in_array($category->id, $eventCategories) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="category_{{ $category->id }}">

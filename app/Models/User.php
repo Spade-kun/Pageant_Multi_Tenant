@@ -55,16 +55,4 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
-
-    /**
-     * Check if user has admin access
-     *
-     * @return bool
-     */
-    public function hasAdminAccess()
-    {
-        // Implement your logic to determine if a user has admin access
-        // This could be based on role, permissions, etc.
-        return $this->role === 'admin';
-    }
 }

@@ -77,17 +77,8 @@ class CategoryController extends Controller
     public function edit($slug, $id)
     {
         $this->setTenantConnection($slug);
-        
         $category = DB::connection('tenant')->table('categories')->find($id);
         return view('tenant.categories.edit', compact('category', 'slug'));
-    }
-
-    public function show($slug, $id)
-    {
-        $this->setTenantConnection($slug);
-        
-        $category = DB::connection('tenant')->table('categories')->find($id);
-        return view('tenant.categories.show', compact('category', 'slug'));
     }
 
     public function update(UpdateCategoryRequest $request, $slug, $id)

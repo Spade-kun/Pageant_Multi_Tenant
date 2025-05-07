@@ -7,8 +7,6 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use App\Http\Requests\Tenant\StoreEventAssignmentRequest;
-use App\Http\Requests\Tenant\UpdateEventAssignmentRequest;
 
 class EventAssignmentController extends Controller
 {
@@ -73,11 +71,19 @@ class EventAssignmentController extends Controller
         return view('tenant.event-assignments.create', compact('events', 'contestants', 'categories', 'slug'));
     }
 
-    public function store(StoreEventAssignmentRequest $request, $slug)
+    public function store(Request $request, $slug)
     {
         $this->setTenantConnection($slug);
         
-        $validated = $request->validated();
+        $validated = $request->validate([
+            'event_id' => 'required|exists:tenant.events,id',
+            'contestant_ids' => 'required|array',
+            'contestant_ids.*' => 'exists:tenant.contestants,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:tenant.categories,id',
+            'status' => 'required|in:registered,confirmed,withdrawn',
+            'notes' => 'nullable|string'
+        ]);
 
         $assignments = [];
         foreach ($validated['contestant_ids'] as $contestantId) {
@@ -156,11 +162,19 @@ class EventAssignmentController extends Controller
         ));
     }
 
-    public function update(UpdateEventAssignmentRequest $request, $slug, $id)
+    public function update(Request $request, $slug, $id)
     {
         $this->setTenantConnection($slug);
         
-        $validated = $request->validated();
+        $validated = $request->validate([
+            'event_id' => 'required|exists:tenant.events,id',
+            'contestant_ids' => 'required|array',
+            'contestant_ids.*' => 'exists:tenant.contestants,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:tenant.categories,id',
+            'status' => 'required|in:registered,confirmed,withdrawn',
+            'notes' => 'nullable|string'
+        ]);
 
         try {
             // Delete existing assignments for this event
@@ -173,13 +187,13 @@ class EventAssignmentController extends Controller
             foreach ($validated['contestant_ids'] as $contestantId) {
                 foreach ($validated['category_ids'] as $categoryId) {
                     $assignments[] = [
-                        'event_id' => $validated['event_id'],
+                    'event_id' => $validated['event_id'],
                         'contestant_id' => $contestantId,
                         'category_id' => $categoryId,
-                        'status' => $validated['status'],
-                        'notes' => $validated['notes'],
+                    'status' => $validated['status'],
+                    'notes' => $validated['notes'],
                         'created_at' => now(),
-                        'updated_at' => now(),
+                    'updated_at' => now(),
                     ];
                 }
             }

@@ -1,112 +1,94 @@
 @extends('layouts.TenantDashboardTemplate')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Event Details</h1>
-        <div>
-            <a href="{{ route('tenant.events.edit', ['slug' => $slug, 'event' => $event->id]) }}" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Event
-            </a>
-            <a href="{{ route('tenant.events.index', ['slug' => $slug]) }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">Event Details</h4>
     </div>
 
     <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Event Information</h6>
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title">{{ $event->name }}</h4>
+                        <div class="ml-auto">
+                            <a href="{{ route('tenant.events.edit', ['slug' => $slug, 'event' => $event->id]) }}" class="btn btn-primary btn-sm">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <form action="{{ route('tenant.events.destroy', ['slug' => $slug, 'event' => $event->id]) }}" 
+                                  method="POST" 
+                                  style="display: inline-block;"
+                                  onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Name</label>
-                                <p>{{ $event->name }}</p>
-                            </div>
+                        <div class="col-md-12">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 150px;">ID</th>
+                                        <td>{{ $event->id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Name</th>
+                                        <td>{{ $event->name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Description</th>
+                                        <td>{{ $event->description ?? 'No description available' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Start Date</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($event->start_date)) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>End Date</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($event->end_date)) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Location</th>
+                                        <td>{{ $event->location }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status</th>
+                                        <td>
+                                            @if($event->status == 'ongoing')
+                                                <span class="badge badge-success">Ongoing</span>
+                                            @elseif($event->status == 'upcoming')
+                                                <span class="badge badge-info">Upcoming</span>
+                                            @elseif($event->status == 'completed')
+                                                <span class="badge badge-secondary">Completed</span>
+                                            @else
+                                                <span class="badge badge-warning">{{ ucfirst($event->status) }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Created At</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($event->created_at)) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Updated At</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($event->updated_at)) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Location</label>
-                                <p>{{ $event->location }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Start Date</label>
-                                <p>{{ date('F d, Y h:i A', strtotime($event->start_date)) }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">End Date</label>
-                                <p>{{ date('F d, Y h:i A', strtotime($event->end_date)) }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Status</label>
-                                <p>
-                                    <span class="badge badge-{{ $event->status == 'ongoing' ? 'success' : ($event->status == 'completed' ? 'secondary' : ($event->status == 'cancelled' ? 'danger' : 'warning')) }}">
-                                        {{ ucfirst($event->status) }}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Description</label>
-                                <p>{{ $event->description ?? 'No description available' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Additional Information</h6>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Created At</label>
-                        <p>{{ date('F d, Y h:i A', strtotime($event->created_at)) }}</p>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Last Updated</label>
-                        <p>{{ date('F d, Y h:i A', strtotime($event->updated_at)) }}</p>
                     </div>
                 </div>
-            </div>
-
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">Danger Zone</h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('tenant.events.destroy', ['slug' => $slug, 'event' => $event->id]) }}" 
-                          method="POST" 
-                          onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-block">
-                            <i class="fas fa-trash"></i> Delete Event
-                        </button>
-                    </form>
+                <div class="card-footer">
+                    <a href="{{ route('tenant.events.index', ['slug' => $slug]) }}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </a>
                 </div>
             </div>
         </div>

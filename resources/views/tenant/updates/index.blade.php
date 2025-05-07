@@ -2,33 +2,6 @@
 
 @section('title', 'System Updates')
 
-@section('styles')
-<style>
-    .sortable {
-        cursor: pointer;
-        position: relative;
-    }
-    
-    .sortable i {
-        margin-left: 5px;
-        font-size: 14px;
-    }
-    
-    table.table th.sortable:hover {
-        background-color: #f4f4f4;
-    }
-    
-    #releasesTable .badge {
-        font-size: 80%;
-    }
-    
-    #releasesTable .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.76563rem;
-    }
-</style>
-@endsection
-
 @section('content')
 <div class="content">
     <div class="container-fluid">
@@ -71,19 +44,8 @@
                                     <div class="info-box-content">
                                         <h5>Latest Version</h5>
                                         <h3>
-                                            @php
-                                                // Find the highest version from releases
-                                                $latestVersion = $currentVersion;
-                                                if (isset($releases) && !empty($releases)) {
-                                                    foreach ($releases as $release) {
-                                                        if (version_compare($release['version'], $latestVersion, '>')) {
-                                                            $latestVersion = $release['version'];
-                                                        }
-                                                    }
-                                                }
-                                            @endphp
-                                            {{ $latestVersion }}
-                                            @if(version_compare($latestVersion, $currentVersion, '>'))
+                                            {{ $newVersion ?? $currentVersion }}
+                                            @if(isset($isNewVersionAvailable) && $isNewVersionAvailable)
                                                 <span class="badge badge-success">Update Available</span>
                                             @else
                                                 <span class="badge badge-info">Up to date</span>
@@ -104,11 +66,11 @@
                         <div class="mt-4">
                             <h4>Release History</h4>
                             <div class="table-responsive">
-                                <table class="table table-striped" id="releasesTable">
+                                <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="sortable" data-sort="version">VERSION <i class="fas fa-sort"></i></th>
-                                            <th class="sortable" data-sort="date">RELEASED AT <i class="fas fa-sort"></i></th>
+                                            <th>VERSION</th>
+                                            <th>RELEASED AT</th>
                                             <th>AUTHOR</th>
                                             <th>DESCRIPTION</th>
                                             <th>ACTION</th>
@@ -116,7 +78,7 @@
                                     </thead>
                                     <tbody id="releaseHistory">
                                         @foreach($releases as $release)
-                                        <tr data-version="{{ $release['version'] }}" data-date="{{ strtotime($release['released_at']) }}">
+                                        <tr>
                                             <td>
                                                 {{ $release['version'] }}
                                                 @if($release['version'] === $currentVersion)
@@ -137,8 +99,6 @@
                                                             {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
                                                         </button>
                                                     </form>
-                                                @else
-                                                    <span class="badge badge-success">Current Version</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -160,26 +120,28 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateModalLabel">Checking for Updates</h5>
+                <h5 class="modal-title" id="updateModalLabel">System Update Available</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="updateSpinner" class="text-center">
-                    <div class="spinner-border" role="status">
+                <div id="updateModalContent">
+                    <!-- Content will be populated via JavaScript -->
+                </div>
+                <div id="updateSpinner" class="text-center d-none">
+                    <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                    <p class="mt-2">Checking for updates. Please wait...</p>
+                    <p class="mt-2">Checking for updates...</p>
                 </div>
-                <div id="updateModalContent" class="d-none"></div>
-                <form id="updateForm" class="d-none" method="POST" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}">
-                    @csrf
-                    <input type="hidden" name="version" id="updateVersion">
-                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
+                    @csrf
+                    <button type="submit" class="btn btn-primary">Install Update</button>
+                </form>
             </div>
         </div>
     </div>
@@ -187,12 +149,9 @@
 
 @endsection
 
-@push('js')
+@push('scripts')
 <script>
 $(document).ready(function() {
-    // Sort the table by version by default (descending)
-    sortTable('version', 'desc');
-
     function checkForUpdates() {
         $('#updateSpinner').removeClass('d-none');
         $('#updateModalContent').addClass('d-none');
@@ -206,47 +165,6 @@ $(document).ready(function() {
 
                 if (response.releases && response.releases.length > 0) {
                     updateReleaseHistory(response.releases, response.currentVersion);
-                    
-                    // Find the latest version
-                    let latestVersion = response.currentVersion;
-                    response.releases.forEach(function(release) {
-                        if (compareVersions(release.version, latestVersion) > 0) {
-                            latestVersion = release.version;
-                        }
-                    });
-                    
-                    const hasUpdate = compareVersions(latestVersion, response.currentVersion) > 0;
-                    
-                    if (hasUpdate) {
-                        $('#updateModalContent').html(`
-                            <div class="alert alert-success">
-                                <h4>Update Available!</h4>
-                                <p>A new version (${latestVersion}) is available. Your current version is ${response.currentVersion}</p>
-                                <button class="btn btn-primary" id="doUpdateBtn" data-version="${latestVersion}">
-                                    Update Now
-                                </button>
-                            </div>
-                        `);
-                        
-                        // Refresh the page to show the updated releases
-                        setTimeout(function() {
-                            location.reload();
-                        }, 2000);
-                    } else {
-                        $('#updateModalContent').html(`
-                            <div class="alert alert-info">
-                                <h4>System Up To Date</h4>
-                                <p>You are already running the latest version (${response.currentVersion}).</p>
-                            </div>
-                        `);
-                    }
-                } else {
-                    $('#updateModalContent').html(`
-                        <div class="alert alert-warning">
-                            <h4>No Releases Found</h4>
-                            <p>Could not find any release information. Please check your configuration.</p>
-                        </div>
-                    `);
                 }
             })
             .fail(function(error) {
@@ -265,11 +183,6 @@ $(document).ready(function() {
         const tbody = $('#releaseHistory');
         tbody.empty();
 
-        // Sort releases by version (newest first)
-        releases.sort(function(a, b) {
-            return compareVersions(b.version, a.version);
-        });
-
         releases.forEach(release => {
             const isCurrentVersion = release.version === currentVersion;
             const isUpgrade = compareVersions(release.version, currentVersion) > 0;
@@ -287,7 +200,7 @@ $(document).ready(function() {
                 </form>`;
 
             tbody.append(`
-                <tr data-version="${release.version}" data-date="${new Date(release.released_at).getTime()}">
+                <tr>
                     <td>
                         ${release.version}
                         ${isCurrentVersion ? '<span class="badge badge-success ml-2">Current</span>' : ''}
@@ -311,60 +224,7 @@ $(document).ready(function() {
         return a3 - b3;
     }
 
-    function sortTable(column, direction) {
-        const tbody = $('#releaseHistory');
-        const rows = tbody.find('tr').get();
-        
-        rows.sort(function(a, b) {
-            let aValue, bValue;
-            
-            if (column === 'version') {
-                aValue = $(a).data('version');
-                bValue = $(b).data('version');
-                return direction === 'asc' ? 
-                    compareVersions(aValue, bValue) : 
-                    compareVersions(bValue, aValue);
-            } else if (column === 'date') {
-                aValue = $(a).data('date');
-                bValue = $(b).data('date');
-                return direction === 'asc' ? aValue - bValue : bValue - aValue;
-            }
-            
-            return 0;
-        });
-        
-        $.each(rows, function(index, row) {
-            tbody.append(row);
-        });
-        
-        // Update sort indicators
-        $('.sortable i').removeClass('fa-sort-up fa-sort-down').addClass('fa-sort');
-        $(`.sortable[data-sort="${column}"] i`)
-            .removeClass('fa-sort')
-            .addClass(direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
-    }
-
-    // Check for updates button
-    $('#checkUpdatesBtn').click(function() {
-        checkForUpdates();
-    });
-    
-    // Handle update button in modal
-    $(document).on('click', '#doUpdateBtn', function() {
-        const version = $(this).data('version');
-        $('#updateVersion').val(version);
-        $('#updateForm').removeClass('d-none').submit();
-    });
-    
-    // Sortable columns
-    $('.sortable').click(function() {
-        const column = $(this).data('sort');
-        const currentDir = $(this).find('i').hasClass('fa-sort-up') ? 'asc' : 
-                         ($(this).find('i').hasClass('fa-sort-down') ? 'desc' : 'none');
-        const newDir = currentDir === 'asc' ? 'desc' : 'asc';
-        
-        sortTable(column, newDir);
-    });
+    $('#checkUpdatesBtn').click(checkForUpdates);
 });
 </script>
 @endpush 

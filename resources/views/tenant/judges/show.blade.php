@@ -1,90 +1,72 @@
 @extends('layouts.TenantDashboardTemplate')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Judge Details</h1>
-        <div>
-            <a href="{{ route('tenant.judges.edit', ['slug' => $slug, 'judge' => $judge->id]) }}" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Judge
-            </a>
-            <a href="{{ route('tenant.judges.index', ['slug' => $slug]) }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">Judge Details</h4>
     </div>
 
     <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Judge Information</h6>
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title">{{ $judge->name }}</h4>
+                        <div class="ml-auto">
+                            <a href="{{ route('tenant.judges.edit', ['slug' => $slug, 'judge' => $judge->id]) }}" class="btn btn-primary btn-sm">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <form action="{{ route('tenant.judges.destroy', ['slug' => $slug, 'judge' => $judge->id]) }}" 
+                                  method="POST" 
+                                  style="display: inline-block;"
+                                  onsubmit="return confirm('Are you sure you want to remove this judge?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-trash"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Name</label>
-                                <p>{{ $judge->name }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email</label>
-                                <p>{{ $judge->email }}</p>
-                            </div>
+                        <div class="col-md-12">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 150px;">ID</th>
+                                        <td>{{ $judge->id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Name</th>
+                                        <td>{{ $judge->name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ $judge->email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Specialty</th>
+                                        <td>{{ $judge->specialty }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Created At</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($judge->created_at)) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Updated At</th>
+                                        <td>{{ date('F d, Y h:i A', strtotime($judge->updated_at)) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">ID</label>
-                                <p>{{ $judge->id }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Specialty</label>
-                                <p>{{ $judge->specialty }}</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Additional Information</h6>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="font-weight-bold">Created At</label>
-                        <p>{{ date('F d, Y', strtotime($judge->created_at)) }}</p>
-                    </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Last Updated</label>
-                        <p>{{ date('F d, Y', strtotime($judge->updated_at)) }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">Danger Zone</h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('tenant.judges.destroy', ['slug' => $slug, 'judge' => $judge->id]) }}" 
-                          method="POST" 
-                          onsubmit="return confirm('Are you sure you want to remove this judge? This action cannot be undone.');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-block">
-                            <i class="fas fa-trash"></i> Remove Judge
-                        </button>
-                    </form>
+                <div class="card-footer">
+                    <a href="{{ route('tenant.judges.index', ['slug' => $slug]) }}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </a>
                 </div>
             </div>
         </div>
