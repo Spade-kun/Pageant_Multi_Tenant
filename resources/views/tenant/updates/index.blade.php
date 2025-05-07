@@ -194,6 +194,9 @@ $(document).ready(function() {
                         $('#doUpdateBtn').on('click', function() {
                             const version = $(this).data('version');
                             
+                            // Show loading indicator
+                            $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+                            
                             // Create and submit a form
                             const form = $('<form>', {
                                 'method': 'POST',
@@ -215,7 +218,11 @@ $(document).ready(function() {
                             
                             $('#updateModal').modal('hide');
                             $('body').append(form);
-                            form.submit();
+                            
+                            // Submit the form with a small delay to allow modal to close
+                            setTimeout(function() {
+                                form.submit();
+                            }, 500);
                         });
                     } else {
                         $('#updateModalContent').html(`
@@ -281,9 +288,13 @@ $(document).ready(function() {
         $('.update-version-btn').on('click', function() {
             const version = $(this).data('version');
             const isUpgrade = $(this).data('is-upgrade') === true;
+            const $btn = $(this);
             
             if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
                         (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
+                
+                // Show loading indicator
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> ' + (isUpgrade ? 'Updating...' : 'Downgrading...'));
                 
                 // Create and submit a form
                 const form = $('<form>', {
@@ -305,7 +316,11 @@ $(document).ready(function() {
                 }));
                 
                 $('body').append(form);
-                form.submit();
+                
+                // Submit the form with a small delay
+                setTimeout(function() {
+                    form.submit();
+                }, 500);
             }
         });
     }
@@ -330,9 +345,13 @@ $(document).ready(function() {
     $('.update-version-btn').on('click', function() {
         const version = $(this).data('version');
         const isUpgrade = $(this).data('is-upgrade') === true;
+        const $btn = $(this);
         
         if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
                    (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
+            
+            // Show loading indicator
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> ' + (isUpgrade ? 'Updating...' : 'Downgrading...'));
             
             // Create and submit a form
             const form = $('<form>', {
@@ -354,7 +373,11 @@ $(document).ready(function() {
             }));
             
             $('body').append(form);
-            form.submit();
+            
+            // Submit the form with a small delay
+            setTimeout(function() {
+                form.submit();
+            }, 500);
         }
     });
 });

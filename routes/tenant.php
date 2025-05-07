@@ -362,7 +362,7 @@ Route::middleware(['auth:tenant'])->group(function () {
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Redirect to the updates index page 
+            // Always redirect to the updates index page 
             return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
     });
@@ -380,5 +380,10 @@ Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenan
 // Handle direct GET access to the update URL - outside the middleware for guaranteed access
 Route::get('/{slug}/updates/update-redirect', function($slug) {
     // Redirect to the updates index page
+    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+});
+
+// Fallback redirect for the update URL as a last resort
+Route::get('/{slug}/updates/update', function($slug) {
     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
 });
