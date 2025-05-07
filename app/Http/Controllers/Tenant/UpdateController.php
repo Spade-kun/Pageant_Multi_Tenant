@@ -421,7 +421,7 @@ class UpdateController extends Controller
             $repo = config('self-update.repository_types.github.repository_name');
             $token = config('self-update.repository_types.github.private_access_token');
 
-            \Log::info('Download release called with URL: ' . $url);
+            \Log::info('Download release called with URL', ['url' => $url]);
 
             if (empty($token)) {
                 throw new \Exception('GitHub access token is not configured');
@@ -434,38 +434,38 @@ class UpdateController extends Controller
             try {
                 $response = $this->client->get($url);
                 $release = json_decode($response->getBody(), true);
-                \Log::info('Release data from API:', $release);
+                \Log::info('Release data from API', ['release' => $release]);
                 
                 if (!empty($release['tag_name'])) {
                     $version = $release['tag_name'];
-                    \Log::info('Found version from API: ' . $version);
+                    \Log::info('Found version from API', ['version' => $version]);
                 }
             } catch (\Exception $e) {
-                \Log::warning('Failed to get release from API: ' . $e->getMessage());
+                \Log::warning('Failed to get release from API', ['error' => $e->getMessage()]);
             }
 
             // If we couldn't get version from API, try to extract from URL
             if (empty($version)) {
                 if (preg_match('/\/releases\/tags\/([^\/]+)$/', $url, $matches)) {
                     $version = $matches[1];
-                    \Log::info('Found version from URL: ' . $version);
+                    \Log::info('Found version from URL', ['version' => $version]);
                 } else if (preg_match('/\/releases\/latest$/', $url)) {
                     \Log::info('Latest release URL detected');
                 }
             }
 
             if (empty($version)) {
-                \Log::error('Could not determine release version from URL: ' . $url);
+                \Log::error('Could not determine release version from URL', ['url' => $url]);
                 throw new \Exception('Could not determine release version');
             }
 
             // Remove 'v' prefix if present
             $version = ltrim($version, 'v');
-            \Log::info('Final version to use: ' . $version);
+            \Log::info('Final version to use', ['version' => $version]);
 
             // Construct the download URL
             $downloadUrl = "https://github.com/{$vendor}/{$repo}/archive/refs/tags/v{$version}.zip";
-            \Log::info('Downloading release from: ' . $downloadUrl);
+            \Log::info('Downloading release from', ['url' => $downloadUrl]);
 
             // Download the zip file
             $downloadResponse = $this->client->get($downloadUrl, [
@@ -486,7 +486,7 @@ class UpdateController extends Controller
 
             return $zipPath;
         } catch (\Exception $e) {
-            \Log::error('Error downloading release: ' . $e->getMessage());
+            \Log::error('Error downloading release', ['error' => $e->getMessage()]);
             throw $e;
         }
     }

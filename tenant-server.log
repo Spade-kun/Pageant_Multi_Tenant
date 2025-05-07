@@ -2828,3 +2828,26 @@
   2025-05-08 02:35:09 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 5.03ms
   2025-05-08 02:35:09 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 6.49ms
   2025-05-08 02:35:09 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 6.12ms
+  2025-05-08 02:36:11 /sanjose/updates ................................................ ~ 3s
+  2025-05-08 02:36:15 /assets/js/plugin/webfont/webfont.min.js .................. ~ 554.06ms
+  2025-05-08 02:36:15 /assets/css/bootstrap.min.css ............................... ~ 1.99ms
+  2025-05-08 02:36:15 /assets/css/demo.css ........................................ ~ 4.68ms
+  2025-05-08 02:36:15 /assets/css/plugins.min.css ................................ ~ 15.88ms
+  2025-05-08 02:36:15 /assets/css/kaiadmin.min.css ............................... ~ 27.42ms
+  2025-05-08 02:36:15 /assets/img/clam_logo.jpg .................................. ~ 28.09ms
+  2025-05-08 02:36:15 /assets/img/buksu_logo.png .................................. ~ 0.14ms
+  2025-05-08 02:36:15 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-08 02:36:17 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 504.87ms
+  2025-05-08 02:36:17 /assets/img/profile.jpg ................................... ~ 505.55ms
+  2025-05-08 02:36:17 /assets/css/fonts.min.css ................................. ~ 507.38ms
+  2025-05-08 02:36:17 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-08 02:36:17 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-08 02:36:17 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-08 02:36:17 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ...... ~ 1s
+  2025-05-08 02:36:18 /assets/js/custom-scripts.js ............................... ~ 11.82ms
+  2025-05-08 02:36:18 /assets/fonts/fontawesome/fa-solid-900.woff2 ............... ~ 10.96ms
+  2025-05-08 02:36:18 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 7.22ms
+  2025-05-08 02:36:18 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 8.24ms
+  2025-05-08 02:36:18 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 7.82ms
+  2025-05-08 02:36:18 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.20ms
+  2025-05-08 02:36:20 /sanjose/updates/update ........................................ ~ 15s
