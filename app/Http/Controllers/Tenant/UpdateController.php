@@ -353,7 +353,7 @@ class UpdateController extends Controller
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // When done, never return a view, only redirect
+            // Redirect to updates page after success
             return redirect()->route('tenant.updates.index', ['slug' => $slug])
                 ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
@@ -361,8 +361,6 @@ class UpdateController extends Controller
             config(['app.log_level' => $originalLogLevel]);
             
             \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            
-            // Always redirect, never return a view
             return redirect()->route('tenant.updates.index', ['slug' => $slug])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }

@@ -362,7 +362,32 @@ Route::middleware(['auth:tenant'])->group(function () {
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Always redirect to the updates index page 
+            // Set up tenant database connection to use layout
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            // If we have a version parameter, show the update processing page
+            if (request()->has('version')) {
+                return view('tenant.updates.update-processing');
+            }
+            
+            // Otherwise redirect to the updates index page
             return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
     });
@@ -380,10 +405,5 @@ Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenan
 // Handle direct GET access to the update URL - outside the middleware for guaranteed access
 Route::get('/{slug}/updates/update-redirect', function($slug) {
     // Redirect to the updates index page
-    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-});
-
-// Fallback redirect for the update URL as a last resort
-Route::get('/{slug}/updates/update', function($slug) {
     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
 });
