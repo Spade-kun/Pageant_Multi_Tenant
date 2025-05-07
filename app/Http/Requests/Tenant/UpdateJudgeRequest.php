@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Config;
 
-class UpdateCategoryRequest extends FormRequest
+class UpdateJudgeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,8 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'percentage' => 'required|numeric|min:0.01|max:100',
-            'is_active' => 'required|boolean',
-            'display_order' => 'required|integer|min:0'
+            'user_id' => 'required|exists:tenant.users,id',
+            'specialty' => 'required|string|max:255',
         ];
     }
 
@@ -65,30 +62,26 @@ class UpdateCategoryRequest extends FormRequest
             DB::purge('tenant');
             DB::reconnect('tenant');
 
-            // Get the category ID from the route parameters
-            $categoryId = $this->route('id');
-
-            // Check if display order is unique (excluding current category)
-            $existingOrder = DB::connection('tenant')
-                ->table('categories')
-                ->where('display_order', $this->display_order)
-                ->where('id', '!=', $categoryId)
-                ->exists();
-
-            if ($existingOrder) {
-                $validator->errors()->add('display_order', 'This display order is already taken. Please choose a different order number.');
+            // Verify selected user has the 'user' role
+            $user = DB::connection('tenant')
+                ->table('users')
+                ->where('id', $this->user_id)
+                ->where('role', 'user')
+                ->first();
+                
+            if (!$user) {
+                $validator->errors()->add('user_id', 'Selected user must have the "user" role.');
             }
-
-            // Calculate total percentage excluding current category and including the new percentage
-            $totalExcludingCurrent = DB::connection('tenant')
-                ->table('categories')
-                ->where('id', '!=', $categoryId)
-                ->sum('percentage');
             
-            $newTotal = $totalExcludingCurrent + $this->percentage;
-
-            if ($newTotal > 100) {
-                $validator->errors()->add('percentage', 'Total percentage cannot exceed 100%. Current total (excluding this category) is ' . $totalExcludingCurrent . '%. Maximum allowed for this category is ' . (100 - $totalExcludingCurrent) . '%.');
+            // Check if user is already a judge by email, excluding current judge
+            $existingJudge = DB::connection('tenant')
+                ->table('judges')
+                ->where('email', $user->email)
+                ->where('id', '!=', $this->route('judge'))
+                ->first();
+                
+            if ($existingJudge) {
+                $validator->errors()->add('user_id', 'This user is already a judge.');
             }
         });
     }

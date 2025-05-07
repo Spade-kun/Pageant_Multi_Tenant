@@ -4,6 +4,8 @@ namespace App\Http\Requests\Tenant;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tenant;
+use Illuminate\Support\Facades\Config;
 
 class StoreCategoryRequest extends FormRequest
 {
@@ -38,6 +40,31 @@ class StoreCategoryRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // Get the tenant slug from the route parameters
+            $slug = $this->route('slug');
+            
+            // Set up tenant database connection
+            $tenant = Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
             // Check if display order is unique
             $existingOrder = DB::connection('tenant')
                 ->table('categories')

@@ -352,8 +352,9 @@ class UpdateController extends Controller
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // Redirect to success page after update
-            return redirect()->to("/{$this->getSlug()}/updates/update");
+            // Redirect to updates page after success
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
