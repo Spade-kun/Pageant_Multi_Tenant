@@ -417,19 +417,28 @@ class UpdateController extends Controller
     protected function downloadRelease($url)
     {
         try {
-            // First get the download URL from the API
-            $response = $this->client->get($url);
-            $release = json_decode($response->getBody(), true);
-            
-            if (empty($release['zipball_url'])) {
-                throw new \Exception('No download URL found in the release');
+            $vendor = config('self-update.repository_types.github.repository_vendor');
+            $repo = config('self-update.repository_types.github.repository_name');
+            $token = config('self-update.repository_types.github.private_access_token');
+
+            if (empty($token)) {
+                throw new \Exception('GitHub access token is not configured');
             }
 
-            // Now download the actual zip file
-            $downloadResponse = $this->client->get($release['zipball_url'], [
+            // Extract version from URL if it's a tag URL
+            $version = null;
+            if (preg_match('/\/releases\/tags\/([^\/]+)$/', $url, $matches)) {
+                $version = $matches[1];
+            }
+
+            // Construct the download URL
+            $downloadUrl = "https://github.com/{$vendor}/{$repo}/archive/refs/tags/{$version}.zip";
+
+            // Download the zip file
+            $downloadResponse = $this->client->get($downloadUrl, [
                 'headers' => [
                     'Accept' => 'application/json',
-                    'Authorization' => 'token ' . config('self-update.repository_types.github.private_access_token')
+                    'Authorization' => 'token ' . $token
                 ],
                 'allow_redirects' => true
             ]);
