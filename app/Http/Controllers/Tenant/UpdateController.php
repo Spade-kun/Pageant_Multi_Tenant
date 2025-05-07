@@ -363,6 +363,215 @@ class UpdateController extends Controller
         }
     }
 
+    /**
+     * Get the latest release from GitHub
+     * 
+     * @return array|null
+     */
+    protected function getLatestRelease()
+    {
+        try {
+            $vendor = config('self-update.repository_types.github.repository_vendor');
+            $repo = config('self-update.repository_types.github.repository_name');
+            $token = config('self-update.repository_types.github.private_access_token');
+
+            if (empty($token)) {
+                \Log::warning('GitHub access token is not configured. Please set SELF_UPDATER_GITHUB_PRIVATE_ACCESS_TOKEN in your .env file.');
+                return null;
+            }
+
+            $response = $this->client->get("repos/{$vendor}/{$repo}/releases/latest");
+            $release = json_decode($response->getBody(), true);
+
+            if (empty($release)) {
+                \Log::info('No latest release found for the repository.');
+                return null;
+            }
+
+            return [
+                'version' => ltrim($release['tag_name'], 'v'),
+                'released_at' => date('Y-m-d H:i:s', strtotime($release['published_at'])),
+                'description' => $release['body'],
+                'author' => $release['author']['login'],
+                'zipball_url' => $release['zipball_url'],
+                'assets' => collect($release['assets'])->map(function ($asset) {
+                    return [
+                        'name' => $asset['name'],
+                        'size' => $asset['size'],
+                        'download_url' => $asset['browser_download_url']
+                    ];
+                })->toArray()
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error fetching latest release: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Download a release from GitHub
+     * 
+     * @param string $url The URL to download from
+     * @return string The path to the downloaded file
+     */
+    protected function downloadRelease($url)
+    {
+        try {
+            $response = $this->client->get($url, [
+                'headers' => [
+                    'Accept' => 'application/octet-stream'
+                ]
+            ]);
+
+            $tempPath = storage_path('app/updates');
+            if (!file_exists($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+
+            $zipPath = $tempPath . '/update.zip';
+            file_put_contents($zipPath, $response->getBody());
+
+            return $zipPath;
+        } catch (\Exception $e) {
+            \Log::error('Error downloading release: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Extract a downloaded release
+     * 
+     * @param string $zipPath The path to the zip file
+     * @return string The path where the files were extracted
+     */
+    protected function extractRelease($zipPath)
+    {
+        try {
+            $tempPath = storage_path('app/updates/extracted');
+            if (!file_exists($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+
+            $zip = new \ZipArchive();
+            if ($zip->open($zipPath) === true) {
+                $zip->extractTo($tempPath);
+                $zip->close();
+                return $tempPath;
+            }
+
+            throw new \Exception('Failed to extract zip file');
+        } catch (\Exception $e) {
+            \Log::error('Error extracting release: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Perform the actual update
+     * 
+     * @param string $extractPath The path where the files were extracted
+     */
+    protected function performUpdate($extractPath)
+    {
+        try {
+            // Find the actual application root in the extracted files
+            $sourceRoot = $this->detectSourceCodeRoot($extractPath);
+            
+            // Define files and directories to exclude from the update
+            $exclude = [
+                '.env',
+                '.git',
+                'storage',
+                'vendor',
+                'node_modules',
+                'public/uploads',
+                'public/storage'
+            ];
+
+            // Copy the files
+            $this->copyUpdateFiles($sourceRoot, base_path(), $exclude);
+
+            // Run composer update
+            $this->runComposerUpdate();
+
+            // Run migrations
+            $this->runMigrations();
+
+            // Clear caches
+            $this->clearCaches();
+        } catch (\Exception $e) {
+            \Log::error('Error performing update: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Run composer update
+     */
+    protected function runComposerUpdate()
+    {
+        try {
+            $command = 'composer update --no-interaction --no-dev --optimize-autoloader';
+            exec($command, $output, $returnCode);
+
+            if ($returnCode !== 0) {
+                throw new \Exception('Composer update failed with code: ' . $returnCode);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error running composer update: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Run database migrations
+     */
+    protected function runMigrations()
+    {
+        try {
+            \Artisan::call('migrate', ['--force' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error running migrations: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Clear application caches
+     */
+    protected function clearCaches()
+    {
+        try {
+            \Artisan::call('config:clear');
+            \Artisan::call('cache:clear');
+            \Artisan::call('view:clear');
+            \Artisan::call('route:clear');
+        } catch (\Exception $e) {
+            \Log::error('Error clearing caches: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Clean up temporary files
+     * 
+     * @param string $zipPath The path to the zip file
+     * @param string $extractPath The path where files were extracted
+     */
+    protected function cleanup($zipPath, $extractPath)
+    {
+        try {
+            if (file_exists($zipPath)) {
+                unlink($zipPath);
+            }
+            if (file_exists($extractPath)) {
+                $this->deleteDirectory($extractPath);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error cleaning up: ' . $e->getMessage());
+        }
+    }
+
     // Update the SELF_UPDATER_VERSION_INSTALLED value in the .env file
     protected function updateEnvVersion($newVersion)
     {
