@@ -366,7 +366,8 @@ Route::middleware(['auth:tenant'])->group(function () {
                     ->withInput();
             }
             
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
+            $controller = new \App\Http\Controllers\Tenant\UpdateController(app(\Codedge\Updater\UpdaterManager::class));
+            return $controller->update($updateRequest);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
