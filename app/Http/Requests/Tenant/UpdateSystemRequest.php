@@ -20,7 +20,8 @@ class UpdateSystemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'version' => 'required|string'
+            'version' => 'required|string',
+            'redirect_url' => 'nullable|string'
         ];
     }
 } 

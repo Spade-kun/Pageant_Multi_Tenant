@@ -93,6 +93,7 @@
                                                     <form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
+                                                        <input type="hidden" name="redirect_url" value="{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}">
                                                         <button type="submit" 
                                                                 class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
                                                                 onclick="return confirm('Are you sure you want to {{ version_compare($release['version'], $currentVersion, '>') ? 'update to' : 'downgrade to' }} version {{ $release['version'] }}? {{ version_compare($release['version'], $currentVersion, '<') ? 'Downgrading may cause compatibility issues.' : '' }}')">
@@ -140,6 +141,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" class="d-none">
                     @csrf
+                    <input type="hidden" name="redirect_url" value="{{ route('tenant.updates.index', ['slug' => session('tenant_slug')]) }}">
                     <button type="submit" class="btn btn-primary">Install Update</button>
                 </form>
             </div>
@@ -192,6 +194,7 @@ $(document).ready(function() {
                 `<form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
+                    <input type="hidden" name="redirect_url" value="${encodeURIComponent(route('tenant.updates.index', ['slug' => session('tenant_slug')])).replace(/%2F/g, '/')}">
                     <button type="submit" 
                             class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'}"
                             onclick="return confirm('Are you sure you want to ${isUpgrade ? 'update to' : 'downgrade to'} version ${release.version}? ${!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''}')">
