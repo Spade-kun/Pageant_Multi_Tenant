@@ -34,8 +34,8 @@
             <h5 class="mb-1">{{ __('You are currently on the basic "No Plan" subscription') }}</h5>
             <p class="mb-2">{{ __('Upgrade to a premium plan to access advanced features like Pageant Management and Reports.') }}</p>
             <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-warning btn-sm">
-        <i class="fas fa-arrow-up"></i> {{ __('Upgrade Now') }}
-    </a>
+                <i class="fas fa-arrow-up"></i> {{ __('Upgrade Now') }}
+            </a>
         </div>
     </div>
 </div>
@@ -61,7 +61,7 @@
                 <div class="stats-item d-flex align-items-center mb-3 pb-2 border-bottom">
                     <div class="stats-icon bg-primary text-white rounded-circle p-2 me-3">
                         <i class="fas fa-users"></i>
-                        </div>
+                    </div>
                     <div>
                         <h6 class="mb-0">{{ __('Contestants') }}</h6>
                         <h3 class="mb-0 fw-bold">{{ $tenant->hasNoPlan() ? '--' : rand(10, 30) }}</h3>
@@ -71,7 +71,7 @@
                 <div class="stats-item d-flex align-items-center mb-3 pb-2 border-bottom">
                     <div class="stats-icon bg-success text-white rounded-circle p-2 me-3">
                         <i class="fas fa-calendar-check"></i>
-                        </div>
+                    </div>
                     <div>
                         <h6 class="mb-0">{{ __('Events') }}</h6>
                         <h3 class="mb-0 fw-bold">{{ $tenant->hasNoPlan() ? '--' : rand(3, 8) }}</h3>
@@ -90,7 +90,7 @@
             </div>
         </div>
     </div>
-                        </div>
+</div>
 
 <!-- SYSTEM UPDATES ALERT (Only for owners) -->
 @if(auth()->guard('tenant')->user()->role === 'owner' && $isNewVersionAvailable)
@@ -121,7 +121,7 @@
     <div class="col-lg-12">
         <h4 class="section-title fw-bold mb-3">{{ __('Core Features') }}</h4>
     </div>
-                        </div>
+</div>
 
 <div class="row mb-4">
     <!-- User Management Card -->
@@ -140,7 +140,7 @@
                 </a>
             </div>
         </div>
-                        </div>
+    </div>
 
     <!-- Subscription Management Card -->
     <div class="col-sm-6 col-lg-4 mb-4">
@@ -155,13 +155,13 @@
                 <p class="card-text text-muted mb-4">{{ __('Manage your subscription plan and access premium features.') }}</p>
                 <a href="{{ route('tenant.subscription.plans', ['slug' => $slug]) }}" class="btn btn-success btn-sm">
                     <i class="fas fa-crown me-1"></i> 
-                        {{ __('View Plans') }}
-                        @if($tenant->hasNoPlan())
+                    {{ __('View Plans') }}
+                    @if($tenant->hasNoPlan())
                         <span class="badge bg-danger ms-1">No Plan</span>
-                        @elseif(session('trial_days_left'))
+                    @elseif(session('trial_days_left'))
                         <span class="badge bg-warning ms-1">Trial: {{ session('trial_days_left') }} days</span>
-                        @endif
-                    </a>
+                    @endif
+                </a>
             </div>
         </div>
     </div>
@@ -233,8 +233,8 @@
                 <h5 class="card-title">{{ __('Categories') }}</h5>
                 <p class="card-text text-muted small">{{ __('Define competition categories.') }}</p>
                 <a href="{{ route('tenant.categories.index', ['slug' => $slug]) }}" class="btn btn-sm btn-outline-secondary mt-2">
-                        {{ __('Manage Categories') }}
-                    </a>
+                    {{ __('Manage Categories') }}
+                </a>
             </div>
         </div>
     </div>
@@ -249,8 +249,8 @@
                 <h5 class="card-title">{{ __('Events') }}</h5>
                 <p class="card-text text-muted small">{{ __('Schedule and manage pageant events.') }}</p>
                 <a href="{{ route('tenant.events.index', ['slug' => $slug]) }}" class="btn btn-sm btn-outline-success mt-2">
-                        {{ __('View Events') }}
-                    </a>
+                    {{ __('View Events') }}
+                </a>
             </div>
         </div>
     </div>
@@ -265,13 +265,13 @@
                 <h5 class="card-title">{{ __('Judges') }}</h5>
                 <p class="card-text text-muted small">{{ __('Manage judges for your pageant.') }}</p>
                 <a href="#" class="btn btn-sm btn-outline-info mt-2">
-                        {{ __('View Judges') }}
-                    </a>
-                </div>
+                    {{ __('View Judges') }}
+                </a>
             </div>
         </div>
     </div>
-    
+</div>
+
 <div class="row mb-4">
     <!-- Event Assignments Card -->
     <div class="col-sm-6 col-md-4 mb-4">
@@ -289,7 +289,7 @@
                 </a>
             </div>
         </div>
-                        </div>
+    </div>
 
     <!-- Scores Card -->
     <div class="col-sm-6 col-md-4 mb-4">
@@ -304,7 +304,7 @@
                 <p class="card-text text-muted mb-4">{{ __('View and manage scores from judges for your pageant events.') }}</p>
                 <a href="{{ route('tenant.scores.index', ['slug' => $slug]) }}" class="btn btn-danger btn-sm">
                     <i class="fas fa-eye me-1"></i> {{ __('View Scores') }}
-                    </a>
+                </a>
             </div>
         </div>
     </div>
@@ -324,9 +324,9 @@
                 <a href="{{ route('tenant.reports.generate', ['slug' => $slug]) }}" class="btn btn-secondary btn-sm">
                     <i class="fas fa-file-pdf me-1"></i> {{ __('Generate PDF Report') }}
                 </a>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </div>
+    </div>
     @endif
 </div>
 
@@ -368,12 +368,12 @@
                         <i class="fas fa-arrow-up me-1"></i> {{ __('Upgrade Plan to Unlock') }}
                     </a>
                 </div>
-                </div>
             </div>
         </div>
     </div>
-    @endif
-    @endif
+</div>
+@endif
+@endif
 
 <!-- SCORE DISTRIBUTION CHART - Only show if plan allows -->
 @if(!$tenant->hasNoPlan() && $tenantPlan->pageant_management)
@@ -385,11 +385,11 @@
                 <div class="chart-container" style="position: relative; height:300px; width:100%">
                     <canvas id="scoreDistributionChart"></canvas>
                 </div>
-                </div>
             </div>
         </div>
     </div>
-                        @endif
+</div>
+@endif
 
 @endsection
 

@@ -323,25 +323,11 @@
         position: relative;
       }
 
-      /* Fix sidebar-right positioning */
-      .sidebar.sidebar-right {
-        right: 0 !important;
-        left: auto !important;
-        transform: none !important;
-      }
-
-      /* Fix sidebar-right layout for main panel */
-      .wrapper.sidebar-right-layout .main-panel {
-        float: left !important;
-        margin-right: 250px !important;
-        margin-left: 0 !important;
-      }
-
       /* Fix sidebar-right with navbar-bottom */
       .wrapper.sidebar-right-layout.navbar-bottom .main-panel {
-        float: left !important;
-        margin-right: 250px !important;
-        margin-left: 0 !important;
+        float: left;
+        margin-right: 250px;
+        margin-left: 0;
         padding-bottom: 70px !important;
       }
 
@@ -393,12 +379,8 @@
       }
 
       /* Force proper alignment between sidebar and navbar */
-      .navbar-header, .main-header {
-        z-index: 1030 !important;
-      }
-
       .sidebar {
-        z-index: 1031 !important;
+        z-index: 1030 !important;
       }
 
       /* Mobile adjustments */
@@ -409,79 +391,6 @@
           left: 0 !important;
           right: 0 !important;
         }
-        
-        .sidebar.sidebar-right {
-          right: -250px !important;
-          left: auto !important;
-          transform: none !important;
-        }
-        
-        .sidebar:not(.sidebar-right) {
-          left: -250px !important;
-          right: auto !important;
-          transform: none !important;
-        }
-        
-        .sidebar-open .sidebar.sidebar-right {
-          right: 0 !important;
-          left: auto !important;
-        }
-        
-        .sidebar-open .sidebar:not(.sidebar-right) {
-          left: 0 !important;
-          right: auto !important;
-        }
-        
-        .wrapper.sidebar-right-layout .main-panel {
-          float: none !important;
-          margin-right: 0 !important;
-          margin-left: 0 !important;
-          width: 100% !important;
-        }
-
-        .wrapper .main-panel {
-          float: none !important;
-          margin-right: 0 !important;
-          margin-left: 0 !important;
-          width: 100% !important;
-        }
-        
-        /* For mobile, make sure the logo is visible */
-        .logo-header {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-        }
-
-        /* Ensure the logo is visible in both sidebar positions */
-        .sidebar-right .logo-header .logo,
-        .sidebar:not(.sidebar-right) .logo-header .logo {
-          display: flex !important;
-          align-items: center !important;
-        }
-      }
-
-      /* Right sidebar specific fixes */
-      .sidebar.sidebar-right .nav-toggle {
-        float: left !important;
-      }
-
-      .sidebar.sidebar-right .logo-header .logo {
-        float: right !important;
-      }
-
-      /* Fix toggle button direction for right sidebar */
-      .sidebar.sidebar-right .btn-toggle .gg-menu-right:before {
-        transform: scaleX(-1);
-      }
-
-      .sidebar.sidebar-right .btn-toggle .gg-menu-left:before {
-        transform: scaleX(-1);
-      }
-
-      /* Properly setup the logo header for right sidebar */
-      .sidebar.sidebar-right .logo-header .logo {
-        margin-right: 15px !important;
       }
 
       /* Dynamic text color classes */
@@ -582,9 +491,13 @@
         box-shadow: 0 1px 4px 0 rgba(0,0,0,.1);
       }
 
-      /* Apply font scale */
-      html {
-        font-size: {{ $fontScale * 100 }}% !important;
+      /* Ensure proper stacking of navbar and sidebar */
+      .navbar-header, .main-header {
+        z-index: 1030 !important;
+      }
+
+      .sidebar {
+        z-index: 1029 !important;
       }
 
       /* Remove the hardcoded text-dark class and add dynamic color support */
@@ -601,6 +514,11 @@
       .profile-username .op-7 {
         opacity: 0.7;
       }
+
+      /* Apply font scale */
+      html {
+        font-size: {{ $fontScale * 100 }}% !important;
+      }
     </style>
   </head>
   <body>
@@ -611,13 +529,14 @@
                       {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}">
       <!-- Sidebar -->
       <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" 
+           style="background-color: {{ $uiSettings->sidebar_color }};"
            data-background-color="{{ $uiSettings->sidebar_color }}"
-           style="background-color: {{ $uiSettings->sidebar_color }}; {{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto;' : '' }}">
+           style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto !important; transform: none !important;' : '' }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" 
-               data-background-color="{{ $uiSettings->logo_header_color }}"
-               style="background-color: {{ $uiSettings->logo_header_color }};">
+               style="background-color: {{ $uiSettings->logo_header_color }};"
+               data-background-color="{{ $uiSettings->logo_header_color }}">
             <a href="{{ route('tenant.dashboard', ['slug' => session('tenant_slug')]) }}" class="logo">
               <div class="d-flex align-items-center">
                 <img
@@ -819,7 +738,8 @@
         <div class="main-header {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}" 
              style="{{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
                     {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
-                    {{ $uiSettings->is_sidebar_collapsed ? ($uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 76px); left: 0; right: 76px;' : 'width: calc(100% - 76px); left: 76px; right: 0;') : '' }}">
+                    {{ $uiSettings->is_sidebar_collapsed ? 'width: calc(100% - 76px) !important; ' . ($uiSettings->sidebar_position === 'right' ? 'right: 76px !important;' : 'left: 76px !important;') : '' }}
+                    z-index: 1029;">
           <div class="main-header-logo d-flex d-lg-none">
             <!-- Mobile Logo Header -->
             <div class="logo-header" data-background-color="{{ $uiSettings->logo_header_color }}">
@@ -842,11 +762,12 @@
 
           <!-- Navbar Header -->
           <nav class="navbar navbar-header navbar-expand-lg {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}" 
+               style="background-color: {{ $uiSettings->navbar_color }};"
                data-background-color="{{ $uiSettings->navbar_color }}"
-               style="background-color: {{ $uiSettings->navbar_color }}; 
-                     {{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
+               style="{{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
                       {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
-                     {{ $uiSettings->is_sidebar_collapsed ? ($uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 76px); left: 0; right: 76px;' : 'width: calc(100% - 76px); left: 76px; right: 0;') : '' }}">
+                      {{ $uiSettings->is_sidebar_collapsed ? 'width: calc(100% - 76px) !important; ' . ($uiSettings->sidebar_position === 'right' ? 'right: 76px !important;' : 'left: 76px !important;') : '' }}
+                      z-index: 1029;">
             <div class="container-fluid">
               <nav class="navbar navbar-header-left navbar-expand-lg p-0">
                 <div class="nav-search">
@@ -1022,16 +943,66 @@
       </div>
 
       <!-- Custom template | Settings Panel -->
-      <div class="custom-template d-none">
-        <div class="title">Reset UI Layout</div>
+      <!-- <div class="custom-template" style="{{ $uiSettings->sidebar_position === 'right' ? 'left: 0; right: auto;' : '' }}">
+        <div class="title">Settings</div>
         <div class="custom-content">
-          <div class="d-grid gap-2">
-            <button type="button" class="btn btn-primary reset-layout-btn">
-              <i class="fas fa-sync-alt me-2"></i> Reset Layout
-            </button>
+          <div class="switcher">
+            <div class="switch-block">
+              <h4>Logo Header</h4>
+              <div class="btnSwitch">
+                <button type="button" class="selected changeLogoHeaderColor" data-color="dark"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="blue"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="purple"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="light-blue"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="green"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="orange"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="red"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="white"></button>
+                <br />
+                <button type="button" class="changeLogoHeaderColor" data-color="dark2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="blue2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="purple2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="light-blue2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="green2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="orange2"></button>
+                <button type="button" class="changeLogoHeaderColor" data-color="red2"></button>
               </div>
             </div>
+            <div class="switch-block">
+              <h4>Navbar Header</h4>
+              <div class="btnSwitch">
+                <button type="button" class="changeTopBarColor" data-color="dark"></button>
+                <button type="button" class="changeTopBarColor" data-color="blue"></button>
+                <button type="button" class="changeTopBarColor" data-color="purple"></button>
+                <button type="button" class="changeTopBarColor" data-color="light-blue"></button>
+                <button type="button" class="changeTopBarColor" data-color="green"></button>
+                <button type="button" class="changeTopBarColor" data-color="orange"></button>
+                <button type="button" class="changeTopBarColor" data-color="red"></button>
+                <button type="button" class="selected changeTopBarColor" data-color="white"></button>
+                <br />
+                <button type="button" class="changeTopBarColor" data-color="dark2"></button>
+                <button type="button" class="changeTopBarColor" data-color="blue2"></button>
+                <button type="button" class="changeTopBarColor" data-color="purple2"></button>
+                <button type="button" class="changeTopBarColor" data-color="light-blue2"></button>
+                <button type="button" class="changeTopBarColor" data-color="green2"></button>
+                <button type="button" class="changeTopBarColor" data-color="orange2"></button>
+                <button type="button" class="changeTopBarColor" data-color="red2"></button>
               </div>
+            </div>
+            <div class="switch-block">
+              <h4>Sidebar</h4>
+              <div class="btnSwitch">
+                <button type="button" class="changeSideBarColor" data-color="white"></button>
+                <button type="button" class="selected changeSideBarColor" data-color="dark"></button>
+                <button type="button" class="changeSideBarColor" data-color="dark2"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="custom-toggle">
+          <i class="icon-settings"></i>
+        </div>
+      </div> -->
     </div>
 
     <!--   Core JS Files   -->
@@ -1045,183 +1016,6 @@
     <script src="{{ asset('assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
     <!-- Custom JS Files -->
     <script src="{{ asset('assets/js/custom-scripts.js') }}"></script>
-
-    <!-- Add script to fix sidebar right/left switching -->
-    <script>
-      $(document).ready(function() {
-        // Function to handle sidebar position toggling
-        function handleSidebarPositionReset() {
-          // Reset any sidebar related positioning
-          $('.sidebar').removeAttr('style').addClass('sidebar-reset');
-          setTimeout(function() {
-            $('.sidebar').removeClass('sidebar-reset');
-            
-            // Re-apply proper positioning based on current classes
-            if ($('.wrapper').hasClass('sidebar-right-layout')) {
-              $('.sidebar').addClass('sidebar-right').css({
-                'right': '0',
-                'left': 'auto',
-                'transform': 'none'
-              });
-              
-              // Adjust main panel
-              $('.main-panel').css({
-                'float': 'left',
-                'margin-right': $('.wrapper').hasClass('sidebar-collapse') ? '76px' : '250px',
-                'margin-left': '0'
-              });
-              
-              // Adjust navbar/header
-              $('.main-header, .navbar-header').css({
-                'left': '0',
-                'right': $('.wrapper').hasClass('sidebar-collapse') ? '76px' : '251px',
-                'width': 'calc(100% - ' + ($('.wrapper').hasClass('sidebar-collapse') ? '76px' : '251px') + ')'
-              });
-            } else {
-              $('.sidebar').removeClass('sidebar-right').css({
-                'left': '0',
-                'right': 'auto',
-                'transform': 'none'
-              });
-              
-              // Reset main panel
-              $('.main-panel').css({
-                'float': 'right',
-                'margin-left': $('.wrapper').hasClass('sidebar-collapse') ? '76px' : '250px',
-                'margin-right': '0'
-              });
-              
-              // Reset navbar/header
-              $('.main-header, .navbar-header').css({
-                'right': '0',
-                'left': $('.wrapper').hasClass('sidebar-collapse') ? '76px' : '251px',
-                'width': 'calc(100% - ' + ($('.wrapper').hasClass('sidebar-collapse') ? '76px' : '251px') + ')'
-              });
-            }
-          }, 100);
-        }
-        
-        // Listen for changes to sidebar position
-        $(document).on('click', '.sidebar-position-toggle', function() {
-          setTimeout(function() {
-            handleSidebarPositionReset();
-          }, 100);
-        });
-        
-        // Handle sidebar collapse toggle
-        $(document).on('click', '.toggle-sidebar, .sidenav-toggler', function() {
-          setTimeout(function() {
-            handleSidebarPositionReset();
-          }, 300);
-        });
-        
-        // Handle reset button click
-        $(document).on('click', '.reset-layout-btn', function() {
-          setTimeout(function() {
-            handleSidebarPositionReset();
-          }, 100);
-        });
-        
-        // Initial setup - run after a short delay to ensure all elements are properly initialized
-        setTimeout(function() {
-          handleSidebarPositionReset();
-        }, 300);
-        
-        // Reinitialize on window resize
-        $(window).on('resize', function() {
-          handleSidebarPositionReset();
-        });
-
-        // Fix for collapsible sidebar menus
-        // This handles the menu toggle manually since Bootstrap's collapse might not be working correctly
-        $('.nav-item > a[data-bs-toggle="collapse"]').on('click', function(e) {
-          e.preventDefault();
-          
-          var target = $(this).attr('href');
-          
-          if ($(target).hasClass('show')) {
-            // If menu is open, close it
-            $(target).removeClass('show');
-            $(this).find('.caret').removeClass('caret-rotate');
-          } else {
-            // Close any open menus first (optional - for accordion style)
-            $('.nav-item .collapse.show').removeClass('show');
-            $('.nav-item .caret').removeClass('caret-rotate');
-            
-            // Then open the clicked menu
-            $(target).addClass('show');
-            $(this).find('.caret').addClass('caret-rotate');
-          }
-        });
-        
-        // Check if current page is in a submenu, if so, expand that menu
-        var currentPath = window.location.pathname;
-        $('.nav-collapse a').each(function() {
-          var linkPath = $(this).attr('href');
-          if (linkPath && currentPath.includes(linkPath)) {
-            $(this).addClass('active');
-            $(this).closest('.collapse').addClass('show');
-            $(this).closest('.nav-item').find('.caret').addClass('caret-rotate');
-          }
-        });
-      });
-    </script>
-
-    <!-- Add some custom CSS for the sidebar menu animation and caret rotation -->
-    <style>
-      /* Dropdown animation */
-      .collapse {
-        transition: height 0.3s ease;
-      }
-      
-      /* Caret rotation animation */
-      .caret {
-        transition: transform 0.3s ease;
-      }
-      
-      .caret-rotate {
-        transform: rotate(180deg);
-      }
-
-      /* Dropdown items styling */
-      .sidebar .nav-item a {
-        position: relative;
-        display: block;
-        padding: 12px 16px;
-        color: inherit;
-        text-decoration: none;
-        transition: all 0.3s;
-      }
-
-      .sidebar .nav-item a .caret {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-
-      .sidebar .nav-collapse {
-        padding-left: 20px;
-      }
-
-      .sidebar .nav-collapse .sub-item {
-        padding: 8px 0;
-        display: block;
-      }
-
-      /* Ensure collapse items are visible when active */
-      .sidebar .collapse.show {
-        display: block;
-      }
-
-      /* Highlight active item */
-      .sidebar .nav-item a.active,
-      .sidebar .nav-collapse a.active {
-        background: rgba(255, 255, 255, 0.1);
-        font-weight: bold;
-      }
-    </style>
-
         @stack('scripts')
   </body>
 </html>

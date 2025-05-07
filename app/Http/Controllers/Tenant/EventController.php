@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreEventRequest;
 use App\Http\Requests\Tenant\UpdateEventRequest;
 use App\Models\Tenant;
-use App\Models\Event;
+use App\Models\Tenant\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;

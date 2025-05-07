@@ -277,3 +277,31 @@
   2025-05-07 11:04:13 /admin/login ............................................................. ~ 514.64ms
   2025-05-07 11:04:14 /images/logo.jpg ........................................................... ~ 0.28ms
   2025-05-07 11:04:15 /favicon.ico ............................................................... ~ 0.19ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+

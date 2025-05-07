@@ -144,4 +144,4 @@ Format: backup-v{version}.zip
 6. Run composer install
 7. Run migrations
 8. Clear cache
-9. Update version in .env
+9. Update version in .env 

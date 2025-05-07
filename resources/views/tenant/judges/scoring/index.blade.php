@@ -4,9 +4,6 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Score Contestants</h1>
-        <div class="alert alert-info py-1 px-2 mb-0">
-            <small><i class="fas fa-info-circle"></i> Scoring scale: 1-10</small>
-        </div>
     </div>
 
     @if(session('success'))

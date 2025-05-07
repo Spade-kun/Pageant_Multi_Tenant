@@ -90,4 +90,4 @@ function deleteDirectory($dir) {
 
 deleteDirectory($extractPath);
 echo "Cleanup completed\n";
-echo "Restore to v1.0.3 completed successfully!\n";
+echo "Restore to v1.0.3 completed successfully!\n"; 
