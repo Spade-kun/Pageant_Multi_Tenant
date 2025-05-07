@@ -38,11 +38,11 @@
                         </div>
 
                         <div class="mt-4">
-                            <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" class="btn btn-primary">
+                            <a href="{{ url('/'.$slug.'/updates') }}" class="btn btn-primary">
                                 <i class="fas fa-arrow-left mr-2"></i> Return to Updates Page
                             </a>
                             
-                            <a href="{{ route('tenant.dashboard', ['slug' => $slug]) }}" class="btn btn-secondary ml-2">
+                            <a href="{{ url('/'.$slug.'/dashboard') }}" class="btn btn-secondary ml-2">
                                 <i class="fas fa-home mr-2"></i> Go to Dashboard
                             </a>
                         </div>
@@ -70,4 +70,11 @@
         }
     }
 </style>
+
+<script>
+// Auto-redirect after 5 seconds
+setTimeout(function() {
+    window.location.href = "{{ url('/'.$slug.'/updates') }}";
+}, 5000);
+</script>
 @endsection 

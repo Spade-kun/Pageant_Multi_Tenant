@@ -362,72 +362,12 @@ Route::middleware(['auth:tenant'])->group(function () {
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Set up tenant database connection
-            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-
-            // Check for version parameter
-            $version = request()->input('version');
-            if (empty($version)) {
-                // If no version provided, redirect to updates index
-                return redirect()->route('tenant.updates.index', ['slug' => $slug]);
-            }
-            
-            // Show the loading page with the version parameter
-            return view('tenant.updates.update-loading', [
-                'slug' => $slug,
-                'version' => $version
-            ]);
-        })->name('tenant.updates.loading');
-        
-        // Add a separate success page route
-        Route::get('/{slug}/updates/success', function($slug) {
-            // Set up tenant database connection
-            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-
-            // Get the current version
-            $updaterManager = app(\Codedge\Updater\UpdaterManager::class);
-            $currentVersion = $updaterManager->source()->getVersionInstalled();
-            
-            // Show the success page
+            // Simple success page that doesn't require database connection
             return view('tenant.updates.success', [
                 'slug' => $slug,
-                'currentVersion' => $currentVersion
+                'currentVersion' => config('self-update.version_installed') ?: 'Latest Version'
             ]);
-        })->name('tenant.updates.success');
+        });
     });
     
     // Logout
@@ -444,4 +384,12 @@ Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenan
 Route::get('/{slug}/updates/update-redirect', function($slug) {
     // Redirect to the updates index page
     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+});
+
+// Special route for handling update success without any database connections
+Route::get('/{slug}/updates/update-success', function($slug) {
+    return view('tenant.updates.success', [
+        'slug' => $slug,
+        'currentVersion' => 'Updated Version'
+    ]);
 });
