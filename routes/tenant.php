@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\ScoreController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Tenant\UpdateSystemRequest;
 
 // Tenant Authentication
 Route::middleware('guest:tenant')->group(function () {
@@ -328,7 +329,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
+        Route::post('/{slug}/updates/update', function($slug, UpdateSystemRequest $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
