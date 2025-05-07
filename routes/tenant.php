@@ -330,7 +330,6 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        // Show pending page first, then process the update via AJAX
         Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
@@ -356,135 +355,25 @@ Route::middleware(['auth:tenant'])->group(function () {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
-            // Show the pending page
-            return view('tenant.updates.pending', [
-                'slug' => $slug,
-                'version' => $request->input('version')
-            ]);
-        })->name('tenant.updates.update');
-
-        // Process the actual update via AJAX
-        Route::post('/{slug}/updates/process', function($slug, \Illuminate\Http\Request $request) {
-            // Set up tenant database connection
-            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-
-            if (auth()->guard('tenant')->user()->role !== 'owner') {
-                return response()->json(['error' => 'Only tenant owners can access system updates.'], 403);
+            // Create an instance of the UpdateSystemRequest with the input from the request
+            $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
+            $updateRequest->replace($request->all());
+            
+            // Validate the request
+            if (!$updateRequest->authorize() || !$updateRequest->passes()) {
+                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    ->withErrors($updateRequest->validator())
+                    ->withInput();
             }
             
-            try {
-                \Log::info('Update process started via AJAX', [
-                    'version' => $request->input('version'),
-                    'user' => auth()->guard('tenant')->user()->email,
-                    'tenant' => $slug
-                ]);
-                
-                // Create an instance of the UpdateSystemRequest with the input from the request
-                $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
-                $updateRequest->replace($request->all());
-                
-                // Validate the request
-                if (!$updateRequest->authorize() || !$updateRequest->passes()) {
-                    \Log::error('Update validation failed', [
-                        'errors' => $updateRequest->errors()->toArray(),
-                        'version' => $request->input('version')
-                    ]);
-                    return response()->json(['error' => 'Invalid version format.'], 400);
-                }
-                
-                // Run the update process
-                $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
-                $result = $controller->update($updateRequest);
-                
-                // Log the results
-                \Log::info('Update completed via AJAX', [
-                    'version' => $request->input('version'),
-                    'result' => 'success'
-                ]);
-                
-                // Return success response
-                return response()->json(['success' => true, 'message' => 'Update completed successfully.']);
-            } catch (\Exception $e) {
-                // Log the error
-                \Log::error('Update process error', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                    'version' => $request->input('version')
-                ]);
-                
-                // Return error response
-                return response()->json(['error' => $e->getMessage()], 500);
-            }
-        })->name('tenant.updates.process')->middleware('web');
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
+        })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
             // Redirect to the updates index page
             return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
-        
-        // Debug route for direct update - only available in local/development environment
-        if (app()->environment('local', 'development')) {
-            Route::get('/{slug}/updates/debug/{version}', function($slug, $version) {
-                // Set up tenant database connection
-                $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-                $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-                Config::set('database.connections.tenant', [
-                    'driver' => 'mysql',
-                    'host' => env('DB_HOST', '127.0.0.1'),
-                    'port' => env('DB_PORT', '3306'),
-                    'database' => $databaseName,
-                    'username' => env('DB_USERNAME', 'forge'),
-                    'password' => env('DB_PASSWORD', ''),
-                    'charset' => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                    'prefix' => '',
-                    'prefix_indexes' => true,
-                    'strict' => true,
-                    'engine' => null,
-                ]);
-                DB::purge('tenant');
-                DB::reconnect('tenant');
-
-                if (auth()->guard('tenant')->user()->role !== 'owner') {
-                    return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
-                }
-                
-                \Log::info('Debug update route called', [
-                    'version' => $version,
-                    'tenant' => $slug
-                ]);
-                
-                try {
-                    $request = new \App\Http\Requests\Tenant\UpdateSystemRequest();
-                    $request->replace(['version' => $version]);
-                    
-                    // Run the update process directly
-                    app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($request);
-                    
-                    return "Update process completed for version $version. Check logs for details.";
-                } catch (\Exception $e) {
-                    return "Error during update: " . $e->getMessage();
-                }
-            })->name('tenant.updates.debug');
-        }
     });
     
     // Logout
