@@ -352,7 +352,16 @@ Route::middleware(['auth:tenant'])->group(function () {
             if (auth()->guard('tenant')->user()->role !== 'owner') {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
-            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
+            
+            // Create the form request manually
+            $updateRequest = new \App\Http\Requests\Tenant\UpdateSystemRequest();
+            $updateRequest->replace($request->all());
+            
+            // Set the specific tenant slug in the session
+            session(['tenant_slug' => $slug]);
+            
+            // Call update with the properly prepared request
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL

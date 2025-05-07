@@ -96,8 +96,21 @@ class UpdateController extends Controller
         config(['app.log_level' => 'emergency']);
 
         try {
-            $validated = $request->validated();
-            $targetVersion = $validated['version'];
+            // Make sure the request is validated
+            try {
+                $validated = $request->validated();
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'Invalid version provided. ' . $e->getMessage());
+            }
+            
+            $targetVersion = $validated['version'] ?? $request->input('version');
+            
+            if (empty($targetVersion)) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'No version was specified for the update.');
+            }
+            
             $currentVersion = $this->updater->source()->getVersionInstalled();
 
             // Validate if the selected version exists in releases

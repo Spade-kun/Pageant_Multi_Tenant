@@ -23,4 +23,26 @@ class UpdateSystemRequest extends FormRequest
             'version' => 'required|string'
         ];
     }
+    
+    /**
+     * Manually validate the request.
+     * This is useful when creating the request programmatically.
+     *
+     * @return void
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function validateResolved()
+    {
+        if (!$this->passesAuthorization()) {
+            $this->failedAuthorization();
+        }
+
+        $instance = $this->getValidatorInstance();
+        
+        if ($instance->fails()) {
+            $this->failedValidation($instance);
+        }
+        
+        $this->validated();
+    }
 } 
