@@ -44,6 +44,39 @@ class UpdateController extends Controller
         return session('tenant_slug');
     }
 
+    /**
+     * Detect the root directory of the application code in the extracted zip
+     * 
+     * @param string $extractPath The path where the zip was extracted
+     * @return string The path to the actual application code root
+     */
+    protected function detectSourceCodeRoot($extractPath)
+    {
+        // First check for common GitHub source code repository pattern
+        // (single subfolder with all content)
+        $subfolders = array_filter(glob($extractPath . '/*'), 'is_dir');
+        
+        if (count($subfolders) === 1) {
+            // Check if this folder has typical application files
+            $potentialRoot = $subfolders[0];
+            if (file_exists($potentialRoot . '/artisan') || 
+                file_exists($potentialRoot . '/composer.json') || 
+                file_exists($potentialRoot . '/package.json')) {
+                return $potentialRoot;
+            }
+        }
+        
+        // Check if the root of extract has the application files
+        if (file_exists($extractPath . '/artisan') || 
+            file_exists($extractPath . '/composer.json') || 
+            file_exists($extractPath . '/package.json')) {
+            return $extractPath;
+        }
+        
+        // If we can't identify a typical structure, default to the extraction root
+        return $extractPath;
+    }
+
     public function index()
     {
         try {
@@ -123,20 +156,36 @@ class UpdateController extends Controller
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update directory is not writable. Please check directory permissions.');
             }
-
-            // Get the download URL for the release
-            $vendor = config('self-update.repository_types.github.repository_vendor');
-            $repo = config('self-update.repository_types.github.repository_name');
-            $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
-            $releaseData = json_decode($response->getBody(), true);
-
-            if (!isset($releaseData['zipball_url'])) {
-                \Log::error('Could not find download URL for version: ' . $targetVersion);
-                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                    ->with('error', 'Could not find download URL for the selected version.');
+            
+            // Check if there's a release asset zip file 
+            $zipUrl = null;
+            if (!empty($validVersion['assets'])) {
+                foreach ($validVersion['assets'] as $asset) {
+                    if (preg_match('/\.zip$/', $asset['name'])) {
+                        $zipUrl = $asset['download_url'];
+                        \Log::info('Found release asset ZIP: ' . $asset['name']);
+                        break;
+                    }
+                }
             }
+            
+            // If no ZIP asset found, use GitHub source code ZIP
+            if (!$zipUrl) {
+                // Get the download URL for the release source code
+                $vendor = config('self-update.repository_types.github.repository_vendor');
+                $repo = config('self-update.repository_types.github.repository_name');
+                $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
+                $releaseData = json_decode($response->getBody(), true);
 
-            $zipUrl = $releaseData['zipball_url'];
+                if (!isset($releaseData['zipball_url'])) {
+                    \Log::error('Could not find download URL for version: ' . $targetVersion);
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Could not find download URL for the selected version.');
+                }
+
+                $zipUrl = $releaseData['zipball_url'];
+            }
+            
             $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
 
             // Download the zip file
@@ -170,12 +219,7 @@ class UpdateController extends Controller
             }
 
             // Detect the actual code subfolder inside the extracted directory
-            $subfolders = array_filter(glob($extractPath . '/*'), 'is_dir');
-            if (count($subfolders) === 1) {
-                $actualSource = $subfolders[0];
-            } else {
-                $actualSource = $extractPath;
-            }
+            $actualSource = $this->detectSourceCodeRoot($extractPath);
 
             // Define which files and folders to exclude from updates and backups
             $exclude = [
@@ -255,6 +299,7 @@ class UpdateController extends Controller
             \Artisan::call('config:clear');
             \Artisan::call('cache:clear');
             \Artisan::call('view:clear');
+            \Artisan::call('route:clear');
 
             // Run composer install --no-dev
             $composerOutput = null;
@@ -279,7 +324,7 @@ class UpdateController extends Controller
             config(['app.log_level' => $originalLogLevel]);
             
             // Redirect to updates page after success
-            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
             // Restore original log level
@@ -300,7 +345,7 @@ class UpdateController extends Controller
         
         $dir = opendir($source);
         if (!file_exists($destination)) {
-            @mkdir($destination, 0755, true);
+            mkdir($destination, 0755, true);
         }
         
         while(false !== ($file = readdir($dir))) {
@@ -331,7 +376,7 @@ class UpdateController extends Controller
                 }
                 
                 if (is_dir($srcPath)) {
-                    // Create directory if it doesn't exist (don't overwrite existing directories)
+                    // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
                         mkdir($destPath, 0755, true);
                     }
@@ -345,14 +390,17 @@ class UpdateController extends Controller
                         mkdir($destDir, 0755, true);
                     }
                     
-                    // Only copy if source file is newer or destination doesn't exist
-                    if (!file_exists($destPath) || filemtime($srcPath) > filemtime($destPath)) {
-                        // Try to copy the file, but don't fail if it's in use
-                        @copy($srcPath, $destPath);
-                        
-                        if (file_exists($destPath)) {
-                            chmod($destPath, 0644);
-                        }
+                    // Always force overwrite the file - this is critical for updates
+                    // First delete existing file if exists
+                    if (file_exists($destPath)) {
+                        @unlink($destPath);
+                    }
+                    
+                    // Then copy the new file
+                    @copy($srcPath, $destPath);
+                    
+                    if (file_exists($destPath)) {
+                        chmod($destPath, 0644);
                     }
                 }
             }

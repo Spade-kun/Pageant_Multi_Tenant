@@ -371,3 +371,9 @@ Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport
 // Score Routes
 Route::get('/{slug}/scores', [ScoreController::class, 'index'])->name('tenant.scores.index');
 Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenant.scores.show');
+
+// Handle direct GET access to the update URL - outside the middleware for guaranteed access
+Route::get('/{slug}/updates/update-redirect', function($slug) {
+    // Redirect to the updates index page
+    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+});
