@@ -152,288 +152,50 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(UpdateSystemRequest $request)
+    public function update(Request $request, $slug)
     {
-        // Prevent timeout for long-running update
-        set_time_limit(0);
-        ini_set('memory_limit', '512M');
-        
-        // Get the slug for routing
-        $slug = $this->getSlug();
-        
-        // Log the update attempt
-        \Log::info('Starting system update process', ['version' => $request->input('version'), 'initiated_by' => auth()->guard('tenant')->user()->email]);
-        
-        // Disable logging for update process to avoid filling logs
-        $originalLogLevel = config('app.log_level');
-        config(['app.log_level' => 'emergency']);
-
         try {
-            // Get the version from the request
-            $targetVersion = $request->input('version');
+            // Get the latest release
+            $release = $this->getLatestRelease();
             
-            if (empty($targetVersion)) {
-                \Log::error('Update failed: No version specified');
+            if (!$release) {
                 return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'No version was specified for the update.');
-            }
-            
-            $currentVersion = $this->updater->source()->getVersionInstalled();
-            \Log::info('Current version: ' . $currentVersion . ', Target version: ' . $targetVersion);
-
-            // Validate if the selected version exists in releases
-            $releases = $this->getReleases();
-            $validVersion = collect($releases)->where('version', $targetVersion)->first();
-
-            if (!$validVersion) {
-                \Log::error('Update failed: Invalid version selected', ['requested_version' => $targetVersion]);
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Selected version is not available.');
+                    ->with('error', 'No updates available.');
             }
 
-            $updatePath = storage_path('app/updater');
-            if (!file_exists($updatePath)) {
-                \Log::info('Creating update directory: ' . $updatePath);
-                if (!mkdir($updatePath, 0755, true)) {
-                    \Log::error('Failed to create update directory: ' . $updatePath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                        ->with('error', 'Failed to create update directory. Please check directory permissions.');
-                }
-            }
-            
-            if (!is_writable($updatePath)) {
-                \Log::error('Update directory is not writable: ' . $updatePath);
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Update directory is not writable. Please check directory permissions.');
-            }
-            
-            // Check if there's a release asset zip file 
-            $zipUrl = null;
-            if (!empty($validVersion['assets'])) {
-                foreach ($validVersion['assets'] as $asset) {
-                    if (preg_match('/\.zip$/', $asset['name'])) {
-                        $zipUrl = $asset['download_url'];
-                        \Log::info('Found release asset ZIP: ' . $asset['name']);
-                        break;
-                    }
-                }
-            }
-            
-            // If no ZIP asset found, use GitHub source code ZIP
-            if (!$zipUrl) {
-                // Get the download URL for the release source code
-                $vendor = config('self-update.repository_types.github.repository_vendor');
-                $repo = config('self-update.repository_types.github.repository_name');
-                $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
-                $releaseData = json_decode($response->getBody(), true);
+            // Download and extract the release
+            $zipPath = $this->downloadRelease($release['zipball_url']);
+            $extractPath = $this->extractRelease($zipPath);
 
-                if (!isset($releaseData['zipball_url'])) {
-                    \Log::error('Could not find download URL for version: ' . $targetVersion);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                        ->with('error', 'Could not find download URL for the selected version.');
-                }
+            // Perform the update
+            $this->performUpdate($extractPath);
 
-                $zipUrl = $releaseData['zipball_url'];
-            }
-            
-            $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
+            // Clean up
+            $this->cleanup($zipPath, $extractPath);
 
-            // Download the zip file
-            try {
-                $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
-                if (!file_exists($zipFile)) {
-                    \Log::error('Failed to download release zip file.');
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                        ->with('error', 'Failed to download release zip file.');
-                }
-            } catch (\Exception $e) {
-                \Log::error('Error downloading release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Error downloading release zip: ' . $e->getMessage());
-            }
+            // Redirect to success page
+            return redirect()->route('tenant.updates.success', [
+                'slug' => $slug,
+                'version' => $release['tag_name']
+            ]);
 
-            // Extract the zip file
-            $extractPath = $updatePath . DIRECTORY_SEPARATOR . "extracted-v{$targetVersion}";
-            if (!file_exists($extractPath)) {
-                if (!mkdir($extractPath, 0755, true)) {
-                    \Log::error('Failed to create extract directory: ' . $extractPath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                        ->with('error', 'Failed to create extract directory. Please check directory permissions.');
-                }
-            }
-            
-            try {
-                $zip = new \ZipArchive();
-                $zipOpenResult = $zip->open($zipFile);
-                
-                if ($zipOpenResult === TRUE) {
-                    if (!$zip->extractTo($extractPath)) {
-                        throw new \Exception("ZipArchive failed to extract files");
-                    }
-                    $zip->close();
-                } else {
-                    throw new \Exception("Failed to open zip file. Error code: " . $zipOpenResult);
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to extract release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Failed to extract release zip: ' . $e->getMessage());
-            }
-
-            // Detect the actual code subfolder inside the extracted directory
-            $actualSource = $this->detectSourceCodeRoot($extractPath);
-
-            // Define which files and folders to exclude from updates and backups
-            $exclude = [
-                '.env',
-                'storage',
-                'vendor',
-                '.git',
-                'node_modules',
-                'public/uploads',
-                'public/storage',
-                '*.log',  // Exclude all log files
-                'storage/logs',  // Exclude logs directory
-                'bootstrap/cache',  // Exclude cache directory
-                'admin-server.log',  // Specific log file
-                'laravel.log',  // Laravel log file
-                '.env.backup',
-                '.DS_Store',
-                'phpunit.xml'
-            ];
-
-            // Backup current app (excluding critical folders/files)
-            $rootPath = base_path();
-            $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
-            
-            $zipBackup = new \ZipArchive();
-            if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
-                $files = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($rootPath, \FilesystemIterator::SKIP_DOTS),
-                    \RecursiveIteratorIterator::SELF_FIRST
-                );
-                
-                foreach ($files as $file) {
-                    $filePath = $file->getRealPath();
-                    if (empty($filePath)) {
-                        continue; // Skip files with empty paths
-                    }
-                    
-                    $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
-                    if (empty($relativePath)) {
-                        continue; // Skip empty relative paths
-                    }
-                    
-                    $skip = false;
-                    foreach ($exclude as $ex) {
-                        // Handle wildcard patterns
-                        if (strpos($ex, '*') !== false) {
-                            $pattern = str_replace('*', '.*', $ex);
-                            if (preg_match('/' . $pattern . '/', $relativePath)) {
-                                $skip = true;
-                                break;
-                            }
-                        } else if (stripos($relativePath, $ex) === 0) {
-                            $skip = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!$skip) {
-                        if ($file->isDir()) {
-                            $zipBackup->addEmptyDir($relativePath);
-                        } else {
-                            try {
-                                $zipBackup->addFile($filePath, $relativePath);
-                            } catch (\Exception $e) {
-                                \Log::warning("Failed to add file to backup: {$filePath} - Error: " . $e->getMessage());
-                            }
-                        }
-                    }
-                }
-                
-                $zipBackup->close();
-            } else {
-                \Log::error('Failed to create backup zip.');
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Failed to create backup zip.');
-            }
-
-            // Copy extracted files to app root (excluding critical folders/files)
-            $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
-
-            // Clean up extracted folder
-            $this->deleteDirectory($extractPath);
-            
-            // Update SELF_UPDATER_VERSION_INSTALLED in .env
-            $this->updateEnvVersion($targetVersion);
-
-            // Make sure artisan is executable
-            $artisanPath = base_path('artisan');
-            if (file_exists($artisanPath) && !is_executable($artisanPath)) {
-                \Log::info('Making artisan executable');
-                chmod($artisanPath, 0755);
-            }
-
-            // Clear caches
-            \Artisan::call('config:clear');
-            \Artisan::call('cache:clear');
-            \Artisan::call('view:clear');
-            \Artisan::call('route:clear');
-
-            // Run composer install --no-dev
-            $composerOutput = null;
-            $composerReturn = null;
-            exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
-            
-            if ($composerReturn !== 0) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Update failed during composer install. Check logs for details.');
-            }
-
-            // Run php artisan migrate
-            try {
-                \Artisan::call('migrate', ['--force' => true]);
-            } catch (\Exception $e) {
-                \Log::error('php artisan migrate failed: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'Update failed during migration. Check logs for details.');
-            }
-
-            // Restore original log level
-            config(['app.log_level' => $originalLogLevel]);
-            
-            // Redirect to updates page after success
-            return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
-            // Log the error
-            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            \Log::error('Update failed: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             
-            // Try running composer and migrations anyway to ensure the application is in a usable state
-            try {
-                \Log::info('Attempting to run composer install after error');
-                exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
-                
-                if ($composerReturn !== 0) {
-                    \Log::error('Composer install failed after error');
-                } else {
-                    \Log::info('Composer install succeeded after error');
-                }
-                
-                \Log::info('Attempting to run migrations after error');
-                \Artisan::call('migrate', ['--force' => true]);
-                \Log::info('Migrations run after error');
-            } catch (\Exception $innerEx) {
-                \Log::error('Failed to run composer/migrations after update error: ' . $innerEx->getMessage());
-            }
-            
-            // Restore original log level
-            config(['app.log_level' => $originalLogLevel]);
-            
-            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
+            return redirect()->route('tenant.updates.index', ['slug' => $slug])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }
+    }
+
+    public function success(Request $request, $slug)
+    {
+        $version = $request->query('version', 'latest');
+        
+        return view('tenant.updates.success', [
+            'slug' => $slug,
+            'version' => $version
+        ]);
     }
 
     // Recursively copy files from source to destination, skipping excluded folders/files

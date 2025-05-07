@@ -128,8 +128,7 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
-                                                        @csrf
+                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="GET">
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
                                                                 class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
@@ -173,8 +172,7 @@
                     <p class="mt-2">Checking for updates. Please wait...</p>
                 </div>
                 <div id="updateModalContent" class="d-none"></div>
-                <form id="updateForm" class="d-none" method="POST" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}">
-                    @csrf
+                <form id="updateForm" class="d-none" method="GET" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}">
                     <input type="hidden" name="version" id="updateVersion">
                 </form>
             </div>
@@ -276,8 +274,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
-                    @csrf
+                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="GET">
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 
                             class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'}"

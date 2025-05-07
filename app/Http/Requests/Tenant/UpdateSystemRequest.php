@@ -36,14 +36,4 @@ class UpdateSystemRequest extends FormRequest
             'version.regex' => 'The version must be in a valid semantic versioning format (e.g., 1.0.0).'
         ];
     }
-    
-    /**
-     * Validate the request data.
-     * 
-     * @return bool
-     */
-    public function passes()
-    {
-        return $this->getValidatorInstance()->passes();
-    }
 } 

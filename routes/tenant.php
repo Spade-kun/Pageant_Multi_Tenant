@@ -330,7 +330,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
+        Route::get('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -366,8 +366,7 @@ Route::middleware(['auth:tenant'])->group(function () {
                     ->withInput();
             }
             
-            $controller = new \App\Http\Controllers\Tenant\UpdateController(app(\Codedge\Updater\UpdaterManager::class));
-            return $controller->update($updateRequest);
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest, $slug);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
@@ -375,6 +374,35 @@ Route::middleware(['auth:tenant'])->group(function () {
             // Redirect to the updates index page
             return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
+
+        // Success page route
+        Route::get('/{slug}/updates/success', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->success(request(), $slug);
+        })->name('tenant.updates.success');
     });
     
     // Logout
