@@ -118,7 +118,7 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(UpdateSystemRequest $request)
+    public function update($request)
     {
         // Prevent timeout for long-running update
         set_time_limit(0);
@@ -129,8 +129,14 @@ class UpdateController extends Controller
         config(['app.log_level' => 'emergency']);
 
         try {
-            $validated = $request->validated();
-            $targetVersion = $validated['version'];
+            // Get the version from the request
+            $targetVersion = $request->input('version');
+            
+            if (empty($targetVersion)) {
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                    ->with('error', 'No version was specified for the update.');
+            }
+            
             $currentVersion = $this->updater->source()->getVersionInstalled();
 
             // Validate if the selected version exists in releases
