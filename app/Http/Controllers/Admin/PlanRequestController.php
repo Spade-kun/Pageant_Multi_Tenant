@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateTenantPlanRequest;
 use App\Models\PlanRequest;
 use Illuminate\Http\Request;
 
@@ -63,30 +64,28 @@ class PlanRequestController extends Controller
         return view('admin.requests.change-plan', compact('tenant', 'plans'));
     }
 
-    public function updatePlan(Request $request, $tenant)
+    public function updatePlan(UpdateTenantPlanRequest $request, $tenant)
     {
         $tenant = \App\Models\Tenant::findOrFail($tenant);
         
-        $request->validate([
-            'plan_id' => 'nullable|exists:plans,id'
-        ]);
+        $validated = $request->validated();
 
         // Update tenant's plan (can be null)
         $tenant->update([
-            'plan_id' => $request->plan_id
+            'plan_id' => $validated['plan_id']
         ]);
 
         // Only create a plan request record if a plan is selected
-        if ($request->plan_id) {
+        if ($validated['plan_id']) {
             PlanRequest::create([
                 'tenant_id' => $tenant->id,
-                'plan_id' => $request->plan_id,
+                'plan_id' => $validated['plan_id'],
                 'status' => 'approved',
                 'notes' => 'Plan changed by admin'
             ]);
         }
 
         return redirect()->route('admin.requests.index')
-            ->with('success', $request->plan_id ? 'Tenant plan updated successfully.' : 'Tenant plan removed successfully.');
+            ->with('success', $validated['plan_id'] ? 'Tenant plan updated successfully.' : 'Tenant plan removed successfully.');
     }
 } 

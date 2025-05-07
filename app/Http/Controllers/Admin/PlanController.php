@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StorePlanRequest;
+use App\Http\Requests\Admin\UpdatePlanRequest;
 use App\Models\Plan;
 use Illuminate\Http\Request;
 
@@ -19,35 +21,19 @@ class PlanController extends Controller
         return view('admin.plans.create');
     }
 
-    public function store(Request $request)
+    public function store(StorePlanRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'interval' => 'required|in:3_days,15_days,monthly,yearly',
-            'max_events' => 'required|integer|min:0',
-            'max_contestants' => 'required|integer|min:0',
-            'max_categories' => 'required|integer|min:0',
-            'max_judges' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'analytics' => 'boolean',
-            'support_priority' => 'boolean',
-            'dashboard_access' => 'boolean',
-            'user_management' => 'boolean',
-            'subscription_management' => 'boolean',
-            'pageant_management' => 'boolean',
-            'reports_module' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $plan = Plan::create([
-            'name' => $request->name,
-            'price' => $request->price,
-            'interval' => $request->interval,
-            'max_events' => $request->max_events,
-            'max_contestants' => $request->max_contestants,
-            'max_categories' => $request->max_categories,
-            'max_judges' => $request->max_judges,
-            'description' => $request->description,
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'interval' => $validated['interval'],
+            'max_events' => $validated['max_events'],
+            'max_contestants' => $validated['max_contestants'],
+            'max_categories' => $validated['max_categories'],
+            'max_judges' => $validated['max_judges'],
+            'description' => $validated['description'],
             'analytics' => $request->boolean('analytics'),
             'support_priority' => $request->boolean('support_priority'),
             'dashboard_access' => $request->boolean('dashboard_access', true),
@@ -72,36 +58,19 @@ class PlanController extends Controller
         return view('admin.plans.edit', compact('plan'));
     }
 
-    public function update(Request $request, Plan $plan)
+    public function update(UpdatePlanRequest $request, Plan $plan)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'interval' => 'required|in:3_days,15_days,monthly,yearly',
-            'max_events' => 'required|integer|min:0',
-            'max_contestants' => 'required|integer|min:0',
-            'max_categories' => 'required|integer|min:0',
-            'max_judges' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'analytics' => 'boolean',
-            'support_priority' => 'boolean',
-            'is_active' => 'boolean',
-            'dashboard_access' => 'boolean',
-            'user_management' => 'boolean',
-            'subscription_management' => 'boolean',
-            'pageant_management' => 'boolean',
-            'reports_module' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $plan->update([
-            'name' => $request->name,
-            'price' => $request->price,
-            'interval' => $request->interval,
-            'max_events' => $request->max_events,
-            'max_contestants' => $request->max_contestants,
-            'max_categories' => $request->max_categories,
-            'max_judges' => $request->max_judges,
-            'description' => $request->description,
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'interval' => $validated['interval'],
+            'max_events' => $validated['max_events'],
+            'max_contestants' => $validated['max_contestants'],
+            'max_categories' => $validated['max_categories'],
+            'max_judges' => $validated['max_judges'],
+            'description' => $validated['description'],
             'analytics' => $request->boolean('analytics'),
             'support_priority' => $request->boolean('support_priority'),
             'is_active' => $request->boolean('is_active'),

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\RejectTenantRequest;
 use App\Mail\TenantStatusNotification;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -247,15 +248,13 @@ class TenantManagementController extends Controller
     /**
      * Reject a tenant.
      */
-    public function reject(Request $request, Tenant $tenant)
+    public function reject(RejectTenantRequest $request, Tenant $tenant)
     {
         if ($tenant->isRejected()) {
             return back()->with('error', 'This tenant is already rejected.');
         }
         
-        $validated = $request->validate([
-            'rejection_reason' => 'required|string|min:5|max:500',
-        ]);
+        $validated = $request->validated();
         
         try {
             DB::beginTransaction();

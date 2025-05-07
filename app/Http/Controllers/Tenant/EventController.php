@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\StoreEventRequest;
+use App\Http\Requests\Tenant\UpdateEventRequest;
 use App\Models\Tenant;
-use App\Models\Tenant\Event;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -51,18 +53,11 @@ class EventController extends Controller
         return view('tenant.events.create', compact('slug'));
     }
 
-    public function store(Request $request, $slug)
+    public function store(StoreEventRequest $request, $slug)
     {
         $this->setTenantConnection($slug);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'location' => 'required|string|max:255',
-            'status' => 'required|in:scheduled,ongoing,completed,cancelled'
-        ]);
+        $validated = $request->validated();
 
         DB::connection('tenant')->table('events')->insert([
             'name' => $validated['name'],
@@ -93,18 +88,11 @@ class EventController extends Controller
         return view('tenant.events.edit', compact('event', 'slug'));
     }
 
-    public function update(Request $request, $slug, $event)
+    public function update(UpdateEventRequest $request, $slug, $event)
     {
         $this->setTenantConnection($slug);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'location' => 'required|string|max:255',
-            'status' => 'required|in:scheduled,ongoing,completed,cancelled'
-        ]);
+        $validated = $request->validated();
 
         DB::connection('tenant')->table('events')
             ->where('id', $event)

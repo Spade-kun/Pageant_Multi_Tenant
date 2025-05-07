@@ -1131,8 +1131,96 @@
         $(window).on('resize', function() {
           handleSidebarPositionReset();
         });
+
+        // Fix for collapsible sidebar menus
+        // This handles the menu toggle manually since Bootstrap's collapse might not be working correctly
+        $('.nav-item > a[data-bs-toggle="collapse"]').on('click', function(e) {
+          e.preventDefault();
+          
+          var target = $(this).attr('href');
+          
+          if ($(target).hasClass('show')) {
+            // If menu is open, close it
+            $(target).removeClass('show');
+            $(this).find('.caret').removeClass('caret-rotate');
+          } else {
+            // Close any open menus first (optional - for accordion style)
+            $('.nav-item .collapse.show').removeClass('show');
+            $('.nav-item .caret').removeClass('caret-rotate');
+            
+            // Then open the clicked menu
+            $(target).addClass('show');
+            $(this).find('.caret').addClass('caret-rotate');
+          }
+        });
+        
+        // Check if current page is in a submenu, if so, expand that menu
+        var currentPath = window.location.pathname;
+        $('.nav-collapse a').each(function() {
+          var linkPath = $(this).attr('href');
+          if (linkPath && currentPath.includes(linkPath)) {
+            $(this).addClass('active');
+            $(this).closest('.collapse').addClass('show');
+            $(this).closest('.nav-item').find('.caret').addClass('caret-rotate');
+          }
+        });
       });
     </script>
+
+    <!-- Add some custom CSS for the sidebar menu animation and caret rotation -->
+    <style>
+      /* Dropdown animation */
+      .collapse {
+        transition: height 0.3s ease;
+      }
+      
+      /* Caret rotation animation */
+      .caret {
+        transition: transform 0.3s ease;
+      }
+      
+      .caret-rotate {
+        transform: rotate(180deg);
+      }
+
+      /* Dropdown items styling */
+      .sidebar .nav-item a {
+        position: relative;
+        display: block;
+        padding: 12px 16px;
+        color: inherit;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+
+      .sidebar .nav-item a .caret {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .sidebar .nav-collapse {
+        padding-left: 20px;
+      }
+
+      .sidebar .nav-collapse .sub-item {
+        padding: 8px 0;
+        display: block;
+      }
+
+      /* Ensure collapse items are visible when active */
+      .sidebar .collapse.show {
+        display: block;
+      }
+
+      /* Highlight active item */
+      .sidebar .nav-item a.active,
+      .sidebar .nav-collapse a.active {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: bold;
+      }
+    </style>
 
         @stack('scripts')
   </body>
