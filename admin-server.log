@@ -193,3 +193,76 @@
   2025-05-07 17:02:18 /images/logo.jpg ................................................ ~ 1s
   2025-05-07 17:02:20 /favicon.ico ................................................ ~ 0.19ms
   2025-05-07 17:02:20 ............................................................. ~ 1m 25s
+  2025-05-07 17:05:47 / ............................................................... ~ 1s
+  2025-05-07 17:05:48 /admin/login .................................................... ~ 3s
+  2025-05-07 17:05:51 / ......................................................... ~ 520.45ms
+  2025-05-07 17:05:52 /admin/login .................................................... ~ 1s
+  2025-05-07 17:05:53 /images/logo.jpg ............................................ ~ 0.31ms
+  2025-05-07 17:05:55 /favicon.ico ................................................ ~ 0.20ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-07 17:09:41 /login .......................................................... ~ 2s
+  2025-05-07 17:09:41 /admin/dashboard ................................................ ~ 3s
+  2025-05-07 17:09:44 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.36ms
+  2025-05-07 17:09:44 /assets/css/bootstrap.min.css ............................... ~ 3.27ms
+  2025-05-07 17:09:44 /assets/css/plugins.min.css ................................. ~ 6.80ms
+  2025-05-07 17:09:44 /assets/css/kaiadmin.min.css ............................... ~ 10.37ms
+  2025-05-07 17:09:44 /assets/css/demo.css ....................................... ~ 18.16ms
+  2025-05-07 17:09:44 /assets/img/kaiadmin/logo_light.svg ........................ ~ 20.09ms
+  2025-05-07 17:09:44 /assets/css/fonts.min.css .................................. ~ 14.56ms
+  2025-05-07 17:09:44 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 2.08ms
+  2025-05-07 17:09:44 /assets/img/profile.jpg ..................................... ~ 1.75ms
+  2025-05-07 17:09:45 /assets/js/core/popper.min.js ............................... ~ 3.64ms
+  2025-05-07 17:09:45 /assets/js/core/bootstrap.min.js ........................... ~ 11.68ms
+  2025-05-07 17:09:45 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.28ms
+  2025-05-07 17:09:45 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 0.82ms
+  2025-05-07 17:09:45 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 1.81ms
+  2025-05-07 17:09:45 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 0.18ms
+  2025-05-07 17:09:45 /assets/js/plugin/datatables/datatables.min.js .............. ~ 2.24ms
+  2025-05-07 17:09:45 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.40ms
+  2025-05-07 17:09:45 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 3.45ms
+  2025-05-07 17:09:45 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js . ~ 10.91ms
+  2025-05-07 17:09:45 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 11.88ms
+  2025-05-07 17:09:45 /assets/fonts/fontawesome/fa-regular-400.woff2 ............. ~ 12.18ms
+  2025-05-07 17:09:45 /assets/fonts/fontawesome/fa-brands-400.woff2 .............. ~ 13.48ms
+  2025-05-07 17:09:46 /assets/js/kaiadmin.min.js .................................. ~ 0.37ms
+  2025-05-07 17:09:46 /assets/js/setting-demo.js .................................. ~ 4.46ms
+  2025-05-07 17:09:46 /assets/js/demo.js .......................................... ~ 0.20ms
+  2025-05-07 17:09:49 /admin/tenants .................................................. ~ 2s
+  2025-05-07 17:09:51 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.37ms
+  2025-05-07 17:09:51 /assets/css/bootstrap.min.css ............................... ~ 0.62ms
+  2025-05-07 17:09:51 /assets/css/demo.css ........................................ ~ 5.07ms
+  2025-05-07 17:09:51 /assets/img/kaiadmin/logo_light.svg ........................ ~ 31.88ms
+  2025-05-07 17:09:51 /assets/css/plugins.min.css ................................ ~ 34.24ms
+  2025-05-07 17:09:51 /assets/css/kaiadmin.min.css ............................... ~ 36.74ms
+  2025-05-07 17:09:51 /assets/img/profile.jpg .................................... ~ 38.25ms
+  2025-05-07 17:09:51 /assets/js/core/jquery-3.7.1.min.js ......................... ~ 1.07ms
+  2025-05-07 17:09:51 /assets/js/core/popper.min.js ............................... ~ 0.42ms
+  2025-05-07 17:09:51 /assets/css/fonts.min.css ................................... ~ 0.24ms
+  2025-05-07 17:09:51 /assets/js/core/bootstrap.min.js ............................ ~ 0.21ms
+  2025-05-07 17:09:51 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.51ms
+  2025-05-07 17:09:51 /assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js .. ~ 0.99ms
+  2025-05-07 17:09:51 /assets/js/plugin/chart-circle/circles.min.js ............... ~ 1.51ms
+  2025-05-07 17:09:51 /assets/js/plugin/chart.js/chart.min.js ..................... ~ 2.80ms
+  2025-05-07 17:09:51 /assets/js/plugin/datatables/datatables.min.js .............. ~ 4.09ms
+  2025-05-07 17:09:51 /assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js .. ~ 0.23ms
+  2025-05-07 17:09:51 /assets/js/plugin/sweetalert/sweetalert.min.js .............. ~ 0.23ms
+  2025-05-07 17:09:51 /assets/js/kaiadmin.min.js .................................. ~ 0.56ms
+  2025-05-07 17:09:51 /assets/js/setting-demo.js .................................. ~ 0.30ms
+  2025-05-07 17:09:51 /assets/js/demo.js .......................................... ~ 6.68ms
+  2025-05-07 17:09:51 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.40ms
+  2025-05-07 17:09:51 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 0.17ms
+  2025-05-07 17:09:51 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.26ms
+  2025-05-07 17:09:51 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 1.72ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8001].  
+
+  Press Ctrl+C to stop the server
+

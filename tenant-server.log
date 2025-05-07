@@ -741,3 +741,115 @@
   2025-05-07 17:02:25 /tenant/login ................................................... ~ 1s
   2025-05-07 17:02:26 /images/logo.jpg ............................................ ~ 0.20ms
   2025-05-07 17:02:27 /favicon.ico ................................................ ~ 0.18ms
+  2025-05-07 17:05:46 / ............................................................... ~ 1s
+  2025-05-07 17:05:47 /tenant/login ................................................... ~ 1s
+  2025-05-07 17:07:17 /tenant/login ................................................... ~ 3s
+  2025-05-07 17:07:20 /tenant/login ............................................. ~ 505.66ms
+  2025-05-07 17:07:21 /images/logo.jpg ............................................ ~ 0.20ms
+  2025-05-07 17:07:23 /favicon.ico ................................................ ~ 0.23ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-07 17:08:26 /tenant/login ................................................... ~ 1s
+  2025-05-07 17:08:26 /images/logo.jpg ................................................ ~ 1s
+  2025-05-07 17:08:29 /favicon.ico ................................................ ~ 0.23ms
+  2025-05-07 17:08:40 /tenant/login ................................................... ~ 3s
+  2025-05-07 17:08:43 /sanjose/dashboard .............................................. ~ 3s
+  2025-05-07 17:08:47 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.40ms
+  2025-05-07 17:08:47 /assets/css/bootstrap.min.css ............................... ~ 0.72ms
+  2025-05-07 17:08:47 /assets/css/plugins.min.css ................................. ~ 9.89ms
+  2025-05-07 17:08:47 /assets/css/demo.css ........................................ ~ 9.79ms
+  2025-05-07 17:08:47 /assets/css/kaiadmin.min.css ............................... ~ 28.33ms
+  2025-05-07 17:08:47 /assets/img/clam_logo.jpg .................................. ~ 22.54ms
+  2025-05-07 17:08:47 /assets/img/buksu_logo.png .................................. ~ 0.79ms
+  2025-05-07 17:08:47 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-07 17:08:47 /assets/img/profile.jpg ......................................... ~ 1s
+  2025-05-07 17:08:48 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 513.55ms
+  2025-05-07 17:08:48 /assets/css/fonts.min.css ................................. ~ 514.17ms
+  2025-05-07 17:08:48 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-07 17:08:48 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-07 17:08:48 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-07 17:08:48 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js ...... ~ 1s
+  2025-05-07 17:08:49 /assets/js/custom-scripts.js ............................... ~ 14.23ms
+  2025-05-07 17:08:49 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 13.60ms
+  2025-05-07 17:08:49 /assets/fonts/fontawesome/fa-solid-900.woff2 ............... ~ 14.23ms
+  2025-05-07 17:08:49 /assets/fonts/fontawesome/fa-regular-400.woff2 ............. ~ 18.42ms
+  2025-05-07 17:08:49 /assets/fonts/fontawesome/fa-brands-400.woff2 .............. ~ 21.01ms
+  2025-05-07 17:08:52 /sanjose/updates ................................................ ~ 6s
+  2025-05-07 17:08:52 /assets/js/plugin/webfont/webfont.min.js ........................ ~ 6s
+  2025-05-07 17:08:59 /assets/css/bootstrap.min.css ............................... ~ 4.84ms
+  2025-05-07 17:08:59 /assets/css/plugins.min.css ................................. ~ 6.99ms
+  2025-05-07 17:08:59 /assets/css/kaiadmin.min.css ................................ ~ 0.21ms
+  2025-05-07 17:08:59 /assets/css/demo.css ........................................ ~ 0.25ms
+  2025-05-07 17:08:59 /assets/img/clam_logo.jpg ................................... ~ 2.67ms
+  2025-05-07 17:08:59 /assets/img/buksu_logo.png .................................. ~ 2.45ms
+  2025-05-07 17:08:59 /assets/img/profile.jpg ..................................... ~ 0.57ms
+  2025-05-07 17:08:59 /assets/js/core/jquery.3.2.1.min.js ....................... ~ 556.31ms
+  2025-05-07 17:09:00 /assets/css/fonts.min.css ................................... ~ 0.53ms
+  2025-05-07 17:09:00 /assets/js/core/popper.min.js ............................... ~ 8.81ms
+  2025-05-07 17:09:00 /assets/js/core/bootstrap.min.js ........................... ~ 48.70ms
+  2025-05-07 17:09:00 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js ...... ~ 1s
+  2025-05-07 17:09:01 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 0.27ms
+  2025-05-07 17:09:01 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 1.38ms
+  2025-05-07 17:09:02 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-07 17:09:02 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js .. ~ 0.27ms
+  2025-05-07 17:09:02 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.54ms
+  2025-05-07 17:09:02 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 1.44ms
+  2025-05-07 17:09:02 /assets/js/custom-scripts.js ................................ ~ 1.66ms
+  2025-05-07 17:10:01 .............................................................. ~ 1m 9s
+  2025-05-07 17:14:23 /sanjose/updates/update ......................................... ~ 1s
+  2025-05-07 17:14:23 /favicon.ico .................................................... ~ 2s
+  2025-05-07 17:14:28 /sanjose/updates ................................................ ~ 5s
+  2025-05-07 17:14:28 /assets/js/plugin/webfont/webfont.min.js ........................ ~ 5s
+  2025-05-07 17:14:33 /assets/css/demo.css ....................................... ~ 16.51ms
+  2025-05-07 17:14:33 /assets/css/bootstrap.min.css .............................. ~ 19.64ms
+  2025-05-07 17:14:33 /assets/css/plugins.min.css ................................ ~ 24.10ms
+  2025-05-07 17:14:33 /assets/css/kaiadmin.min.css ............................... ~ 28.78ms
+  2025-05-07 17:14:33 /assets/img/clam_logo.jpg .................................. ~ 30.46ms
+  2025-05-07 17:14:33 /assets/img/buksu_logo.png .................................. ~ 0.19ms
+  2025-05-07 17:14:33 /assets/img/profile.jpg ..................................... ~ 0.20ms
+  2025-05-07 17:14:33 /assets/js/core/jquery.3.2.1.min.js ....................... ~ 492.31ms
+  2025-05-07 17:14:34 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-07 17:14:34 /assets/js/core/popper.min.js ................................... ~ 1s
+  2025-05-07 17:14:35 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 516.11ms
+  2025-05-07 17:14:34 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-07 17:14:34 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-07 17:14:35 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js  ~ 524.43ms
+  2025-05-07 17:14:35 /assets/js/custom-scripts.js ................................ ~ 7.19ms
+  2025-05-07 17:14:35 /assets/fonts/fontawesome/fa-solid-900.woff2 ............... ~ 12.81ms
+  2025-05-07 17:14:35 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 8.21ms
+  2025-05-07 17:14:35 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 9.36ms
+  2025-05-07 17:14:35 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 9.96ms
+  2025-05-07 17:14:36 /assets/img/kaiadmin/favicon.ico ............................ ~ 0.24ms
+
+   INFO  Environment modified. Restarting server...  
+
+   INFO  Server running on [http://127.0.0.1:8000].  
+
+  Press Ctrl+C to stop the server
+
+  2025-05-07 17:15:58 /sanjose/updates ................................................ ~ 8s
+  2025-05-07 17:16:06 /assets/js/plugin/webfont/webfont.min.js .................... ~ 0.23ms
+  2025-05-07 17:16:06 /assets/css/bootstrap.min.css ............................... ~ 1.17ms
+  2025-05-07 17:16:06 /assets/css/plugins.min.css ................................. ~ 3.04ms
+  2025-05-07 17:16:07 /assets/css/kaiadmin.min.css ................................ ~ 0.18ms
+  2025-05-07 17:16:07 /assets/css/demo.css ........................................ ~ 0.31ms
+  2025-05-07 17:16:07 /assets/img/clam_logo.jpg ................................... ~ 2.67ms
+  2025-05-07 17:16:07 /assets/img/buksu_logo.png .................................. ~ 4.53ms
+  2025-05-07 17:16:07 /assets/js/core/jquery.3.2.1.min.js ............................. ~ 1s
+  2025-05-07 17:16:07 /assets/css/fonts.min.css ....................................... ~ 1s
+  2025-05-07 17:16:07 /assets/img/profile.jpg ......................................... ~ 1s
+  2025-05-07 17:16:07 /assets/js/core/popper.min.js ............................... ~ 3.97ms
+  2025-05-07 17:16:07 /assets/fonts/fontawesome/fa-solid-900.woff2 ................ ~ 2.48ms
+  2025-05-07 17:16:07 /assets/fonts/fontawesome/fa-regular-400.woff2 .............. ~ 0.26ms
+  2025-05-07 17:16:07 /assets/fonts/fontawesome/fa-brands-400.woff2 ............... ~ 0.32ms
+  2025-05-07 17:16:07 /assets/fonts/simple-line-icons/Simple-Line-Icons.woff2?v=2.4.0  ~ 1.60ms
+  2025-05-07 17:16:07 /assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js  ~ 507.97ms
+  2025-05-07 17:16:07 /assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js  ~ 1s
+  2025-05-07 17:16:07 /assets/js/core/bootstrap.min.js ................................ ~ 1s
+  2025-05-07 17:16:08 /assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js  ~ 523.36ms
+  2025-05-07 17:16:09 /assets/js/custom-scripts.js ................................ ~ 3.92ms

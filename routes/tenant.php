@@ -352,12 +352,17 @@ Route::middleware(['auth:tenant'])->group(function () {
             if (auth()->guard('tenant')->user()->role !== 'owner') {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
-            return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
+            
+            // Create controller and explicitly pass the slug to use in the request
+            $controller = app()->make(App\Http\Controllers\Tenant\UpdateController::class);
+            // Add the slug to the request
+            $request->merge(['slug' => $slug]);
+            return $controller->update($request);
         })->name('tenant.updates.update');
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Redirect to the updates index page
+            // Redirect to the updates index page 
             return redirect()->route('tenant.updates.index', ['slug' => $slug]);
         });
     });
