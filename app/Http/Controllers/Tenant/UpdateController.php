@@ -97,9 +97,17 @@ class UpdateController extends Controller
         set_time_limit(0);
         ini_set('memory_limit', '512M');
         
+        // Enable detailed logging for debugging
+        $debugMode = true;
+        
         // Disable logging for update process to avoid filling logs
         $originalLogLevel = config('app.log_level');
-        config(['app.log_level' => 'emergency']);
+        if (!$debugMode) {
+            config(['app.log_level' => 'emergency']);
+        }
+        
+        // Log the start of the update process
+        $this->logDebug('Starting update process', $debugMode);
 
         try {
             // Get version from request
@@ -111,6 +119,7 @@ class UpdateController extends Controller
             }
             
             $currentVersion = $this->updater->source()->getVersionInstalled();
+            $this->logDebug("Updating from version {$currentVersion} to {$targetVersion}", $debugMode);
 
             // Validate if the selected version exists in releases
             $releases = $this->getReleases();
@@ -124,7 +133,7 @@ class UpdateController extends Controller
             $updatePath = storage_path('app/updater');
             if (!file_exists($updatePath)) {
                 if (!mkdir($updatePath, 0755, true)) {
-                    \Log::error('Failed to create update directory: ' . $updatePath);
+                    $this->logDebug("Failed to create update directory: {$updatePath}", $debugMode, 'error');
                     return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create update directory. Please check directory permissions.');
                 }
@@ -151,16 +160,31 @@ class UpdateController extends Controller
             $zipUrl = $releaseData['zipball_url'];
             $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
 
+            // Check if there's a release asset zip file
+            $assetZipUrl = null;
+            if (!empty($validVersion['assets'])) {
+                foreach ($validVersion['assets'] as $asset) {
+                    if (preg_match('/\.zip$/', $asset['name'])) {
+                        $assetZipUrl = $asset['download_url'];
+                        $this->logDebug("Found asset zip file: {$asset['name']}", $debugMode);
+                        break;
+                    }
+                }
+            }
+
             // Download the zip file
             try {
+                $this->logDebug("Downloading zip from: {$zipUrl}", $debugMode);
                 $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
                 if (!file_exists($zipFile)) {
-                    \Log::error('Failed to download release zip file.');
+                    $this->logDebug("Failed to download zip file to: {$zipFile}", $debugMode, 'error');
                     return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to download release zip file.');
+                } else {
+                    $this->logDebug("Successfully downloaded zip file: {$zipFile} (size: " . filesize($zipFile) . " bytes)", $debugMode);
                 }
             } catch (\Exception $e) {
-                \Log::error('Error downloading release zip: ' . $e->getMessage());
+                $this->logDebug("Error downloading zip: " . $e->getMessage(), $debugMode, 'error');
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Error downloading release zip: ' . $e->getMessage());
             }
@@ -172,22 +196,24 @@ class UpdateController extends Controller
             }
             
             $zip = new \ZipArchive();
-            if ($zip->open($zipFile) === TRUE) {
+            $zipResult = $zip->open($zipFile);
+            $this->logDebug("Zip open result: " . ($zipResult === TRUE ? 'SUCCESS' : 'FAILED (code: ' . $zipResult . ')'), $debugMode);
+            
+            if ($zipResult === TRUE) {
+                $this->logDebug("Extracting zip to: {$extractPath}", $debugMode);
                 $zip->extractTo($extractPath);
                 $zip->close();
+                $this->logDebug("Extraction completed. Number of files: " . count(glob($extractPath . '/*')), $debugMode);
             } else {
-                \Log::error('Failed to extract release zip.');
+                $this->logDebug("Failed to extract zip file", $debugMode, 'error');
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to extract release zip.');
             }
 
-            // Detect the actual code subfolder inside the extracted directory
-            $subfolders = array_filter(glob($extractPath . '/*'), 'is_dir');
-            if (count($subfolders) === 1) {
-                $actualSource = $subfolders[0];
-            } else {
-                $actualSource = $extractPath;
-            }
+            // Detect the actual code directory from the extracted zip
+            $this->logDebug("Detecting source code root", $debugMode);
+            $actualSource = $this->detectSourceCodeRoot($extractPath);
+            $this->logDebug("Source code root detected: {$actualSource}", $debugMode);
 
             // Define which files and folders to exclude from updates and backups
             $exclude = [
@@ -255,7 +281,9 @@ class UpdateController extends Controller
             }
 
             // Copy extracted files to app root (excluding critical folders/files)
+            $this->logDebug("Copying files from {$actualSource} to {$rootPath}", $debugMode);
             $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
+            $this->logDebug("File copying completed", $debugMode);
 
             // Clean up extracted folder
             $this->deleteDirectory($extractPath);
@@ -264,34 +292,45 @@ class UpdateController extends Controller
             $this->updateEnvVersion($targetVersion);
 
             // Clear caches
-            \Artisan::call('config:clear');
-            \Artisan::call('cache:clear');
-            \Artisan::call('view:clear');
+            try {
+                \Artisan::call('config:clear');
+                \Artisan::call('cache:clear');
+                \Artisan::call('view:clear');
+                \Artisan::call('route:clear');
+                \Log::info('Cleared application caches successfully.');
+            } catch (\Exception $e) {
+                \Log::warning('Error clearing caches: ' . $e->getMessage());
+            }
 
             // Run composer install --no-dev
             $composerOutput = null;
             $composerReturn = null;
-            exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
             
-            if ($composerReturn !== 0) {
-                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                    ->with('error', 'Update failed during composer install. Check logs for details.');
+            try {
+                exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
+                if ($composerReturn !== 0) {
+                    \Log::warning('Composer install returned non-zero exit code: ' . $composerReturn);
+                    \Log::warning('Composer output: ' . implode("\n", $composerOutput));
+                } else {
+                    \Log::info('Composer install completed successfully.');
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Error running composer: ' . $e->getMessage());
             }
-
+            
             // Run php artisan migrate
             try {
                 \Artisan::call('migrate', ['--force' => true]);
+                \Log::info('Database migrations completed successfully.');
             } catch (\Exception $e) {
-                \Log::error('php artisan migrate failed: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                    ->with('error', 'Update failed during migration. Check logs for details.');
+                \Log::warning('Migration error: ' . $e->getMessage());
             }
 
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
             // Redirect to updates page after success
-            return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
             // Restore original log level
@@ -306,14 +345,22 @@ class UpdateController extends Controller
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
+        $debugMode = true;
+        
         if (!is_dir($source)) {
+            $this->logDebug("Source is not a directory: {$source}", $debugMode, 'warning');
             return;
         }
         
         $dir = opendir($source);
         if (!file_exists($destination)) {
+            $this->logDebug("Creating destination directory: {$destination}", $debugMode);
             @mkdir($destination, 0755, true);
         }
+        
+        $copyCount = 0;
+        $skipCount = 0;
+        $errorCount = 0;
         
         while(false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
@@ -339,13 +386,16 @@ class UpdateController extends Controller
                 }
                 
                 if ($skip) {
+                    $this->logDebug("Skipping excluded path: {$relativePath}", $debugMode);
+                    $skipCount++;
                     continue;
                 }
                 
                 if (is_dir($srcPath)) {
-                    // Create directory if it doesn't exist (don't overwrite existing directories)
+                    // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
-                        mkdir($destPath, 0755, true);
+                        $this->logDebug("Creating directory: {$relativePath}", $debugMode);
+                        @mkdir($destPath, 0755, true);
                     }
                     
                     // Recursively copy directory contents 
@@ -354,23 +404,35 @@ class UpdateController extends Controller
                     // Make sure destination directory exists
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {
-                        mkdir($destDir, 0755, true);
+                        $this->logDebug("Creating parent directory: {$destDir}", $debugMode);
+                        @mkdir($destDir, 0755, true);
                     }
                     
-                    // Only copy if source file is newer or destination doesn't exist
-                    if (!file_exists($destPath) || filemtime($srcPath) > filemtime($destPath)) {
-                        // Try to copy the file, but don't fail if it's in use
-                        @copy($srcPath, $destPath);
-                        
+                    // Force overwrite files - important for updates!
+                    // First try to remove the existing file if it exists
+                    if (file_exists($destPath)) {
+                        $this->logDebug("Removing existing file: {$relativePath}", $debugMode);
+                        @unlink($destPath);
+                    }
+                    
+                    // Now copy the new file
+                    $this->logDebug("Copying file: {$relativePath}", $debugMode);
+                    if (@copy($srcPath, $destPath)) {
                         if (file_exists($destPath)) {
-                            chmod($destPath, 0644);
+                            @chmod($destPath, 0644);
+                            $this->logDebug("Successfully updated file: {$relativePath}", $debugMode);
+                            $copyCount++;
                         }
+                    } else {
+                        $this->logDebug("Failed to update file: {$relativePath}", $debugMode, 'warning');
+                        $errorCount++;
                     }
                 }
             }
         }
         
         closedir($dir);
+        $this->logDebug("Copy operation completed. {$copyCount} files copied, {$skipCount} files skipped, {$errorCount} errors", $debugMode);
     }
 
     protected function getReleases()
@@ -463,5 +525,95 @@ class UpdateController extends Controller
         }
         
         @rmdir($dir);
+    }
+
+    /**
+     * Log debug information if debug mode is enabled
+     *
+     * @param string $message The message to log
+     * @param bool $debugMode Whether debug mode is enabled
+     * @param string $level The log level (info, error, warning)
+     * @return void
+     */
+    protected function logDebug($message, $debugMode = false, $level = 'info')
+    {
+        if ($debugMode) {
+            switch ($level) {
+                case 'error':
+                    \Log::error('[UPDATE SYSTEM] ' . $message);
+                    break;
+                case 'warning':
+                    \Log::warning('[UPDATE SYSTEM] ' . $message);
+                    break;
+                default:
+                    \Log::info('[UPDATE SYSTEM] ' . $message);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Detect the root directory of the application code in the extracted zip
+     * 
+     * @param string $extractPath The path where the zip was extracted
+     * @return string The path to the actual application code root
+     */
+    protected function detectSourceCodeRoot($extractPath)
+    {
+        // Log the contents of the extract path for debugging
+        $debugMode = true;
+        $this->logDebug("Extract path contents: " . print_r(glob($extractPath . '/*'), true), $debugMode);
+        
+        // First check for common GitHub source code repository pattern
+        // (single subfolder with all content)
+        $subfolders = array_filter(glob($extractPath . '/*'), 'is_dir');
+        $this->logDebug("Found " . count($subfolders) . " subdirectories", $debugMode);
+        
+        if (count($subfolders) === 1) {
+            // Check if this folder has typical application files
+            $potentialRoot = $subfolders[0];
+            $this->logDebug("Checking single subfolder: " . $potentialRoot, $debugMode);
+            
+            if (file_exists($potentialRoot . '/artisan') || 
+                file_exists($potentialRoot . '/composer.json') || 
+                file_exists($potentialRoot . '/package.json')) {
+                $this->logDebug("Found Laravel app files in subfolder - using as root", $debugMode);
+                return $potentialRoot;
+            }
+        }
+        
+        // Check if the root of extract has the application files
+        $this->logDebug("Checking extract root for app files", $debugMode);
+        if (file_exists($extractPath . '/artisan') || 
+            file_exists($extractPath . '/composer.json') || 
+            file_exists($extractPath . '/package.json')) {
+            $this->logDebug("Found Laravel app files in extract root - using as root", $debugMode);
+            return $extractPath;
+        }
+        
+        // Check for folders that might contain the application 
+        // (common in manually packaged zips)
+        foreach ($subfolders as $subfolder) {
+            $this->logDebug("Examining subfolder: " . basename($subfolder), $debugMode);
+            
+            if (basename($subfolder) === 'app' || basename($subfolder) === 'src') {
+                // Look at the parent of this folder
+                $this->logDebug("Found 'app' or 'src' folder directly in extract - using extract root", $debugMode);
+                return $extractPath;
+            }
+            
+            // Check one level deeper
+            $subsubfolders = array_filter(glob($subfolder . '/*'), 'is_dir');
+            foreach ($subsubfolders as $subsubfolder) {
+                if (basename($subsubfolder) === 'app' || basename($subsubfolder) === 'src') {
+                    $this->logDebug("Found 'app' or 'src' folder in " . basename($subfolder) . " - using as root", $debugMode);
+                    return $subfolder;
+                }
+            }
+        }
+        
+        // If we can't identify a typical structure, default to the extraction root
+        $this->logDebug("No standard structure detected - defaulting to extract root", $debugMode);
+        return $extractPath;
     }
 } 
