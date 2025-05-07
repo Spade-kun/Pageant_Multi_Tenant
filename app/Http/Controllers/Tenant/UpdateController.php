@@ -85,13 +85,16 @@ class UpdateController extends Controller
             $validated = $request->validated();
             $targetVersion = $validated['version'];
             $currentVersion = $this->updater->source()->getVersionInstalled();
+            
+            // Check if this is a downgrade
+            $isDowngrade = version_compare($targetVersion, $currentVersion, '<');
+
+            // Get redirect URL from the request, or use the default route
+            $redirectUrl = $request->input('redirect_url') ?? route('tenant.updates.index', ['slug' => session('tenant_slug')]);
 
             // Validate if the selected version exists in releases
             $releases = $this->getReleases();
             $validVersion = collect($releases)->where('version', $targetVersion)->first();
-
-            // Get redirect URL from the request, or use the default route
-            $redirectUrl = $request->input('redirect_url') ?? route('tenant.updates.index', ['slug' => session('tenant_slug')]);
 
             if (!$validVersion) {
                 return redirect()->to($redirectUrl)
@@ -233,6 +236,12 @@ class UpdateController extends Controller
 
             // Copy extracted files to app root (excluding critical folders/files)
             $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
+            
+            // If downgrading, clean up files that might have been added in newer versions
+            if ($isDowngrade) {
+                \Log::info('Downgrading from ' . $currentVersion . ' to ' . $targetVersion . ', cleaning up newer files');
+                $this->cleanupNewerFiles($actualSource, $rootPath, $exclude);
+            }
 
             // Clean up extracted folder
             $this->deleteDirectory($extractPath);
@@ -288,14 +297,12 @@ class UpdateController extends Controller
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
         if (!is_dir($source)) {
-            \Log::info("Source directory not found: {$source}");
             return;
         }
         
         $dir = opendir($source);
         if (!file_exists($destination)) {
             @mkdir($destination, 0755, true);
-            \Log::info("Created destination directory: {$destination}");
         }
         
         while(false !== ($file = readdir($dir))) {
@@ -322,7 +329,6 @@ class UpdateController extends Controller
                 }
                 
                 if ($skip) {
-                    \Log::info("Skipping excluded file: {$destPath}");
                     continue;
                 }
                 
@@ -330,7 +336,6 @@ class UpdateController extends Controller
                     // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
                         mkdir($destPath, 0755, true);
-                        \Log::info("Created directory: {$destPath}");
                     }
                     
                     // Recursively copy directory contents 
@@ -340,26 +345,13 @@ class UpdateController extends Controller
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {
                         mkdir($destDir, 0755, true);
-                        \Log::info("Created parent directory: {$destDir}");
                     }
                     
-                    // If destination file exists and is read-only or in use, try to make it writable
+                    // Always overwrite files, regardless of timestamp
+                    @copy($srcPath, $destPath);
+                    
                     if (file_exists($destPath)) {
-                        @chmod($destPath, 0644);
-                        
-                        // If file can't be written to, attempt to delete it first
-                        if (!is_writable($destPath)) {
-                            @unlink($destPath);
-                            \Log::info("Removed write-protected file: {$destPath}");
-                        }
-                    }
-                    
-                    // ALWAYS copy files, regardless of timestamp
-                    if (@copy($srcPath, $destPath)) {
-                        @chmod($destPath, 0644);
-                        \Log::info("Copied file: {$srcPath} → {$destPath}");
-                    } else {
-                        \Log::warning("Failed to copy file: {$srcPath} → {$destPath}");
+                        chmod($destPath, 0644);
                     }
                 }
             }
@@ -460,60 +452,144 @@ class UpdateController extends Controller
         @rmdir($dir);
     }
 
-    /**
-     * Clean up stale project files that might interfere with updates
-     */
-    protected function cleanupProjectFiles()
+    // If downgrading, clean up files that might have been added in newer versions
+    protected function cleanupNewerFiles($source, $destination, $exclude = [])
     {
-        \Log::info("Starting pre-update cleanup...");
-        
-        // Directories that should be cleaned up
-        $directoriesToClean = [
-            base_path('bootstrap/cache'),
-            storage_path('framework/cache'),
-            storage_path('framework/views'),
-        ];
-        
-        foreach ($directoriesToClean as $directory) {
-            if (is_dir($directory)) {
-                $this->cleanDirectory($directory);
-                \Log::info("Cleaned directory: {$directory}");
-            }
-        }
-        
-        // Specific files to remove
-        $filesToRemove = [
-            base_path('bootstrap/cache/config.php'),
-            base_path('bootstrap/cache/routes.php'),
-            base_path('bootstrap/cache/services.php'),
-        ];
-        
-        foreach ($filesToRemove as $file) {
-            if (file_exists($file)) {
-                @unlink($file);
-                \Log::info("Removed file: {$file}");
-            }
-        }
-        
-        \Log::info("Pre-update cleanup completed");
-    }
-
-    /**
-     * Clean a directory without removing the directory itself
-     */
-    protected function cleanDirectory($directory)
-    {
-        if (!is_dir($directory)) {
+        if (!is_dir($destination)) {
             return;
         }
         
-        $files = new \FilesystemIterator($directory);
+        $destinationFiles = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($destination, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
         
+        $sourceFiles = [];
+        
+        // First, build a list of all files in the source (the older version)
+        $this->buildFileList($source, '', $sourceFiles);
+        
+        // Now check each file in the destination (the current installation)
+        foreach ($destinationFiles as $file) {
+            // Skip if it's a directory
+            if ($file->isDir()) {
+                continue;
+            }
+            
+            // Get path relative to the destination root
+            $relativePath = ltrim(str_replace($destination, '', $file->getRealPath()), DIRECTORY_SEPARATOR);
+            
+            // Check if this path should be excluded
+            $skip = false;
+            foreach ($exclude as $ex) {
+                // Handle wildcard patterns
+                if (strpos($ex, '*') !== false) {
+                    $pattern = str_replace('*', '.*', $ex);
+                    if (preg_match('/' . $pattern . '/', $relativePath)) {
+                        $skip = true;
+                        break;
+                    }
+                } else if (stripos($relativePath, $ex) === 0) {
+                    $skip = true;
+                    break;
+                }
+            }
+            
+            if ($skip) {
+                continue;
+            }
+            
+            // If the file doesn't exist in the source (older version), delete it
+            if (!in_array($relativePath, $sourceFiles)) {
+                \Log::info('Removing file that does not exist in target version: ' . $relativePath);
+                @unlink($file->getRealPath());
+            }
+        }
+        
+        // Now clean up empty directories
+        $this->cleanEmptyDirectories($destination, $exclude);
+    }
+
+    // Helper to build a list of files in a directory
+    protected function buildFileList($baseDir, $subDir, &$fileList)
+    {
+        $dir = $baseDir . ($subDir ? DIRECTORY_SEPARATOR . $subDir : '');
+        
+        if (!is_dir($dir)) {
+            return;
+        }
+        
+        $files = scandir($dir);
         foreach ($files as $file) {
-            if ($file->isDir() && !$file->isLink()) {
-                $this->deleteDirectory($file->getPathname());
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+            
+            $path = $subDir ? $subDir . DIRECTORY_SEPARATOR . $file : $file;
+            $fullPath = $baseDir . DIRECTORY_SEPARATOR . $path;
+            
+            if (is_dir($fullPath)) {
+                $this->buildFileList($baseDir, $path, $fileList);
             } else {
-                @unlink($file->getPathname());
+                $fileList[] = str_replace('\\', '/', $path); // Normalize path separators
+            }
+        }
+    }
+
+    // Helper to clean up empty directories
+    protected function cleanEmptyDirectories($dir, $exclude)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        
+        $files = scandir($dir);
+        
+        // Remove . and .. from the list
+        $files = array_diff($files, ['.', '..']);
+        
+        // If the directory is empty, try to remove it
+        if (count($files) === 0) {
+            $relativePath = ltrim(str_replace(base_path(), '', $dir), DIRECTORY_SEPARATOR);
+            
+            // Check if this path should be excluded
+            foreach ($exclude as $ex) {
+                if (stripos($relativePath, $ex) === 0) {
+                    return;
+                }
+            }
+            
+            \Log::info('Removing empty directory: ' . $dir);
+            @rmdir($dir);
+            return;
+        }
+        
+        // Otherwise, recursively check all subdirectories
+        foreach ($files as $file) {
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($path)) {
+                $this->cleanEmptyDirectories($path, $exclude);
+                
+                // After cleaning subdirectories, check if this directory is now empty
+                $subFiles = scandir($path);
+                $subFiles = array_diff($subFiles, ['.', '..']);
+                if (count($subFiles) === 0) {
+                    $relativePath = ltrim(str_replace(base_path(), '', $path), DIRECTORY_SEPARATOR);
+                    
+                    // Check if this path should be excluded
+                    $skip = false;
+                    foreach ($exclude as $ex) {
+                        if (stripos($relativePath, $ex) === 0) {
+                            $skip = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!$skip) {
+                        \Log::info('Removing empty directory: ' . $path);
+                        @rmdir($path);
+                    }
+                }
             }
         }
     }

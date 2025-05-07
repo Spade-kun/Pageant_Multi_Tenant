@@ -4,9 +4,7 @@
 <!-- IMPROVED HEADER SECTION -->
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
-        
-    <h3 class="page-title fw-bold">{{ __('Welcome to your Pageant Dashboard') }}</h3>
-    <h3 class="page-title fw-bold">{{ __('v2') }}</h3>
+        <h3 class="page-title fw-bold">{{ __('Welcome to your Pageant Dashboard') }}</h3>
         <p class="text-muted">{{ __('Manage your pageant events and activities from one place') }}</p>
     </div>
     <div class="page-tools">
