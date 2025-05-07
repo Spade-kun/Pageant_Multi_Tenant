@@ -11,9 +11,7 @@ class UpdateSystemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Only allow tenant owners to perform updates
-        return auth()->guard('tenant')->check() && 
-               auth()->guard('tenant')->user()->role === 'owner';
+        return true; // In a real app, you might want to restrict this to admin users
     }
 
     /**
@@ -22,18 +20,7 @@ class UpdateSystemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'version' => 'required|string|regex:/^\d+\.\d+\.\d+$/' // Ensure format like 1.0.0
-        ];
-    }
-
-    /**
-     * Get custom error messages for validator errors.
-     */
-    public function messages(): array
-    {
-        return [
-            'version.required' => 'A version is required to perform the update.',
-            'version.regex' => 'The version must be in a valid semantic versioning format (e.g., 1.0.0).'
+            'version' => 'required|string'
         ];
     }
 } 

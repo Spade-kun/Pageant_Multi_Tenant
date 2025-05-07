@@ -59,56 +59,22 @@ class UpdateController extends Controller
         if (count($subfolders) === 1) {
             // Check if this folder has typical application files
             $potentialRoot = $subfolders[0];
-            if (file_exists($potentialRoot . '/artisan') && 
-                file_exists($potentialRoot . '/composer.json')) {
-                \Log::info('Detected Laravel app root in subfolder: ' . $potentialRoot);
+            if (file_exists($potentialRoot . '/artisan') || 
+                file_exists($potentialRoot . '/composer.json') || 
+                file_exists($potentialRoot . '/package.json')) {
                 return $potentialRoot;
             }
         }
         
         // Check if the root of extract has the application files
-        if (file_exists($extractPath . '/artisan') && 
-            file_exists($extractPath . '/composer.json')) {
-            \Log::info('Detected Laravel app root in extract path: ' . $extractPath);
+        if (file_exists($extractPath . '/artisan') || 
+            file_exists($extractPath . '/composer.json') || 
+            file_exists($extractPath . '/package.json')) {
             return $extractPath;
         }
         
-        // Try finding artisan file by recursively searching
-        $artisanFiles = $this->findFilesByNameRecursive($extractPath, 'artisan');
-        if (count($artisanFiles) > 0) {
-            $artisanFile = $artisanFiles[0];
-            $possibleRoot = dirname($artisanFile);
-            \Log::info('Found artisan file, using directory as app root: ' . $possibleRoot);
-            return $possibleRoot;
-        }
-        
         // If we can't identify a typical structure, default to the extraction root
-        \Log::warning('Could not detect app root, using extract path: ' . $extractPath);
         return $extractPath;
-    }
-    
-    /**
-     * Find all files with a specific name in a directory recursively
-     * 
-     * @param string $directory Directory to search in
-     * @param string $filename Filename to search for
-     * @return array Found file paths
-     */
-    protected function findFilesByNameRecursive($directory, $filename)
-    {
-        $result = [];
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-        
-        foreach ($files as $file) {
-            if ($file->isFile() && $file->getBasename() === $filename) {
-                $result[] = $file->getRealPath();
-            }
-        }
-        
-        return $result;
     }
 
     public function index()
@@ -152,17 +118,11 @@ class UpdateController extends Controller
         }
     }
 
-    public function update(UpdateSystemRequest $request)
+    public function update($request)
     {
         // Prevent timeout for long-running update
         set_time_limit(0);
         ini_set('memory_limit', '512M');
-        
-        // Get the slug for routing
-        $slug = $this->getSlug();
-        
-        // Log the update attempt
-        \Log::info('Starting system update process', ['version' => $request->input('version'), 'initiated_by' => auth()->guard('tenant')->user()->email]);
         
         // Disable logging for update process to avoid filling logs
         $originalLogLevel = config('app.log_level');
@@ -173,37 +133,33 @@ class UpdateController extends Controller
             $targetVersion = $request->input('version');
             
             if (empty($targetVersion)) {
-                \Log::error('Update failed: No version specified');
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'No version was specified for the update.');
             }
             
             $currentVersion = $this->updater->source()->getVersionInstalled();
-            \Log::info('Current version: ' . $currentVersion . ', Target version: ' . $targetVersion);
 
             // Validate if the selected version exists in releases
             $releases = $this->getReleases();
             $validVersion = collect($releases)->where('version', $targetVersion)->first();
 
             if (!$validVersion) {
-                \Log::error('Update failed: Invalid version selected', ['requested_version' => $targetVersion]);
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Selected version is not available.');
             }
 
             $updatePath = storage_path('app/updater');
             if (!file_exists($updatePath)) {
-                \Log::info('Creating update directory: ' . $updatePath);
                 if (!mkdir($updatePath, 0755, true)) {
                     \Log::error('Failed to create update directory: ' . $updatePath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create update directory. Please check directory permissions.');
                 }
             }
             
             if (!is_writable($updatePath)) {
                 \Log::error('Update directory is not writable: ' . $updatePath);
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update directory is not writable. Please check directory permissions.');
             }
             
@@ -229,7 +185,7 @@ class UpdateController extends Controller
 
                 if (!isset($releaseData['zipball_url'])) {
                     \Log::error('Could not find download URL for version: ' . $targetVersion);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Could not find download URL for the selected version.');
                 }
 
@@ -243,12 +199,12 @@ class UpdateController extends Controller
                 $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
                 if (!file_exists($zipFile)) {
                     \Log::error('Failed to download release zip file.');
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to download release zip file.');
                 }
             } catch (\Exception $e) {
                 \Log::error('Error downloading release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Error downloading release zip: ' . $e->getMessage());
             }
 
@@ -257,7 +213,7 @@ class UpdateController extends Controller
             if (!file_exists($extractPath)) {
                 if (!mkdir($extractPath, 0755, true)) {
                     \Log::error('Failed to create extract directory: ' . $extractPath);
-                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create extract directory. Please check directory permissions.');
                 }
             }
@@ -276,7 +232,7 @@ class UpdateController extends Controller
                 }
             } catch (\Exception $e) {
                 \Log::error('Failed to extract release zip: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to extract release zip: ' . $e->getMessage());
             }
 
@@ -355,7 +311,7 @@ class UpdateController extends Controller
                 $zipBackup->close();
             } else {
                 \Log::error('Failed to create backup zip.');
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to create backup zip.');
             }
 
@@ -367,13 +323,6 @@ class UpdateController extends Controller
             
             // Update SELF_UPDATER_VERSION_INSTALLED in .env
             $this->updateEnvVersion($targetVersion);
-
-            // Make sure artisan is executable
-            $artisanPath = base_path('artisan');
-            if (file_exists($artisanPath) && !is_executable($artisanPath)) {
-                \Log::info('Making artisan executable');
-                chmod($artisanPath, 0755);
-            }
 
             // Clear caches
             \Artisan::call('config:clear');
@@ -387,7 +336,7 @@ class UpdateController extends Controller
             exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
             
             if ($composerReturn !== 0) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update failed during composer install. Check logs for details.');
             }
 
@@ -396,7 +345,7 @@ class UpdateController extends Controller
                 \Artisan::call('migrate', ['--force' => true]);
             } catch (\Exception $e) {
                 \Log::error('php artisan migrate failed: ' . $e->getMessage());
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update failed during migration. Check logs for details.');
             }
 
@@ -404,33 +353,13 @@ class UpdateController extends Controller
             config(['app.log_level' => $originalLogLevel]);
             
             // Redirect to updates page after success
-            return redirect()->route('tenant.updates.index', ['slug' => $slug])
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
         } catch (\Exception $e) {
-            // Log the error
-            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            
-            // Try running composer and migrations anyway to ensure the application is in a usable state
-            try {
-                \Log::info('Attempting to run composer install after error');
-                exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
-                
-                if ($composerReturn !== 0) {
-                    \Log::error('Composer install failed after error');
-                } else {
-                    \Log::info('Composer install succeeded after error');
-                }
-                
-                \Log::info('Attempting to run migrations after error');
-                \Artisan::call('migrate', ['--force' => true]);
-                \Log::info('Migrations run after error');
-            } catch (\Exception $innerEx) {
-                \Log::error('Failed to run composer/migrations after update error: ' . $innerEx->getMessage());
-            }
-            
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
+            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return redirect()->route('tenant.updates.index', ['slug' => session('tenant_slug')])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }
@@ -439,28 +368,19 @@ class UpdateController extends Controller
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
-        \Log::info("Starting copy from $source to $destination");
-        
         if (!is_dir($source)) {
-            \Log::error("Source directory does not exist: $source");
             return;
         }
         
         $dir = opendir($source);
         if (!$dir) {
-            \Log::error("Failed to open directory: $source");
+            \Log::warning("Failed to open directory: {$source}");
             return;
         }
         
         if (!file_exists($destination)) {
-            \Log::info("Creating destination directory: $destination");
             mkdir($destination, 0755, true);
         }
-        
-        $fileCount = 0;
-        $dirCount = 0;
-        $skipCount = 0;
-        $errorCount = 0;
         
         while(false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
@@ -469,15 +389,12 @@ class UpdateController extends Controller
                 
                 // Skip invalid paths
                 if (empty($srcPath) || empty($destPath)) {
-                    \Log::warning("Skipping invalid path for file: $file");
-                    $skipCount++;
                     continue;
                 }
                 
                 // Check if this path should be excluded
                 $relativePath = ltrim(str_replace($destination, '', $destPath), DIRECTORY_SEPARATOR);
                 if (empty($relativePath)) {
-                    $skipCount++;
                     continue;
                 }
                 
@@ -497,27 +414,21 @@ class UpdateController extends Controller
                 }
                 
                 if ($skip) {
-                    \Log::debug("Skipping excluded path: $relativePath");
-                    $skipCount++;
                     continue;
                 }
                 
                 if (is_dir($srcPath)) {
-                    $dirCount++;
                     // Create directory if it doesn't exist
                     if (!file_exists($destPath)) {
-                        \Log::debug("Creating directory: $destPath");
                         mkdir($destPath, 0755, true);
                     }
                     
                     // Recursively copy directory contents 
                     $this->copyUpdateFiles($srcPath, $destPath, $exclude);
                 } else {
-                    $fileCount++;
                     // Make sure destination directory exists
                     $destDir = dirname($destPath);
                     if (!file_exists($destDir)) {
-                        \Log::debug("Creating parent directory: $destDir");
                         mkdir($destDir, 0755, true);
                     }
                     
@@ -529,35 +440,19 @@ class UpdateController extends Controller
                     
                     // Then copy the new file
                     try {
-                        if (!@copy($srcPath, $destPath)) {
-                            \Log::warning("Failed to copy file: $srcPath to $destPath");
-                            $errorCount++;
-                        } else {
-                            // Set appropriate permissions for the copied file
+                        @copy($srcPath, $destPath);
+                        
                         if (file_exists($destPath)) {
-                                if (pathinfo($destPath, PATHINFO_BASENAME) === 'artisan') {
-                                    \Log::info("Making artisan executable: $destPath");
-                                    @chmod($destPath, 0755);
-                                } else {
-                                    @chmod($destPath, 0644);
-                                }
-                            }
+                            chmod($destPath, 0644);
                         }
                     } catch (\Exception $e) {
-                        \Log::warning("Exception copying file: $srcPath to $destPath - Error: " . $e->getMessage());
-                        $errorCount++;
+                        \Log::warning("Failed to copy file: {$srcPath} to {$destPath} - Error: " . $e->getMessage());
                     }
                 }
             }
         }
         
         closedir($dir);
-        \Log::info("Completed copying files from $source to $destination", [
-            'files_copied' => $fileCount,
-            'directories_created' => $dirCount,
-            'files_skipped' => $skipCount,
-            'errors' => $errorCount
-        ]);
     }
 
     protected function getReleases()
