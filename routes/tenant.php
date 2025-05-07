@@ -377,3 +377,12 @@ Route::get('/{slug}/updates/update-redirect', function($slug) {
     // Redirect to the updates index page
     return redirect()->route('tenant.updates.index', ['slug' => $slug]);
 });
+
+// Google OAuth Routes
+Route::get('/tenant/auth/google', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
+Route::get('/tenant/auth/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
+
+// Debug route - only available in local environment
+if (app()->environment('local')) {
+    Route::get('/tenant/auth/google/debug', [TenantLoginController::class, 'debugOAuth'])->name('tenant.google.debug');
+}

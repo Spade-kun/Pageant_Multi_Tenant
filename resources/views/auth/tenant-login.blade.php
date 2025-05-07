@@ -171,6 +171,61 @@
             box-shadow: 0 5px 15px rgba(160, 111, 77, 0.2);
         }
 
+        .login-divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .login-divider span {
+            background: white;
+            padding: 0 1rem;
+            font-size: 0.85rem;
+            color: var(--burgundy);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e1e1;
+        }
+
+        .btn-google {
+            width: calc(100% - 2rem);
+            padding: 0.75rem;
+            background: white;
+            color: #444;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-google i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: #4285F4;
+        }
+
         .register-link {
             text-align: center;
             margin-top: 1.5rem;
@@ -289,6 +344,14 @@
             <button type="submit" class="btn-login">
                 Sign In to Pageant
             </button>
+
+            <div class="login-divider">
+                <span>OR</span>
+            </div>
+
+            <a href="{{ route('tenant.google.redirect') }}" class="btn-google">
+                <i class="fab fa-google"></i> Continue with Google
+            </a>
 
             <div class="register-link">
                 <a href="{{ route('register') }}">

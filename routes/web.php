@@ -37,3 +37,25 @@ Route::group([], function () {
 
 // Auth routes (these will be for admin authentication through the default routes file)
 require __DIR__.'/auth.php';
+
+// Google OAuth Routes for Admin - accessible on both ports
+Route::get('/auth/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle'])->name('admin.google.redirect');
+
+// Specialized callback that handles port detection
+Route::get('/auth/google/callback', function (Illuminate\Http\Request $request) {
+    // Detect which port we're on - default to admin port for Google auth
+    $port = $request->server('SERVER_PORT') ?: '8001';
+    
+    // If we're on port 8001 (admin), set session flag to ensure proper redirection
+    if ($port == '8001') {
+        session(['is_admin_oauth' => true]);
+    }
+    
+    // Pass to the normal handler
+    return app()->make(App\Http\Controllers\Auth\LoginController::class)->handleGoogleCallback($request);
+})->name('admin.google.callback');
+
+// Debug route for OAuth - only available in local environment
+if (app()->environment('local')) {
+    Route::get('/auth/google/debug', [App\Http\Controllers\Auth\LoginController::class, 'debugOAuth'])->name('admin.google.debug');
+}

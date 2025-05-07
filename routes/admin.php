@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [AuthenticatedSessionController::class, 'create'])->name('admin.login');
     Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
+    
+    // In admin.php, we define a route to handle OAuth logins that might get redirected here
+    Route::get('/auth/google/callback', function(Illuminate\Http\Request $request) {
+        // Forward to the callback handler in web.php
+        return redirect("http://127.0.0.1:8001/auth/google/callback?" . $request->getQueryString());
+    });
 });
 
 // Admin Dashboard and protected routes
@@ -59,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Logout
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::post('/admin/logout', [AuthenticatedSessionController::class, 'destroy']);
-}); 
+});
+
+// Note: Google OAuth routes are defined in web.php
 
 require __DIR__ . '/auth.php';
