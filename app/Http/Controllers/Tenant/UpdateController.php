@@ -211,17 +211,29 @@ class UpdateController extends Controller
             // Extract the zip file
             $extractPath = $updatePath . DIRECTORY_SEPARATOR . "extracted-v{$targetVersion}";
             if (!file_exists($extractPath)) {
-                mkdir($extractPath, 0755, true);
+                if (!mkdir($extractPath, 0755, true)) {
+                    \Log::error('Failed to create extract directory: ' . $extractPath);
+                    return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                        ->with('error', 'Failed to create extract directory. Please check directory permissions.');
+                }
             }
             
-            $zip = new \ZipArchive();
-            if ($zip->open($zipFile) === TRUE) {
-                $zip->extractTo($extractPath);
-                $zip->close();
-            } else {
-                \Log::error('Failed to extract release zip.');
+            try {
+                $zip = new \ZipArchive();
+                $zipOpenResult = $zip->open($zipFile);
+                
+                if ($zipOpenResult === TRUE) {
+                    if (!$zip->extractTo($extractPath)) {
+                        throw new \Exception("ZipArchive failed to extract files");
+                    }
+                    $zip->close();
+                } else {
+                    throw new \Exception("Failed to open zip file. Error code: " . $zipOpenResult);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to extract release zip: ' . $e->getMessage());
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                    ->with('error', 'Failed to extract release zip.');
+                    ->with('error', 'Failed to extract release zip: ' . $e->getMessage());
             }
 
             // Detect the actual code subfolder inside the extracted directory
@@ -259,7 +271,14 @@ class UpdateController extends Controller
                 
                 foreach ($files as $file) {
                     $filePath = $file->getRealPath();
+                    if (empty($filePath)) {
+                        continue; // Skip files with empty paths
+                    }
+                    
                     $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
+                    if (empty($relativePath)) {
+                        continue; // Skip empty relative paths
+                    }
                     
                     $skip = false;
                     foreach ($exclude as $ex) {
@@ -280,7 +299,11 @@ class UpdateController extends Controller
                         if ($file->isDir()) {
                             $zipBackup->addEmptyDir($relativePath);
                         } else {
-                            $zipBackup->addFile($filePath, $relativePath);
+                            try {
+                                $zipBackup->addFile($filePath, $relativePath);
+                            } catch (\Exception $e) {
+                                \Log::warning("Failed to add file to backup: {$filePath} - Error: " . $e->getMessage());
+                            }
                         }
                     }
                 }
@@ -350,6 +373,11 @@ class UpdateController extends Controller
         }
         
         $dir = opendir($source);
+        if (!$dir) {
+            \Log::warning("Failed to open directory: {$source}");
+            return;
+        }
+        
         if (!file_exists($destination)) {
             mkdir($destination, 0755, true);
         }
@@ -359,10 +387,18 @@ class UpdateController extends Controller
                 $srcPath = $source . DIRECTORY_SEPARATOR . $file;
                 $destPath = $destination . DIRECTORY_SEPARATOR . $file;
                 
+                // Skip invalid paths
+                if (empty($srcPath) || empty($destPath)) {
+                    continue;
+                }
+                
                 // Check if this path should be excluded
                 $relativePath = ltrim(str_replace($destination, '', $destPath), DIRECTORY_SEPARATOR);
-                $skip = false;
+                if (empty($relativePath)) {
+                    continue;
+                }
                 
+                $skip = false;
                 foreach ($exclude as $ex) {
                     // Handle wildcard patterns
                     if (strpos($ex, '*') !== false) {
@@ -403,10 +439,14 @@ class UpdateController extends Controller
                     }
                     
                     // Then copy the new file
-                    @copy($srcPath, $destPath);
-                    
-                    if (file_exists($destPath)) {
-                        chmod($destPath, 0644);
+                    try {
+                        @copy($srcPath, $destPath);
+                        
+                        if (file_exists($destPath)) {
+                            chmod($destPath, 0644);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning("Failed to copy file: {$srcPath} to {$destPath} - Error: " . $e->getMessage());
                     }
                 }
             }
