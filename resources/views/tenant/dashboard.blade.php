@@ -5,7 +5,7 @@
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
         <h3 class="page-title fw-bold">{{ __('Welcome to your Pageant Dashboard') }}</h3>
-        
+        <h1>v2</h1>
         <p class="text-muted">{{ __('Manage your pageant events and activities from one place') }}</p>
     </div>
     <div class="page-tools">
@@ -106,7 +106,7 @@
                 </div>
                 <div>
                     <h5 class="card-title mb-1">{{ __('System Update Available!') }}</h5>
-                    <p class="mb-2">{{ __('A new version') }} (v{{ $newVersion }}) {{ __('is available. Your current version is') }} v{{ $currentVersion }}</p>
+                    <p class="mb-2"> {{ __('Your current version is') }} v{{ $currentVersion }}</p>
                     <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" class="btn btn-sm btn-light">
                         <i class="fas fa-download me-1"></i> {{ __('Update Now') }}
                     </a>
@@ -292,23 +292,7 @@
         </div>
     </div>
 
-    <!-- Scores Card -->
-    <div class="col-sm-6 col-md-4 mb-4">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-            <div class="card-body position-relative">
-                <div class="position-absolute top-0 end-0 mt-3 me-3">
-                    <div class="icon-circle bg-danger-light">
-                        <i class="fas fa-star text-danger"></i>
-                    </div>
-                </div>
-                <h5 class="card-title fw-bold mt-4 mb-2">{{ __('Scores') }}</h5>
-                <p class="card-text text-muted mb-4">{{ __('View and manage scores from judges for your pageant events.') }}</p>
-                <a href="{{ route('tenant.scores.index', ['slug' => $slug]) }}" class="btn btn-danger btn-sm">
-                    <i class="fas fa-eye me-1"></i> {{ __('View Scores') }}
-                </a>
-            </div>
-        </div>
-    </div>
+  
 
     <!-- Reports Card (Only if module is enabled) -->
     @if($tenantPlan->reports_module)

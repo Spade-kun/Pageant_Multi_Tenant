@@ -74,6 +74,13 @@ class CategoryController extends Controller
             ->with('success', 'Category created successfully.');
     }
 
+    public function show($slug, $id)
+    {
+        $this->setTenantConnection($slug);
+        $category = DB::connection('tenant')->table('categories')->find($id);
+        return view('tenant.categories.show', compact('category', 'slug'));
+    }
+
     public function edit($slug, $id)
     {
         $this->setTenantConnection($slug);

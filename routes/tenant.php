@@ -200,11 +200,13 @@ Route::middleware(['auth:tenant'])->group(function () {
     Route::delete('/{slug}/contestants/{id}', [ContestantController::class, 'destroy'])
         ->name('tenant.contestants.destroy');
 
-    // Categories Routes
+    // Category Routes
     Route::get('/{slug}/categories', [CategoryController::class, 'index'])
         ->name('tenant.categories.index');
     Route::get('/{slug}/categories/create', [CategoryController::class, 'create'])
         ->name('tenant.categories.create');
+    Route::get('/{slug}/categories/{id}', [CategoryController::class, 'show'])
+        ->name('tenant.categories.show');
     Route::post('/{slug}/categories', [CategoryController::class, 'store'])
         ->name('tenant.categories.store');
     Route::get('/{slug}/categories/{id}/edit', [CategoryController::class, 'edit'])

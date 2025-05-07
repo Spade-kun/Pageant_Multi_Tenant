@@ -14,4 +14,15 @@
             </div>
         </div>
     </div>
+
+    @php
+        $updater = app(\Codedge\Updater\UpdaterManager::class);
+        $isNewVersionAvailable = $updater->source()->isNewVersionAvailable();
+        $currentVersion = $updater->source()->getVersionInstalled();
+        $newVersion = $isNewVersionAvailable ? $updater->source()->getVersionAvailable() : null;
+    @endphp
+
+    @if ($isNewVersionAvailable)
+        <p class="mb-2">{{ __('A new version') }} (v{{ $newVersion }}) {{ __('is available. Your current version is') }} v{{ $currentVersion }}</p>
+    @endif
 </x-app-layout>

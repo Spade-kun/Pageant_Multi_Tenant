@@ -74,12 +74,16 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group">
+                        <label class="font-weight-bold">Category ID</label>
+                        <p>{{ $category->id }}</p>
+                    </div>
+                    <div class="form-group">
                         <label class="font-weight-bold">Created At</label>
-                        <p>{{ date('F d, Y', strtotime($category->created_at)) }}</p>
+                        <p>{{ date('F d, Y h:i A', strtotime($category->created_at)) }}</p>
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">Last Updated</label>
-                        <p>{{ date('F d, Y', strtotime($category->updated_at)) }}</p>
+                        <p>{{ date('F d, Y h:i A', strtotime($category->updated_at)) }}</p>
                     </div>
                 </div>
             </div>
