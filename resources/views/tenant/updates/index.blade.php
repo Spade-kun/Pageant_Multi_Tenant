@@ -2,6 +2,33 @@
 
 @section('title', 'System Updates')
 
+@section('styles')
+<style>
+    .sortable {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .sortable i {
+        margin-left: 5px;
+        font-size: 14px;
+    }
+    
+    table.table th.sortable:hover {
+        background-color: #f4f4f4;
+    }
+    
+    #releasesTable .badge {
+        font-size: 80%;
+    }
+    
+    #releasesTable .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.76563rem;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="content">
     <div class="container-fluid">
@@ -44,8 +71,19 @@
                                     <div class="info-box-content">
                                         <h5>Latest Version</h5>
                                         <h3>
-                                            {{ $newVersion ?? $currentVersion }}
-                                            @if(isset($isNewVersionAvailable) && $isNewVersionAvailable)
+                                            @php
+                                                // Find the highest version from releases
+                                                $latestVersion = $currentVersion;
+                                                if (isset($releases) && !empty($releases)) {
+                                                    foreach ($releases as $release) {
+                                                        if (version_compare($release['version'], $latestVersion, '>')) {
+                                                            $latestVersion = $release['version'];
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ $latestVersion }}
+                                            @if(version_compare($latestVersion, $currentVersion, '>'))
                                                 <span class="badge badge-success">Update Available</span>
                                             @else
                                                 <span class="badge badge-info">Up to date</span>
@@ -66,11 +104,11 @@
                         <div class="mt-4">
                             <h4>Release History</h4>
                             <div class="table-responsive">
-                                <table class="table table-striped">
+                                <table class="table table-striped" id="releasesTable">
                                     <thead>
                                         <tr>
-                                            <th>VERSION</th>
-                                            <th>RELEASED AT</th>
+                                            <th class="sortable" data-sort="version">VERSION <i class="fas fa-sort"></i></th>
+                                            <th class="sortable" data-sort="date">RELEASED AT <i class="fas fa-sort"></i></th>
                                             <th>AUTHOR</th>
                                             <th>DESCRIPTION</th>
                                             <th>ACTION</th>
@@ -78,7 +116,7 @@
                                     </thead>
                                     <tbody id="releaseHistory">
                                         @foreach($releases as $release)
-                                        <tr>
+                                        <tr data-version="{{ $release['version'] }}" data-date="{{ strtotime($release['released_at']) }}">
                                             <td>
                                                 {{ $release['version'] }}
                                                 @if($release['version'] === $currentVersion)
@@ -99,6 +137,8 @@
                                                             {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
                                                         </button>
                                                     </form>
+                                                @else
+                                                    <span class="badge badge-success">Current Version</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -120,28 +160,26 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateModalLabel">System Update Available</h5>
+                <h5 class="modal-title" id="updateModalLabel">Checking for Updates</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="updateModalContent">
-                    <!-- Content will be populated via JavaScript -->
-                </div>
-                <div id="updateSpinner" class="text-center d-none">
-                    <div class="spinner-border text-primary" role="status">
+                <div id="updateSpinner" class="text-center">
+                    <div class="spinner-border" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                    <p class="mt-2">Checking for updates...</p>
+                    <p class="mt-2">Checking for updates. Please wait...</p>
                 </div>
+                <div id="updateModalContent" class="d-none"></div>
+                <form id="updateForm" class="d-none" method="POST" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}">
+                    @csrf
+                    <input type="hidden" name="version" id="updateVersion">
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">Install Update</button>
-                </form>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -149,7 +187,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 $(document).ready(function() {
     // Sort the table by version by default (descending)
@@ -190,33 +228,10 @@ $(document).ready(function() {
                             </div>
                         `);
                         
-                        // Handle update button click
-                        $('#doUpdateBtn').on('click', function() {
-                            const version = $(this).data('version');
-                            
-                            // Create and submit a form
-                            const form = $('<form>', {
-                                'method': 'POST',
-                                'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                                'style': 'display:none;'
-                            });
-                            
-                            form.append($('<input>', {
-                                'type': 'hidden',
-                                'name': '_token',
-                                'value': '{{ csrf_token() }}'
-                            }));
-                            
-                            form.append($('<input>', {
-                                'type': 'hidden',
-                                'name': 'version',
-                                'value': version
-                            }));
-                            
-                            $('#updateModal').modal('hide');
-                            $('body').append(form);
-                            form.submit();
-                        });
+                        // Refresh the page to show the updated releases
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
                     } else {
                         $('#updateModalContent').html(`
                             <div class="alert alert-info">
@@ -250,63 +265,39 @@ $(document).ready(function() {
         const tbody = $('#releaseHistory');
         tbody.empty();
 
+        // Sort releases by version (newest first)
+        releases.sort(function(a, b) {
+            return compareVersions(b.version, a.version);
+        });
+
         releases.forEach(release => {
             const isCurrentVersion = release.version === currentVersion;
             const isUpgrade = compareVersions(release.version, currentVersion) > 0;
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<button type="button" 
-                        class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'} update-version-btn"
-                        data-version="${release.version}"
-                        data-is-upgrade="${isUpgrade}">
-                    ${isUpgrade ? 'Update' : 'Downgrade'}
-                </button>`;
+                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="version" value="${release.version}">
+                    <button type="submit" 
+                            class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'}"
+                            onclick="return confirm('Are you sure you want to ${isUpgrade ? 'update to' : 'downgrade to'} version ${release.version}? ${!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''}')">
+                        ${isUpgrade ? 'Update' : 'Downgrade'}
+                    </button>
+                </form>`;
 
             tbody.append(`
-                <tr>
+                <tr data-version="${release.version}" data-date="${new Date(release.released_at).getTime()}">
                     <td>
                         ${release.version}
                         ${isCurrentVersion ? '<span class="badge badge-success ml-2">Current</span>' : ''}
                     </td>
                     <td>${release.released_at}</td>
                     <td>${release.author}</td>
-                    <td>${release.description.replace(/\n/g, '<br>')}</td>
+                    <td>${release.description}</td>
                     <td>${actionButton}</td>
                 </tr>
             `);
-        });
-        
-        // Add event listeners for update buttons
-        $('.update-version-btn').on('click', function() {
-            const version = $(this).data('version');
-            const isUpgrade = $(this).data('is-upgrade') === true;
-            
-            if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
-                        (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
-                
-                // Create and submit a form
-                const form = $('<form>', {
-                    'method': 'POST',
-                    'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                    'style': 'display:none;'
-                });
-                
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': '_token',
-                    'value': '{{ csrf_token() }}'
-                }));
-                
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': 'version',
-                    'value': version
-                }));
-                
-                $('body').append(form);
-                form.submit();
-            }
         });
     }
 
@@ -321,41 +312,58 @@ $(document).ready(function() {
     }
 
     function sortTable(column, direction) {
-        // Add table sorting functionality here if needed
+        const tbody = $('#releaseHistory');
+        const rows = tbody.find('tr').get();
+        
+        rows.sort(function(a, b) {
+            let aValue, bValue;
+            
+            if (column === 'version') {
+                aValue = $(a).data('version');
+                bValue = $(b).data('version');
+                return direction === 'asc' ? 
+                    compareVersions(aValue, bValue) : 
+                    compareVersions(bValue, aValue);
+            } else if (column === 'date') {
+                aValue = $(a).data('date');
+                bValue = $(b).data('date');
+                return direction === 'asc' ? aValue - bValue : bValue - aValue;
+            }
+            
+            return 0;
+        });
+        
+        $.each(rows, function(index, row) {
+            tbody.append(row);
+        });
+        
+        // Update sort indicators
+        $('.sortable i').removeClass('fa-sort-up fa-sort-down').addClass('fa-sort');
+        $(`.sortable[data-sort="${column}"] i`)
+            .removeClass('fa-sort')
+            .addClass(direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
     }
 
-    $('#checkUpdatesBtn').click(checkForUpdates);
+    // Check for updates button
+    $('#checkUpdatesBtn').click(function() {
+        checkForUpdates();
+    });
     
-    // Handle updates from buttons in the table
-    $('.update-version-btn').on('click', function() {
+    // Handle update button in modal
+    $(document).on('click', '#doUpdateBtn', function() {
         const version = $(this).data('version');
-        const isUpgrade = $(this).data('is-upgrade') === true;
+        $('#updateVersion').val(version);
+        $('#updateForm').removeClass('d-none').submit();
+    });
+    
+    // Sortable columns
+    $('.sortable').click(function() {
+        const column = $(this).data('sort');
+        const currentDir = $(this).find('i').hasClass('fa-sort-up') ? 'asc' : 
+                         ($(this).find('i').hasClass('fa-sort-down') ? 'desc' : 'none');
+        const newDir = currentDir === 'asc' ? 'desc' : 'asc';
         
-        if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
-                   (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
-            
-            // Create and submit a form
-            const form = $('<form>', {
-                'method': 'POST',
-                'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                'style': 'display:none;'
-            });
-            
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': '_token',
-                'value': '{{ csrf_token() }}'
-            }));
-            
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': 'version',
-                'value': version
-            }));
-            
-            $('body').append(form);
-            form.submit();
-        }
+        sortTable(column, newDir);
     });
 });
 </script>
