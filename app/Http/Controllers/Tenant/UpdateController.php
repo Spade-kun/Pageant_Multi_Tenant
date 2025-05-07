@@ -417,10 +417,21 @@ class UpdateController extends Controller
     protected function downloadRelease($url)
     {
         try {
-            $response = $this->client->get($url, [
+            // First get the download URL from the API
+            $response = $this->client->get($url);
+            $release = json_decode($response->getBody(), true);
+            
+            if (empty($release['zipball_url'])) {
+                throw new \Exception('No download URL found in the release');
+            }
+
+            // Now download the actual zip file
+            $downloadResponse = $this->client->get($release['zipball_url'], [
                 'headers' => [
-                    'Accept' => 'application/octet-stream'
-                ]
+                    'Accept' => 'application/json',
+                    'Authorization' => 'token ' . config('self-update.repository_types.github.private_access_token')
+                ],
+                'allow_redirects' => true
             ]);
 
             $tempPath = storage_path('app/updates');
@@ -429,7 +440,7 @@ class UpdateController extends Controller
             }
 
             $zipPath = $tempPath . '/update.zip';
-            file_put_contents($zipPath, $response->getBody());
+            file_put_contents($zipPath, $downloadResponse->getBody());
 
             return $zipPath;
         } catch (\Exception $e) {
