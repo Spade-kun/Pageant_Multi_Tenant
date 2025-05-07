@@ -90,7 +90,7 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
+                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
@@ -138,7 +138,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST" class="d-none">
+                <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
                     @csrf
                     <button type="submit" class="btn btn-primary">Install Update</button>
                 </form>
@@ -158,7 +158,7 @@ $(document).ready(function() {
         $('#updateForm').addClass('d-none');
         $('#updateModal').modal('show');
 
-        $.get('{{ route("tenant.updates.check", ["slug" => session("tenant_slug")]) }}')
+        $.get('{{ route("tenant.updates.check", ["slug" => request()->route("slug")]) }}')
             .done(function(response) {
                 $('#updateSpinner').addClass('d-none');
                 $('#updateModalContent').removeClass('d-none');
@@ -189,7 +189,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.update', ['slug' => session('tenant_slug')]) }}" method="POST">
+                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 

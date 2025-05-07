@@ -354,6 +354,12 @@ Route::middleware(['auth:tenant'])->group(function () {
             }
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->update($request);
         })->name('tenant.updates.update');
+
+        // Handle direct GET access to the update URL
+        Route::get('/{slug}/updates/update', function($slug) {
+            // Redirect to the updates index page
+            return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+        });
     });
     
     // Logout
