@@ -360,13 +360,14 @@ Route::middleware(['auth:tenant'])->group(function () {
             $updateRequest->replace($request->all());
             
             // Validate the request
-            if (!$updateRequest->authorize() || !$updateRequest->passes()) {
+            try {
+                $validated = $updateRequest->validate();
+                return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest, $slug);
+            } catch (\Illuminate\Validation\ValidationException $e) {
                 return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->withErrors($updateRequest->validator())
+                    ->withErrors($e->validator)
                     ->withInput();
             }
-            
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->update($updateRequest, $slug);
         })->name('tenant.updates.update');
 
         // Success page route
