@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Successful</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .success-container {
+            max-width: 800px;
+            margin: 60px auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: #28a745;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .alert-info {
+            background-color: #e8f4fd;
+            border-color: #bee5eb;
+            text-align: left;
+        }
+
+        .btn-primary {
+            background-color: #3F081C;
+            border-color: #3F081C;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 30px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-container">
+        <div class="header">
+            <h2><i class="fas fa-check-circle mr-2"></i> System Update Successful</h2>
+        </div>
+        <div class="content">
+            <div class="mb-4">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h3>Your system has been successfully updated!</h3>
+                <p class="lead mt-3">Current version: <span class="badge badge-success">Latest Version</span></p>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <h5><i class="fas fa-info-circle mr-2"></i> Update Information</h5>
+                <p>The update has been applied successfully. The following actions have been completed:</p>
+                <ul class="text-left">
+                    <li>System files have been updated</li>
+                    <li>Database migrations have been applied</li>
+                    <li>Cache has been cleared</li>
+                    <li>Composer dependencies have been updated</li>
+                </ul>
+            </div>
+
+            <div class="mt-4">
+                <a href="#" class="btn btn-primary" id="updatesLink">
+                    <i class="fas fa-arrow-left mr-2"></i> Return to Updates Page
+                </a>
+
+                <a href="#" class="btn btn-secondary ml-2" id="dashboardLink">
+                    <i class="fas fa-home mr-2"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Extract the slug from the current URL
+        function getSlug() {
+            const pathParts = window.location.pathname.split('/');
+            // Find the slug part (typically after the domain)
+            if (pathParts.length > 1) {
+                return pathParts[1]; // This should be the slug
+            }
+            return 'tenant'; // Default fallback
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const slug = getSlug();
+
+            // Set links correctly
+            document.getElementById('updatesLink').href = '/' + slug + '/updates';
+            document.getElementById('dashboardLink').href = '/' + slug + '/dashboard';
+
+            // Auto-redirect after 5 seconds
+            setTimeout(function () {
+                window.location.href = '/' + slug + '/updates';
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

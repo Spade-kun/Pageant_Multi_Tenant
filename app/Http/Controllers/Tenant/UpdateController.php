@@ -356,8 +356,8 @@ class UpdateController extends Controller
             // Store success message in session and redirect to the success page
             session()->flash('update_success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
             
-            // Redirect to success page after completion - using direct URL to avoid connection reset
-            return redirect()->to('/' . $slug . '/updates/update-success');
+            // Redirect to the static success page
+            return redirect('/update-success.html');
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);

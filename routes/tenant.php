@@ -362,11 +362,8 @@ Route::middleware(['auth:tenant'])->group(function () {
 
         // Handle direct GET access to the update URL
         Route::get('/{slug}/updates/update', function($slug) {
-            // Simple success page that doesn't require database connection
-            return view('tenant.updates.success', [
-                'slug' => $slug,
-                'currentVersion' => config('self-update.version_installed') ?: 'Latest Version'
-            ]);
+            // Redirect to the static page
+            return redirect('/update-success.html');
         });
     });
     
@@ -382,8 +379,8 @@ Route::get('/{slug}/scores/{id}', [ScoreController::class, 'show'])->name('tenan
 
 // Handle direct GET access to the update URL - outside the middleware for guaranteed access
 Route::get('/{slug}/updates/update-redirect', function($slug) {
-    // Redirect to the updates index page
-    return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+    // Redirect to the static success page
+    return redirect('/update-success.html');
 });
 
 // Special route for handling update success without any database connections
