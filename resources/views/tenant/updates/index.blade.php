@@ -90,15 +90,11 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
-                                                        @csrf
-                                                        <input type="hidden" name="version" value="{{ $release['version'] }}">
-                                                        <button type="submit" 
-                                                                class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
-                                                                onclick="return confirm('Are you sure you want to {{ version_compare($release['version'], $currentVersion, '>') ? 'update to' : 'downgrade to' }} version {{ $release['version'] }}? {{ version_compare($release['version'], $currentVersion, '<') ? 'Downgrading may cause compatibility issues.' : '' }}')">
-                                                            {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
-                                                        </button>
-                                                    </form>
+                                                    <a href="{{ route('tenant.updates.loading', ['slug' => request()->route('slug'), 'version' => $release['version']]) }}" 
+                                                       class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
+                                                       onclick="return confirm('Are you sure you want to {{ version_compare($release['version'], $currentVersion, '>') ? 'update to' : 'downgrade to' }} version {{ $release['version'] }}? {{ version_compare($release['version'], $currentVersion, '<') ? 'Downgrading may cause compatibility issues.' : '' }}')">
+                                                        {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
+                                                    </a>
                                                 @endif
                                             </td>
                                         </tr>
@@ -193,29 +189,7 @@ $(document).ready(function() {
                         // Handle update button click
                         $('#doUpdateBtn').on('click', function() {
                             const version = $(this).data('version');
-                            
-                            // Create and submit a form
-                            const form = $('<form>', {
-                                'method': 'POST',
-                                'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                                'style': 'display:none;'
-                            });
-                            
-                            form.append($('<input>', {
-                                'type': 'hidden',
-                                'name': '_token',
-                                'value': '{{ csrf_token() }}'
-                            }));
-                            
-                            form.append($('<input>', {
-                                'type': 'hidden',
-                                'name': 'version',
-                                'value': version
-                            }));
-                            
-                            $('#updateModal').modal('hide');
-                            $('body').append(form);
-                            form.submit();
+                            window.location.href = '{{ route("tenant.updates.loading", ["slug" => request()->route("slug")]) }}?version=' + version;
                         });
                     } else {
                         $('#updateModalContent').html(`
@@ -284,28 +258,7 @@ $(document).ready(function() {
             
             if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
                         (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
-                
-                // Create and submit a form
-                const form = $('<form>', {
-                    'method': 'POST',
-                    'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                    'style': 'display:none;'
-                });
-                
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': '_token',
-                    'value': '{{ csrf_token() }}'
-                }));
-                
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': 'version',
-                    'value': version
-                }));
-                
-                $('body').append(form);
-                form.submit();
+                window.location.href = '{{ route("tenant.updates.loading", ["slug" => request()->route("slug")]) }}?version=' + version;
             }
         });
     }
@@ -333,28 +286,7 @@ $(document).ready(function() {
         
         if (confirm('Are you sure you want to ' + (isUpgrade ? 'update to' : 'downgrade to') + ' version ' + version + '? ' + 
                    (!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''))) {
-            
-            // Create and submit a form
-            const form = $('<form>', {
-                'method': 'POST',
-                'action': '{{ route("tenant.updates.update", ["slug" => request()->route("slug")]) }}',
-                'style': 'display:none;'
-            });
-            
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': '_token',
-                'value': '{{ csrf_token() }}'
-            }));
-            
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': 'version',
-                'value': version
-            }));
-            
-            $('body').append(form);
-            form.submit();
+            window.location.href = '{{ route("tenant.updates.loading", ["slug" => request()->route("slug")]) }}?version=' + version;
         }
     });
 });

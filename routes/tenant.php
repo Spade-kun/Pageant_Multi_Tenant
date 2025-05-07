@@ -382,16 +382,52 @@ Route::middleware(['auth:tenant'])->group(function () {
             DB::purge('tenant');
             DB::reconnect('tenant');
 
+            // Check for version parameter
+            $version = request()->input('version');
+            if (empty($version)) {
+                // If no version provided, redirect to updates index
+                return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+            }
+            
+            // Show the loading page with the version parameter
+            return view('tenant.updates.update-loading', [
+                'slug' => $slug,
+                'version' => $version
+            ]);
+        })->name('tenant.updates.loading');
+        
+        // Add a separate success page route
+        Route::get('/{slug}/updates/success', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+
             // Get the current version
             $updaterManager = app(\Codedge\Updater\UpdaterManager::class);
             $currentVersion = $updaterManager->source()->getVersionInstalled();
             
-            // Show a success page instead of redirecting
+            // Show the success page
             return view('tenant.updates.success', [
                 'slug' => $slug,
                 'currentVersion' => $currentVersion
             ]);
-        });
+        })->name('tenant.updates.success');
     });
     
     // Logout
