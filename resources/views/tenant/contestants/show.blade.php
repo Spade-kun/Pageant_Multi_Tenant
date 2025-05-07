@@ -82,25 +82,25 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+                        <div class="col-md-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Photo</h6>
                 </div>
                 <div class="card-body text-center">
-                    @if($contestant->photo)
-                        <img src="{{ asset('storage/' . $contestant->photo) }}" 
-                             alt="{{ $contestant->name }}" 
+                                @if($contestant->photo)
+                                    <img src="{{ asset('storage/' . $contestant->photo) }}" 
+                                         alt="{{ $contestant->name }}" 
                              class="img-fluid rounded shadow-sm"
-                             style="max-height: 300px; width: auto;">
-                    @else
-                        <div class="text-center p-5 bg-light rounded shadow-sm">
+                                         style="max-height: 300px; width: auto;">
+                                @else
+                                    <div class="text-center p-5 bg-light rounded shadow-sm">
                             <i class="fas fa-user fa-5x text-secondary"></i>
-                            <p class="mt-3 text-muted">No photo available</p>
+                                        <p class="mt-3 text-muted">No photo available</p>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                    @endif
-                </div>
-            </div>
 
             <div class="card shadow mb-4">
                 <div class="card-header py-3">

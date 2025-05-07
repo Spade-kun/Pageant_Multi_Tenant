@@ -118,7 +118,7 @@ class UpdateController extends Controller
         }
     }
 
-    public function update($request)
+    public function update(UpdateSystemRequest $request)
     {
         // Prevent timeout for long-running update
         set_time_limit(0);
