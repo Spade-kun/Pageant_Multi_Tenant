@@ -334,7 +334,8 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        Route::post('/{slug}/updates/update', function($slug, \Illuminate\Http\Request $request) {
+        // Replace the update route with a direct process route that goes straight to the controller
+        Route::post('/{slug}/updates/process', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -379,7 +380,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             
             // Call the controller method with the custom request
             return $controller->update($customRequest);
-        })->name('tenant.updates.update');
+        })->name('tenant.updates.process');
         
         // Add a specific route for the update success page
         Route::get('/{slug}/updates/success', function($slug) {
