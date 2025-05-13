@@ -417,14 +417,8 @@ Route::middleware(['auth:tenant'])->group(function () {
     
     // Handle direct GET access to the update URL - place outside middleware to ensure it's always accessible
     Route::get('/{slug}/updates/update', function($slug) {
-        // Check if we have update success information in the session
-        if (session()->has('update_success')) {
-            // Redirect to the updates success page
-            return redirect()->route('tenant.updates.success', ['slug' => $slug]);
-        }
-        
-        // Otherwise redirect to the updates index page
-        return redirect()->route('tenant.updates.index', ['slug' => $slug]);
+        // Always redirect to the success page if there was an update attempt
+        return redirect()->route('tenant.updates.success', ['slug' => $slug]);
     });
     
     // Logout

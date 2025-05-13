@@ -384,66 +384,46 @@ class UpdateController extends Controller
         
         $dir = opendir($source);
         while (($file = readdir($dir)) !== false) {
-            if ($file != '.' && $file != '..') {
+            if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
                 $sourcePath = $source . DIRECTORY_SEPARATOR . $file;
                 $destPath = $destination . DIRECTORY_SEPARATOR . $file;
-                $relativePath = ltrim(str_replace($source, '', $sourcePath), DIRECTORY_SEPARATOR);
                 
-                // Check if file should be excluded
-                $skip = false;
-                foreach ($exclude as $ex) {
-                    // Handle wildcard patterns
-                    if (strpos($ex, '*') !== false) {
-                        $pattern = str_replace('', '.', $ex);
-                        if (preg_match('/' . $pattern . '/', $file) || preg_match('/' . $pattern . '/', $relativePath)) {
-                            $this->logDebug("Skipping excluded file (wildcard): {$file}", true);
-                            $skip = true;
-                            break;
-                        }
-                    } 
-                    // Direct match against the filename
-                    else if ($file === $ex || stripos($relativePath, $ex) === 0) {
-                        $this->logDebug("Skipping excluded file (direct): {$file}", true);
-                        $skip = true;
-                        break;
-                    }
+                // Skip log files
+                if ($this->isLogFile($sourcePath)) {
+                    $this->logDebug("Skipping log file: {$file}", true);
+                    continue;
                 }
                 
-                if (!$skip) {
-                    if (is_dir($sourcePath)) {
-                        $this->copyUpdateFiles($sourcePath, $destPath, $exclude);
-                    } else {
-                        // Special handling for artisan file
-                        if ($file === 'artisan') {
-                            $this->logDebug("Copying artisan file", true);
-                            if (!@copy($sourcePath, $destPath)) {
-                                $this->logDebug("Failed to copy artisan file", true, 'error');
-                            } else {
-                                // Make artisan file executable
-                                chmod($destPath, 0755);
-                                $this->logDebug("Made artisan file executable", true);
-                            }
+                if (is_dir($sourcePath)) {
+                    $this->copyUpdateFiles($sourcePath, $destPath, $exclude);
+                } else {
+                    // Special handling for artisan file
+                    if ($file === 'artisan') {
+                        $this->logDebug("Copying artisan file", true);
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy artisan file", true, 'error');
+                            return false;
                         }
-                        // Special handling for run-servers.php
-                        else if ($file === 'run-servers.php') {
-                            $this->logDebug("Copying run-servers.php", true);
-                            if (!@copy($sourcePath, $destPath)) {
-                                $this->logDebug("Failed to copy run-servers.php", true, 'error');
-                            } else {
-                                // Make run-servers.php executable
-                                chmod($destPath, 0755);
-                                $this->logDebug("Made run-servers.php executable", true);
-                            }
+                        // Make artisan file executable
+                        chmod($destPath, 0755);
+                        $this->logDebug("Made artisan file executable", true);
+                    }
+                    // Special handling for run-servers.php
+                    else if ($file === 'run-servers.php') {
+                        $this->logDebug("Copying run-servers.php", true);
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy run-servers.php", true, 'error');
+                            return false;
                         }
-                        // Regular file copy
-                        else {
-                            try {
-                                if (!@copy($sourcePath, $destPath)) {
-                                    $this->logDebug("Failed to copy file: {$file} - " . error_get_last()['message'], true, 'error');
-                                }
-                            } catch (\Exception $e) {
-                                $this->logDebug("Exception copying file {$file}: " . $e->getMessage(), true, 'error');
-                            }
+                        // Make run-servers.php executable
+                        chmod($destPath, 0755);
+                        $this->logDebug("Made run-servers.php executable", true);
+                    }
+                    // Regular file copy
+                    else {
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy file: {$file}", true, 'error');
+                            return false;
                         }
                     }
                 }
@@ -451,6 +431,48 @@ class UpdateController extends Controller
         }
         closedir($dir);
         return true;
+    }
+    
+    /**
+     * Check if a file is a log file that should be skipped during copy
+     *
+     * @param string $filePath The path to the file to check
+     * @return bool Whether the file is a log file
+     */
+    protected function isLogFile($filePath)
+    {
+        // Check file extension
+        if (preg_match('/\.log$/i', $filePath)) {
+            return true;
+        }
+        
+        // Check for common log file names
+        $logFileNames = [
+            'laravel.log',
+            'admin-server.log',
+            'tenant-server.log',
+            'php_errors.log',
+            'error.log',
+            'access.log',
+            'debug.log'
+        ];
+        
+        $fileName = basename($filePath);
+        if (in_array($fileName, $logFileNames)) {
+            return true;
+        }
+        
+        // Check if file is in a logs directory
+        if (strpos($filePath, DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR) !== false) {
+            return true;
+        }
+        
+        // Check if file is in storage/logs
+        if (strpos($filePath, DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs') !== false) {
+            return true;
+        }
+        
+        return false;
     }
 
     protected function getReleases()
@@ -643,19 +665,22 @@ class UpdateController extends Controller
     public function success()
     {
         try {
+            // If we have update information in the session, use it
             if (session()->has('update_success')) {
                 $version = session('update_version');
                 $migrationStatus = session('migration_status');
-                
-                return view('tenant.updates.success', [
-                    'version' => $version,
-                    'migrationStatus' => $migrationStatus,
-                    'slug' => $this->getSlug()
-                ]);
+            } else {
+                // Otherwise, just show a generic success message
+                // Get the current version from the updater
+                $version = $this->updater->source()->getVersionInstalled();
+                $migrationStatus = 'No detailed migration information available.';
             }
             
-            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                ->with('info', 'No update information available.');
+            return view('tenant.updates.success', [
+                'version' => $version,
+                'migrationStatus' => $migrationStatus,
+                'slug' => $this->getSlug()
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error displaying update success page: ' . $e->getMessage());
             return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
