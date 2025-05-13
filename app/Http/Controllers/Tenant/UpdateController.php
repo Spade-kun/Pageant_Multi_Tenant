@@ -352,13 +352,18 @@ class UpdateController extends Controller
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // Set success information variables
-            $version = $targetVersion;
-            $migrationStatus = 'Central database and tenant databases have been migrated.';
-            $slug = $this->getSlug();
+            // Store the update details in the session for the success page
+            session()->flash('update_success', true);
+            session()->flash('update_version', $targetVersion);
+            session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Render the success view directly
-            return view('tenant.updates.success', compact('version', 'migrationStatus', 'slug'));
+            // Force a redirect to the success page using a direct URL
+            // This ensures we avoid middleware issues
+            $slug = $this->getSlug();
+            $successUrl = url('/' . $slug . '/updates/success');
+            
+            // Use a redirect response to ensure proper navigation
+            return redirect($successUrl);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
@@ -668,19 +673,32 @@ class UpdateController extends Controller
      */
     public function success()
     {
-        // Get the version from session flash data
-        $version = session('update_version', 'Unknown');
-        $migrationStatus = session('migration_status', 'Update completed');
-        $slug = $this->getSlug();
-
-        // Clear any old flash data
-        session()->forget(['update_version', 'migration_status']);
-
-        // Return the success view with all required data
-        return view('tenant.updates.success', [
-            'version' => $version,
-            'migrationStatus' => $migrationStatus,
-            'slug' => $slug
-        ]);
+        // Get the data needed for the success page
+        try {
+            // Try to get version from session or fallback to current installed version
+            $version = session('update_version') ?? $this->updater->source()->getVersionInstalled();
+            
+            // Get migration status or set default
+            $migrationStatus = session('migration_status') ?? 'Update process completed successfully.';
+            
+            // Get the slug
+            $slug = $this->getSlug();
+            
+            // Return the success view with all required data
+            return view('tenant.updates.success', [
+                'version' => $version,
+                'migrationStatus' => $migrationStatus,
+                'slug' => $slug
+            ]);
+        } catch (\Exception $e) {
+            // Log the error but still show the success page with default values
+            \Log::error('Error in update success page: ' . $e->getMessage());
+            
+            return view('tenant.updates.success', [
+                'version' => 'Unknown',
+                'migrationStatus' => 'Update completed, but details are unavailable.',
+                'slug' => $this->getSlug()
+            ]);
+        }
     }
 } 
