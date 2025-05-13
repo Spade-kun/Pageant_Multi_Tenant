@@ -30,7 +30,7 @@ class MigrateAllTenants extends Command
     {
         $tenants = Tenant::all();
         $force = $this->option('force');
-        
+
         $this->info('Starting migrations for ' . count($tenants) . ' tenant databases');
         $this->newLine();
         
@@ -39,7 +39,7 @@ class MigrateAllTenants extends Command
         
         $errors = [];
         $successful = 0;
-        
+
         foreach ($tenants as $tenant) {
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
             
@@ -88,7 +88,7 @@ class MigrateAllTenants extends Command
             
             $bar->advance();
         }
-        
+
         $bar->finish();
         $this->newLine(2);
         

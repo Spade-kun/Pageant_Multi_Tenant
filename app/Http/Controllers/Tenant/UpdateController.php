@@ -428,10 +428,10 @@ class UpdateController extends Controller
                         if (!copy($sourcePath, $destPath)) {
                             $this->logDebug("Failed to copy file: {$file}", true, 'error');
                             return false;
-                        }
                     }
                 }
             }
+        }
         }
         closedir($dir);
         return true;
@@ -668,32 +668,19 @@ class UpdateController extends Controller
      */
     public function success()
     {
-        try {
-            // Get the current version from the updater
-            $version = session('update_version');
-            if (empty($version)) {
-                $version = $this->updater->source()->getVersionInstalled();
-            }
+        // Get the version from session flash data
+        $version = session('update_version', 'Unknown');
+        $migrationStatus = session('migration_status', 'Update completed');
+        $slug = $this->getSlug();
 
-            // Get migration status from session or set default
-            $migrationStatus = session('migration_status', 'System has been updated successfully.');
+        // Clear any old flash data
+        session()->forget(['update_version', 'migration_status']);
 
-            // Get the slug from the route or session
-            $slug = request()->route('slug') ?? session('tenant_slug');
-
-            if (empty($slug)) {
-                throw new \Exception('Tenant slug not found.');
-            }
-
-            return view('tenant.updates.success', [
-                'version' => $version,
-                'migrationStatus' => $migrationStatus,
-                'slug' => $slug
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error displaying update success page: ' . $e->getMessage());
-            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                ->with('error', 'Error displaying success page: ' . $e->getMessage());
-        }
+        // Return the success view with all required data
+        return view('tenant.updates.success', [
+            'version' => $version,
+            'migrationStatus' => $migrationStatus,
+            'slug' => $slug
+        ]);
     }
 } 

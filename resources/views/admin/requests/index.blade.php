@@ -78,33 +78,33 @@
                                                     <li>
                                                         <a class="dropdown-item" href="{{ route('admin.requests.show', $request) }}">
                                                             <i class="fas fa-eye text-info"></i> View Details
-                                                        </a>
+                                            </a>
                                                     </li>
                                                     <li>
                                                         <a class="dropdown-item" href="{{ route('admin.requests.change-plan', $request->tenant_id) }}">
                                                             <i class="fas fa-exchange-alt text-warning"></i> Change Plan
-                                                        </a>
+                                            </a>
                                                     </li>
-                                                    @if($request->status === 'pending')
+                                            @if($request->status === 'pending')
                                                         <li>
                                                             <form action="{{ route('admin.requests.approve', $request) }}" method="POST" class="dropdown-item-form">
-                                                                @csrf
-                                                                @method('PUT')
+                                                    @csrf
+                                                    @method('PUT')
                                                                 <button type="submit" class="dropdown-item">
                                                                     <i class="fas fa-check text-success"></i> Approve Request
-                                                                </button>
-                                                            </form>
+                                                    </button>
+                                                </form>
                                                         </li>
                                                         <li>
                                                             <form action="{{ route('admin.requests.reject', $request) }}" method="POST" class="dropdown-item-form">
-                                                                @csrf
-                                                                @method('PUT')
+                                                    @csrf
+                                                    @method('PUT')
                                                                 <button type="submit" class="dropdown-item">
                                                                     <i class="fas fa-times text-danger"></i> Reject Request
-                                                                </button>
-                                                            </form>
+                                                    </button>
+                                                </form>
                                                         </li>
-                                                    @endif
+                                            @endif
                                                 </ul>
                                             </div>
                                         </td>
