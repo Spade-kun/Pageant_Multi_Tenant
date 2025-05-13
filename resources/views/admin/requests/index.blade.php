@@ -70,28 +70,43 @@
                                         </td>
                                         <td>{{ $request->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            <a href="{{ route('admin.requests.show', $request) }}" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('admin.requests.change-plan', $request->tenant_id) }}" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-exchange-alt"></i> Change Plan
-                                            </a>
-                                            @if($request->status === 'pending')
-                                                <form action="{{ route('admin.requests.approve', $request) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this request?')">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                <form action="{{ route('admin.requests.reject', $request) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this request?')">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="actionDropdown{{ $request->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="actionDropdown{{ $request->id }}">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.requests.show', $request) }}">
+                                                            <i class="fas fa-eye text-info"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.requests.change-plan', $request->tenant_id) }}">
+                                                            <i class="fas fa-exchange-alt text-warning"></i> Change Plan
+                                                        </a>
+                                                    </li>
+                                                    @if($request->status === 'pending')
+                                                        <li>
+                                                            <form action="{{ route('admin.requests.approve', $request) }}" method="POST" class="dropdown-item-form">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-check text-success"></i> Approve Request
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ route('admin.requests.reject', $request) }}" method="POST" class="dropdown-item-form">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-times text-danger"></i> Reject Request
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -103,4 +118,50 @@
         </div>
     </div>
 </div>
+
+<style>
+.dropdown-item-form {
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-item-form .dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    white-space: nowrap;
+}
+
+.dropdown-item-form .dropdown-item:hover, 
+.dropdown-item-form .dropdown-item:focus {
+    color: #16181b;
+    text-decoration: none;
+    background-color: #f8f9fa;
+}
+</style>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Add confirmation dialogs for forms
+    $('.dropdown-item-form').on('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const buttonText = $(this).find('button').text().trim();
+        
+        let confirmMessage = `Are you sure you want to ${buttonText.toLowerCase()}?`;
+        
+        if(confirm(confirmMessage)) {
+            form.submit();
+        }
+    });
+});
+</script>
+@endpush
 @endsection 

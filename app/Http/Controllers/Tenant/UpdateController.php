@@ -295,13 +295,14 @@ class UpdateController extends Controller
 
             // Clear caches
             try {
+                $this->logDebug("Clearing application caches", $debugMode);
                 \Artisan::call('config:clear');
                 \Artisan::call('cache:clear');
                 \Artisan::call('view:clear');
                 \Artisan::call('route:clear');
-                \Log::info('Cleared application caches successfully.');
+                $this->logDebug("Application caches cleared successfully", $debugMode);
             } catch (\Exception $e) {
-                \Log::warning('Error clearing caches: ' . $e->getMessage());
+                $this->logDebug("Error clearing caches: " . $e->getMessage(), $debugMode, 'warning');
             }
 
             // Run composer install --no-dev
@@ -309,30 +310,47 @@ class UpdateController extends Controller
             $composerReturn = null;
             
             try {
+                $this->logDebug("Running composer install", $debugMode);
                 exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
                 if ($composerReturn !== 0) {
-                    \Log::warning('Composer install returned non-zero exit code: ' . $composerReturn);
-                    \Log::warning('Composer output: ' . implode("\n", $composerOutput));
+                    $this->logDebug("Composer install returned non-zero exit code: " . $composerReturn, $debugMode, 'warning');
+                    $this->logDebug("Composer output: " . implode("\n", $composerOutput), $debugMode, 'warning');
                 } else {
-                    \Log::info('Composer install completed successfully.');
+                    $this->logDebug("Composer install completed successfully", $debugMode);
                 }
             } catch (\Exception $e) {
-                \Log::warning('Error running composer: ' . $e->getMessage());
+                $this->logDebug("Error running composer: " . $e->getMessage(), $debugMode, 'warning');
             }
             
-            // Run php artisan migrate
+            // Run php artisan migrate for central database
             try {
-                \Artisan::call('migrate', ['--force' => true]);
-                \Log::info('Database migrations completed successfully.');
+                $this->logDebug("Running migrations for central database", $debugMode);
+                $migrateOutput = \Artisan::call('migrate', ['--force' => true]);
+                $this->logDebug("Central database migrations completed with exit code: {$migrateOutput}", $debugMode);
             } catch (\Exception $e) {
-                \Log::warning('Migration error: ' . $e->getMessage());
+                $this->logDebug("Central database migration error: " . $e->getMessage(), $debugMode, 'error');
+            }
+            
+            // Run migrations for all tenant databases
+            try {
+                $this->logDebug("Running migrations for all tenant databases", $debugMode);
+                $tenantMigrateOutput = \Artisan::call('migrate:all-tenants', ['--force' => true]);
+                $this->logDebug("Tenant migrations completed with exit code: {$tenantMigrateOutput}", $debugMode);
+                
+                if ($tenantMigrateOutput !== 0) {
+                    $this->logDebug("Some tenant migrations failed. Check the log for details.", $debugMode, 'warning');
+                }
+            } catch (\Exception $e) {
+                $this->logDebug("Tenant migrations error: " . $e->getMessage(), $debugMode, 'error');
             }
 
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
             // Store the update details in the session for the success page
-            session()->flash('update_success', 'System successfully updated to version ' . $targetVersion);
+            session()->flash('update_success', true);
+            session()->flash('update_version', $targetVersion);
+            session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
             // Redirect to success page rather than the index page
             return redirect()->route('tenant.updates.success', ['slug' => $this->getSlug()]);
@@ -598,13 +616,21 @@ class UpdateController extends Controller
     public function success()
     {
         try {
-            $currentVersion = $this->updater->source()->getVersionInstalled();
-            return view('tenant.updates.success', [
-                'slug' => $this->getSlug(),
-                'currentVersion' => $currentVersion
-            ]);
+            if (session()->has('update_success')) {
+                $version = session('update_version');
+                $migrationStatus = session('migration_status');
+                
+                return view('tenant.updates.success', [
+                    'version' => $version,
+                    'migrationStatus' => $migrationStatus,
+                    'slug' => $this->getSlug()
+                ]);
+            }
+            
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                ->with('info', 'No update information available.');
         } catch (\Exception $e) {
-            \Log::error('Error showing success page: ' . $e->getMessage());
+            \Log::error('Error displaying update success page: ' . $e->getMessage());
             return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('error', 'Error displaying success page: ' . $e->getMessage());
         }

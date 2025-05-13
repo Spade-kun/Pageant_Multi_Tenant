@@ -1,10 +1,8 @@
 @extends('layouts.DashboardTemplate')
 
 @section('content')
-<div class="page-inner">
-    <div class="page-header">
-        <h4 class="page-title">Tenant Management</h4>
-    </div>
+<div class="container-fluid">
+  
     
     <div class="row">
         <div class="col-md-12">

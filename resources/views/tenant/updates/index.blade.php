@@ -90,12 +90,12 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
+                                                    <form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
                                                                 class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
-                                                                onclick="return confirm('Are you sure you want to {{ version_compare($release['version'], $currentVersion, '>') ? 'update to' : 'downgrade to' }} version {{ $release['version'] }}? {{ version_compare($release['version'], $currentVersion, '<') ? 'Downgrading may cause compatibility issues.' : '' }}')">
+                                                                onclick="return showUpdateConfirmation('{{ $release['version'] }}', {{ version_compare($release['version'], $currentVersion, '>') }})">
                                                             {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
                                                         </button>
                                                     </form>
@@ -135,11 +135,28 @@
                     </div>
                     <p class="mt-2">Checking for updates...</p>
                 </div>
+                
+                <div id="updateProcessInfo" class="mt-3 d-none">
+                    <h6>Update Process Information</h6>
+                    <ol class="pl-3">
+                        <li>Download and extract the update package</li>
+                        <li>Create a backup of your current system</li>
+                        <li>Overwrite files with the new version</li>
+                        <li>Run database migrations for the central database</li>
+                        <li>Run database migrations for all tenant databases</li>
+                        <li>Clear application caches</li>
+                        <li>Update the system version</li>
+                    </ol>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> This process may take several minutes. Please do not close your browser.
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <form id="updateForm" action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
                     @csrf
+                    <input type="hidden" name="version" id="updateVersion">
                     <button type="submit" class="btn btn-primary">Install Update</button>
                 </form>
             </div>
@@ -155,6 +172,7 @@ $(document).ready(function() {
     function checkForUpdates() {
         $('#updateSpinner').removeClass('d-none');
         $('#updateModalContent').addClass('d-none');
+        $('#updateProcessInfo').addClass('d-none');
         $('#updateForm').addClass('d-none');
         $('#updateModal').modal('show');
 
@@ -189,12 +207,12 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST">
+                `<form action="{{ route('tenant.updates.update', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 
                             class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'}"
-                            onclick="return confirm('Are you sure you want to ${isUpgrade ? 'update to' : 'downgrade to'} version ${release.version}? ${!isUpgrade ? 'Downgrading may cause compatibility issues.' : ''}')">
+                            onclick="return showUpdateConfirmation('${release.version}', ${isUpgrade})">
                         ${isUpgrade ? 'Update' : 'Downgrade'}
                     </button>
                 </form>`;
@@ -207,7 +225,7 @@ $(document).ready(function() {
                     </td>
                     <td>${release.released_at}</td>
                     <td>${release.author}</td>
-                    <td>${release.description}</td>
+                    <td>${release.description.replace(/\n/g, '<br>')}</td>
                     <td>${actionButton}</td>
                 </tr>
             `);
@@ -223,8 +241,31 @@ $(document).ready(function() {
         if (a2 !== b2) return a2 - b2;
         return a3 - b3;
     }
+    
+    function showUpdateConfirmation(version, isUpgrade) {
+        $('#updateVersion').val(version);
+        $('#updateForm').removeClass('d-none');
+        $('#updateProcessInfo').removeClass('d-none');
+        $('#updateModalContent').html(`
+            <div class="alert alert-${isUpgrade ? 'info' : 'warning'}">
+                <h5>Are you sure you want to ${isUpgrade ? 'update' : 'downgrade'} to version ${version}?</h5>
+                <p>This will ${isUpgrade ? 'update' : 'downgrade'} your system and run database migrations for both central and tenant databases.</p>
+                ${!isUpgrade ? '<p class="text-danger"><strong>WARNING:</strong> Downgrading may cause compatibility issues with your data!</p>' : ''}
+            </div>
+        `);
+        $('#updateModal').modal('show');
+        return false;
+    }
 
     $('#checkUpdatesBtn').click(checkForUpdates);
+    
+    // Add click handlers for update buttons in the table
+    $(document).on('click', '[data-update-version]', function(e) {
+        e.preventDefault();
+        const version = $(this).data('update-version');
+        const isUpgrade = $(this).data('is-upgrade') === 'true';
+        showUpdateConfirmation(version, isUpgrade);
+    });
 });
 </script>
 @endpush 

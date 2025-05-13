@@ -5,46 +5,53 @@
 @section('content')
 <div class="content">
     <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="card-title mb-0"><i class="fas fa-check-circle mr-2"></i> System Update Successful</h4>
+                    <div class="card-header">
+                        <h4 class="card-title">System Update Successful</h4>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="mb-4">
-                            <div class="success-icon mb-3">
-                                <i class="fas fa-check-circle fa-5x text-success"></i>
-                            </div>
-                            <h3>Your system has been successfully updated!</h3>
-                            <p class="lead">Current version: <span class="badge badge-success">{{ $currentVersion }}</span></p>
-                            
-                            @if(session('update_success'))
-                            <div class="alert alert-success mt-3">
-                                {{ session('update_success') }}
-                            </div>
-                            @endif
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle"></i> Your system has been successfully updated to version {{ $version }}</h5>
+                            <p>The update process has completed and your system is now running the latest version.</p>
                         </div>
 
-                        <div class="alert alert-info">
-                            <h5><i class="fas fa-info-circle mr-2"></i> Update Information</h5>
-                            <p>The update has been applied successfully. The following actions have been completed:</p>
-                            <ul class="text-left">
-                                <li>System files have been updated</li>
-                                <li>Database migrations have been applied</li>
-                                <li>Cache has been cleared</li>
-                                <li>Composer dependencies have been updated</li>
-                            </ul>
-                        </div>
-
-                        <div class="mt-4">
-                            <a href="{{ url('/'.$slug.'/updates') }}" class="btn btn-primary">
-                                <i class="fas fa-arrow-left mr-2"></i> Return to Updates Page
-                            </a>
-                            
-                            <a href="{{ url('/'.$slug.'/dashboard') }}" class="btn btn-secondary ml-2">
-                                <i class="fas fa-home mr-2"></i> Go to Dashboard
-                            </a>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card card-outline card-primary">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Update Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Version:</strong> {{ $version }}</p>
+                                        <p><strong>Date:</strong> {{ now()->format('F d, Y h:i A') }}</p>
+                                        <p><strong>Migration Status:</strong> {{ $migrationStatus }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card card-outline card-info">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Next Steps</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="fa-ul">
+                                            <li><span class="fa-li"><i class="fas fa-check"></i></span>Refresh your browser to load any updated assets</li>
+                                            <li><span class="fa-li"><i class="fas fa-check"></i></span>Check that all features are working correctly</li>
+                                            <li><span class="fa-li"><i class="fas fa-check"></i></span>Review any new features or changes</li>
+                                        </ul>
+                                        <div class="mt-3">
+                                            <a href="{{ route('tenant.dashboard', ['slug' => $slug]) }}" class="btn btn-primary">
+                                                <i class="fas fa-home"></i> Go to Dashboard
+                                            </a>
+                                            <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" class="btn btn-info">
+                                                <i class="fas fa-history"></i> View Update History
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -52,29 +59,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .success-icon {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.1);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-</style>
-
-<script>
-// Auto-redirect after 5 seconds
-setTimeout(function() {
-    window.location.href = "{{ url('/'.$slug.'/updates') }}";
-}, 5000);
-</script>
 @endsection 
