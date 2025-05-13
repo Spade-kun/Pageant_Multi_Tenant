@@ -334,8 +334,8 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        // Direct POST to success page with update processing
-        Route::post('/{slug}/updates/success', function($slug, \Illuminate\Http\Request $request) {
+        // Direct update route that returns success view
+        Route::post('/{slug}/updates', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -380,41 +380,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             
             // Call the controller method with the custom request
             return $controller->update($customRequest);
-        })->name('tenant.updates.success.post');
-        
-        // Success page display route
-        Route::get('/{slug}/updates/success', function($slug) {
-            // Set up tenant database connection
-            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-            Config::set('database.connections.tenant', [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $databaseName,
-                'username' => env('DB_USERNAME', 'forge'),
-                'password' => env('DB_PASSWORD', ''),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'prefix_indexes' => true,
-                'strict' => true,
-                'engine' => null,
-            ]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-            
-            if (auth()->guard('tenant')->user()->role !== 'owner') {
-                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
-            }
-            
-            // Set the specific tenant slug in the session
-            session(['tenant_slug' => $slug]);
-            
-            // Get the controller instance and call success method
-            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
-            return $controller->success();
-        })->name('tenant.updates.success');
+        })->name('tenant.updates.process');
     });
     
     // Logout

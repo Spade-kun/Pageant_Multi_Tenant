@@ -357,8 +357,12 @@ class UpdateController extends Controller
             session()->flash('update_version', $targetVersion);
             session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Process is complete, render the success view directly without a redirect
-            return $this->success();
+            // After successful update, return the success view directly
+            return view('tenant.updates.success', [
+                'version' => $targetVersion,
+                'migrationStatus' => 'Central database and tenant databases have been migrated.',
+                'slug' => $this->getSlug()
+            ]);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
