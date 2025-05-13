@@ -254,8 +254,12 @@ class UpdateController extends Controller
                     foreach ($exclude as $ex) {
                         // Handle wildcard patterns
                         if (strpos($ex, '*') !== false) {
-                            $pattern = str_replace('*', '.*', $ex);
-                            if (preg_match('/' . $pattern . '/', $relativePath)) {
+                            // Escape special regex characters before replacing the asterisk
+                            $pattern = preg_quote($ex, '/');
+                            // Replace escaped asterisk with regex pattern
+                            $pattern = str_replace('\\*', '.*', $pattern);
+                            // Add proper delimiters and check
+                            if (preg_match('/^' . $pattern . '$/', $relativePath)) {
                                 $skip = true;
                                 break;
                             }

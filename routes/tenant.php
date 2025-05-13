@@ -415,12 +415,6 @@ Route::middleware(['auth:tenant'])->group(function () {
         })->name('tenant.updates.success');
     });
     
-    // Handle direct GET access to the update URL - place outside middleware to ensure it's always accessible
-    Route::get('/{slug}/updates/update', function($slug) {
-        // Always redirect to the success page if there was an update attempt
-        return redirect()->route('tenant.updates.success', ['slug' => $slug]);
-    });
-    
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
 });
