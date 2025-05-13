@@ -357,12 +357,8 @@ class UpdateController extends Controller
             session()->flash('update_version', $targetVersion);
             session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Get the slug for direct redirect
-            $slug = $this->getSlug();
-            
-            // Use a direct URL to bypass the update route
-            $successUrl = url('/' . $slug . '/updates/success');
-            return redirect($successUrl);
+            // Process is complete, render the success view directly without a redirect
+            return $this->success();
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
