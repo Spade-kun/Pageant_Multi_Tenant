@@ -46,8 +46,8 @@
                                                     <i class="fas fa-database mr-2"></i> {{ $migrationStatus }}
                                                 </div>
                                             </li>
-                                        </ul>
-                                    </div>
+                            </ul>
+                        </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -75,7 +75,7 @@
                                         <div class="mt-3 text-center">
                                             <a href="{{ route('tenant.dashboard', ['slug' => $slug]) }}" class="btn btn-primary btn-lg mr-2">
                                                 <i class="fas fa-home"></i> Go to Dashboard
-                                            </a>
+                            </a>
                                             <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" class="btn btn-info btn-lg">
                                                 <i class="fas fa-history"></i> View Update History
                                             </a>
@@ -99,10 +99,10 @@
     }
     .card-outline {
         border-top: 3px solid;
-    }
+        }
     .card-outline.card-primary {
         border-top-color: #007bff;
-    }
+        }
     .card-outline.card-info {
         border-top-color: #17a2b8;
     }

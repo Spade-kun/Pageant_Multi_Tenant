@@ -357,6 +357,9 @@ Route::middleware(['auth:tenant'])->group(function () {
             DB::reconnect('tenant');
 
             if (auth()->guard('tenant')->user()->role !== 'owner') {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['error' => 'Only tenant owners can access system updates.'], 403);
+                }
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
@@ -370,6 +373,9 @@ Route::middleware(['auth:tenant'])->group(function () {
             $version = $request->input('version');
             
             if (empty($version)) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['error' => 'No version was specified for the update.'], 400);
+                }
                 return redirect()->route('tenant.updates.index', ['slug' => $slug])
                     ->with('error', 'No version was specified for the update.');
             }
@@ -377,6 +383,7 @@ Route::middleware(['auth:tenant'])->group(function () {
             // Create a custom request to bypass the type-hinting
             $customRequest = new \Illuminate\Http\Request();
             $customRequest->merge(['version' => $version]);
+            $customRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
             
             // Call the controller method with the custom request
             return $controller->update($customRequest);

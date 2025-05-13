@@ -357,18 +357,34 @@ class UpdateController extends Controller
             session()->flash('update_version', $targetVersion);
             session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Force a redirect to the success page using a direct URL
-            // This ensures we avoid middleware issues
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Update completed successfully',
+                    'version' => $targetVersion,
+                    'redirect' => url('/' . $this->getSlug() . '/updates/success')
+                ]);
+            }
+            
+            // If not AJAX, redirect to success page
             $slug = $this->getSlug();
             $successUrl = url('/' . $slug . '/updates/success');
-            
-            // Use a redirect response to ensure proper navigation
             return redirect($successUrl);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
             \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Update failed: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }

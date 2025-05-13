@@ -2,6 +2,10 @@
 
 @section('title', 'System Updates')
 
+@section('head')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
+
 @section('content')
 <div class="content">
     <div class="container-fluid">
@@ -90,12 +94,12 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline update-form">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
-                                                        <button type="submit" 
+                                                        <button type="button" 
                                                                 class="btn btn-sm {{ version_compare($release['version'], $currentVersion, '>') ? 'btn-primary' : 'btn-warning' }}"
-                                                                onclick="return showUpdateConfirmation('{{ $release['version'] }}', {{ version_compare($release['version'], $currentVersion, '>') }})">
+                                                                onclick="confirmUpdate('{{ $release['version'] }}', {{ version_compare($release['version'], $currentVersion, '>') }})">
                                                             {{ version_compare($release['version'], $currentVersion, '>') ? 'Update' : 'Downgrade' }}
                                                         </button>
                                                     </form>
@@ -154,11 +158,27 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
-                    @csrf
-                    <input type="hidden" name="version" id="updateVersion">
-                    <button type="submit" class="btn btn-primary">Install Update</button>
-                </form>
+                <button type="button" id="startUpdateBtn" class="btn btn-primary d-none">Install Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1" role="dialog" aria-labelledby="updateProgressModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateProgressModalLabel">Update in Progress</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Updating...</span>
+                    </div>
+                </div>
+                <h5 id="updateProgressText">Your system is being updated, please do not close this window.</h5>
+                <p class="text-muted">This may take several minutes depending on the size of the update.</p>
             </div>
         </div>
     </div>
@@ -173,7 +193,7 @@ $(document).ready(function() {
         $('#updateSpinner').removeClass('d-none');
         $('#updateModalContent').addClass('d-none');
         $('#updateProcessInfo').addClass('d-none');
-        $('#updateForm').addClass('d-none');
+        $('#startUpdateBtn').addClass('d-none');
         $('#updateModal').modal('show');
 
         $.get('{{ route("tenant.updates.check", ["slug" => request()->route("slug")]) }}')
@@ -207,12 +227,12 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline update-form">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
-                    <button type="submit" 
+                    <button type="button" 
                             class="btn btn-sm ${isUpgrade ? 'btn-primary' : 'btn-warning'}"
-                            onclick="return showUpdateConfirmation('${release.version}', ${isUpgrade})">
+                            onclick="confirmUpdate('${release.version}', ${isUpgrade})">
                         ${isUpgrade ? 'Update' : 'Downgrade'}
                     </button>
                 </form>`;
@@ -242,9 +262,8 @@ $(document).ready(function() {
         return a3 - b3;
     }
     
-    function showUpdateConfirmation(version, isUpgrade) {
-        $('#updateVersion').val(version);
-        $('#updateForm').removeClass('d-none');
+    window.confirmUpdate = function(version, isUpgrade) {
+        $('#startUpdateBtn').removeClass('d-none');
         $('#updateProcessInfo').removeClass('d-none');
         $('#updateModalContent').html(`
             <div class="alert alert-${isUpgrade ? 'info' : 'warning'}">
@@ -254,18 +273,42 @@ $(document).ready(function() {
             </div>
         `);
         $('#updateModal').modal('show');
-        return false;
+        
+        // Store the version for the update button
+        $('#startUpdateBtn').data('version', version);
     }
+    
+    // Handle the update button click
+    $('#startUpdateBtn').on('click', function() {
+        const version = $(this).data('version');
+        $('#updateModal').modal('hide');
+        $('#updateProgressModal').modal('show');
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        formData.append('version', version);
+        
+        // Send AJAX request
+        $.ajax({
+            url: '{{ route("tenant.updates.success.post", ["slug" => request()->route("slug")]) }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // On success, redirect to success page
+                window.location.href = '{{ url("/" . request()->route("slug") . "/updates/success") }}';
+            },
+            error: function(xhr) {
+                // On error, show error and redirect to index
+                alert('Update failed: ' + (xhr.responseJSON?.error || 'An unexpected error occurred'));
+                window.location.href = '{{ route("tenant.updates.index", ["slug" => request()->route("slug")]) }}';
+            }
+        });
+    });
 
     $('#checkUpdatesBtn').click(checkForUpdates);
-    
-    // Add click handlers for update buttons in the table
-    $(document).on('click', '[data-update-version]', function(e) {
-        e.preventDefault();
-        const version = $(this).data('update-version');
-        const isUpgrade = $(this).data('is-upgrade') === 'true';
-        showUpdateConfirmation(version, isUpgrade);
-    });
 });
 </script>
 @endpush 
