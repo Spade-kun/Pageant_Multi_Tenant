@@ -408,11 +408,9 @@ Route::middleware(['auth:tenant'])->group(function () {
                 return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
-            // Set the specific tenant slug in the session
-            session(['tenant_slug' => $slug]);
-            
-            // Call the controller's success method
-            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->success();
+            // Get the controller instance and call the success method
+            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+            return $controller->success();
         })->name('tenant.updates.success');
     });
     

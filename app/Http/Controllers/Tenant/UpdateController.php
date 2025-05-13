@@ -669,21 +669,26 @@ class UpdateController extends Controller
     public function success()
     {
         try {
-            // If we have update information in the session, use it
-            if (session()->has('update_success')) {
-                $version = session('update_version');
-                $migrationStatus = session('migration_status');
-            } else {
-                // Otherwise, just show a generic success message
-                // Get the current version from the updater
+            // Get the current version from the updater
+            $version = session('update_version');
+            if (empty($version)) {
                 $version = $this->updater->source()->getVersionInstalled();
-                $migrationStatus = 'No detailed migration information available.';
             }
-            
+
+            // Get migration status from session or set default
+            $migrationStatus = session('migration_status', 'System has been updated successfully.');
+
+            // Get the slug from the route or session
+            $slug = request()->route('slug') ?? session('tenant_slug');
+
+            if (empty($slug)) {
+                throw new \Exception('Tenant slug not found.');
+            }
+
             return view('tenant.updates.success', [
                 'version' => $version,
                 'migrationStatus' => $migrationStatus,
-                'slug' => $this->getSlug()
+                'slug' => $slug
             ]);
         } catch (\Exception $e) {
             \Log::error('Error displaying update success page: ' . $e->getMessage());
