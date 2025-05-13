@@ -89,14 +89,15 @@ class TenantManagementController extends Controller
             \Log::info('Tenant record updated');
                 
                 // Create and set up the tenant database
-                $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
+            $temporaryPassword = $this->setupTenantDatabase($tenant, $databaseName, $ownerUser);
             \Log::info('Tenant database setup completed');
 
             DB::commit();
             \Log::info('Transaction committed');
             
-            // Send approval email to the tenant owner
-            $this->sendApprovalEmail($tenant, $ownerUser, false);
+            // Send approval email to the tenant owner with the plain text password
+            Mail::to($ownerUser->email)
+                ->send(new TenantStatusNotification($tenant, 'approved', null, $temporaryPassword));
             \Log::info('Approval email sent');
             
             return back()->with('success', 'Tenant approved successfully. Database created and approval email sent.');
@@ -122,21 +123,23 @@ class TenantManagementController extends Controller
                 'owner_email' => $ownerUser->email
             ]);
 
-            // Get the temporary password from the tenant database
-            $user = DB::connection('tenant')
+            // Generate a new temporary password
+            $temporaryPassword = $this->generateTemporaryPassword();
+            
+            // Update the user's password in the tenant database
+            DB::connection('tenant')
                 ->table('users')
                 ->where('email', $ownerUser->email)
-                ->first();
+                ->update([
+                    'password' => Hash::make($temporaryPassword),
+                    'updated_at' => now()
+                ]);
 
-            if (!$user) {
-                throw new \Exception('User not found in tenant database.');
-            }
+            \Log::info('User password updated in tenant database');
 
-            \Log::info('User found in tenant database', ['user_id' => $user->id]);
-
-            // Send the email
+            // Send the email with the plain text password
             Mail::to($ownerUser->email)
-                ->send(new TenantStatusNotification($tenant, 'approved', null, $user->password));
+                ->send(new TenantStatusNotification($tenant, 'approved', null, $temporaryPassword));
 
             \Log::info('Email sent successfully', [
                 'tenant_id' => $tenant->id,
@@ -189,9 +192,15 @@ class TenantManagementController extends Controller
             ]);
             \Log::info('Migrations completed');
             
+            // Generate a temporary password
+            $temporaryPassword = $this->generateTemporaryPassword();
+            
             // Create owner user in tenant database with temporary password
-            $this->createTenantUser($tenant, $ownerUser, $this->generateTemporaryPassword());
+            $this->createTenantUser($tenant, $ownerUser, $temporaryPassword);
             \Log::info('Tenant user created');
+            
+            // Return the plain text password to be used in email
+            return $temporaryPassword;
         } catch (\Exception $e) {
             \Log::error('Failed to setup tenant database', [
                 'error' => $e->getMessage(),
@@ -312,8 +321,8 @@ class TenantManagementController extends Controller
      */
     public function access()
     {
-        $tenants = Tenant::all();
-        return view('admin.tenants.access', compact('tenants'));
+        // Redirect to the index page with access tab active
+        return redirect()->route('admin.tenants.index', ['tab' => 'access']);
     }
 
     /**

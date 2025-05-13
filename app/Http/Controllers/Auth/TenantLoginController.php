@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\TenantUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class TenantLoginController extends Controller
 {
@@ -234,5 +236,223 @@ class TenantLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/tenant/login');
+    }
+
+    /**
+     * Redirect the user to the Google authentication page.
+     */
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')
+            ->redirect();
+    }
+
+    /**
+     * Obtain the user information from Google.
+     */
+    public function handleGoogleCallback()
+    {
+        try {
+            \Log::info('Starting Google callback handling');
+            
+            $googleUser = Socialite::driver('google')->user();
+            \Log::info('Google user data received', [
+                'email' => $googleUser->email,
+                'name' => $googleUser->name
+            ]);
+            
+            // First, try to find the tenant user in the main database
+            $tenantUser = TenantUser::where('email', $googleUser->email)->first();
+            $tenant = null;
+            $user = null;
+            $isOwner = false;
+
+            if ($tenantUser) {
+                // User found in central database (likely an owner)
+                $tenant = $tenantUser->tenant;
+                $isOwner = true;
+                \Log::info('User found in central database as owner', [
+                    'email' => $googleUser->email,
+                    'tenant_slug' => $tenant ? $tenant->slug : 'null'
+                ]);
+            }
+
+            // Set up tenant database connection
+            if ($tenant) {
+                // If we found a tenant user, use their tenant
+                $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            } else {
+                // If not found in central database, check all tenant databases
+                $tenants = Tenant::where('status', 'approved')->get();
+                \Log::info('Searching in tenant databases', [
+                    'email' => $googleUser->email,
+                    'tenant_count' => $tenants->count()
+                ]);
+                
+                foreach ($tenants as $potentialTenant) {
+                    $databaseName = 'tenant_' . str_replace('-', '_', $potentialTenant->slug);
+                    
+                    Config::set('database.connections.tenant', [
+                        'driver' => 'mysql',
+                        'host' => env('DB_HOST', '127.0.0.1'),
+                        'port' => env('DB_PORT', '3306'),
+                        'database' => $databaseName,
+                        'username' => env('DB_USERNAME', 'forge'),
+                        'password' => env('DB_PASSWORD', ''),
+                        'charset' => 'utf8mb4',
+                        'collation' => 'utf8mb4_unicode_ci',
+                        'prefix' => '',
+                        'prefix_indexes' => true,
+                        'strict' => true,
+                        'engine' => null,
+                    ]);
+
+                    DB::purge('tenant');
+                    DB::reconnect('tenant');
+
+                    // Check if user exists in this tenant database
+                    $potentialUser = DB::connection('tenant')
+                        ->table('users')
+                        ->where('email', $googleUser->email)
+                        ->first();
+
+                    if ($potentialUser) {
+                        $user = $potentialUser;
+                        $tenant = $potentialTenant;
+                        \Log::info('User found in tenant database', [
+                            'email' => $googleUser->email,
+                            'tenant_slug' => $tenant->slug,
+                            'role' => $user->role
+                        ]);
+                        break;
+                    }
+                }
+            }
+
+            // If we didn't find a user, return with error
+            if (!$tenantUser && !$user) {
+                \Log::warning('No user found with Google email', [
+                    'email' => $googleUser->email
+                ]);
+                return redirect()->route('tenant.login')
+                    ->withErrors(['email' => 'No account found with this Google email.']);
+            }
+
+            // If tenant is not approved
+            if (!$tenant || !$tenant->isApproved()) {
+                \Log::warning('Tenant not approved', [
+                    'email' => $googleUser->email,
+                    'tenant_slug' => $tenant ? $tenant->slug : 'null'
+                ]);
+                return redirect()->route('tenant.login')
+                    ->withErrors(['email' => 'Your account is not approved or the tenant is not active.']);
+            }
+
+            // If we found a tenant user but not a user in the tenant database, set up the connection
+            if ($tenantUser && !$user) {
+                $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+                
+                Config::set('database.connections.tenant', [
+                    'driver' => 'mysql',
+                    'host' => env('DB_HOST', '127.0.0.1'),
+                    'port' => env('DB_PORT', '3306'),
+                    'database' => $databaseName,
+                    'username' => env('DB_USERNAME', 'forge'),
+                    'password' => env('DB_PASSWORD', ''),
+                    'charset' => 'utf8mb4',
+                    'collation' => 'utf8mb4_unicode_ci',
+                    'prefix' => '',
+                    'prefix_indexes' => true,
+                    'strict' => true,
+                    'engine' => null,
+                ]);
+
+                DB::purge('tenant');
+                DB::reconnect('tenant');
+
+                // Get user from tenant database
+                $user = DB::connection('tenant')
+                    ->table('users')
+                    ->where('email', $googleUser->email)
+                    ->first();
+            }
+
+            // Set the session tenant
+            session(['tenant_id' => $tenant->id]);
+            session(['tenant_slug' => $tenant->slug]);
+            session(['user_role' => $user->role]);
+
+            // Store the user information in the session
+            session(['tenant_user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+            ]]);
+
+            // If this is an owner (found in tenant_users), use that for authentication
+            if ($isOwner) {
+                \Log::info('Authenticating owner with central database record', [
+                    'email' => $user->email,
+                    'role' => $user->role
+                ]);
+                Auth::guard('tenant')->login($tenantUser);
+            } else {
+                // For users only in tenant database, create a temporary TenantUser for authentication
+                \Log::info('Creating temporary TenantUser for auth', [
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'tenant_id' => $tenant->id
+                ]);
+                
+                // Create or find a tenant user in the central database for this user
+                $tempTenantUser = TenantUser::firstOrCreate(
+                    ['email' => $user->email],
+                    [
+                        'tenant_id' => $tenant->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                    ]
+                );
+                
+                Auth::guard('tenant')->login($tempTenantUser);
+                
+                \Log::info('Successfully authenticated user', [
+                    'email' => $tempTenantUser->email,
+                    'id' => $tempTenantUser->id,
+                    'tenant_id' => $tenant->id
+                ]);
+            }
+
+            // Redirect based on user role
+            if ($user->role === 'owner') {
+                \Log::info('Redirecting owner to dashboard', [
+                    'role' => $user->role,
+                    'tenant_slug' => $tenant->slug
+                ]);
+                return redirect('/' . $tenant->slug . '/dashboard');
+            } else if ($user->role === 'judge') {
+                \Log::info('Redirecting judge to dashboard', [
+                    'role' => $user->role,
+                    'tenant_slug' => $tenant->slug
+                ]);
+                return redirect('/' . $tenant->slug . '/judge-dashboard');
+            } else {
+                \Log::info('Redirecting user to dashboard', [
+                    'role' => $user->role,
+                    'tenant_slug' => $tenant->slug
+                ]);
+                return redirect('/' . $tenant->slug . '/user-dashboard');
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Google authentication error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->route('tenant.login')
+                ->withErrors(['email' => 'Error authenticating with Google. Please try again.']);
+        }
     }
 } 

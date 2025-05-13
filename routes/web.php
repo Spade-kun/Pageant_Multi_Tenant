@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\GoogleController;
 
 // Default route with automatic redirect based on port
 Route::get('/', function (Request $request) {
@@ -37,3 +38,11 @@ Route::group([], function () {
 
 // Auth routes (these will be for admin authentication through the default routes file)
 require __DIR__.'/auth.php';
+
+// Google OAuth routes for tenant
+Route::get('/tenant/auth/google/redirect', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
+Route::get('/tenant/auth/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
+
+// Google OAuth routes for admin
+Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback'])->name('google.callback');

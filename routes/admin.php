@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [AuthenticatedSessionController::class, 'create'])->name('admin.login');
     Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
+    
+    // Google OAuth for Admin
+    Route::get('/admin/auth/google/redirect', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle'])->name('admin.google.redirect');
+    Route::get('/admin/auth/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback'])->name('admin.google.callback');
 });
 
 // Admin Dashboard and protected routes
@@ -32,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('admin.tenants.show');
         Route::get('/tenants/{tenant}/approve-form', [TenantController::class, 'showApproveForm'])->name('admin.tenants.approve-form');
         Route::put('/tenants/{tenant}/approve', [TenantController::class, 'approve'])->name('admin.tenants.approve');
+        Route::post('/tenants/{tenant}/direct-approve', [TenantManagementController::class, 'approve'])->name('admin.tenants.direct-approve');
         Route::get('/tenants/{tenant}/reject', [TenantManagementController::class, 'showRejectForm'])->name('admin.tenants.reject.form');
         Route::put('/tenants/{tenant}/reject', [TenantManagementController::class, 'reject'])->name('admin.tenants.reject');
         Route::put('/tenants/{tenant}/enable', [TenantManagementController::class, 'enable'])->name('admin.tenants.enable');

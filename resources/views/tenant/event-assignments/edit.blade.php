@@ -31,17 +31,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Contestants</label>
+                    <label>Contestants <span class="text-danger">*</span></label>
+                    <div class="card">
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
                             <div class="row">
                                 @foreach($contestants as $contestant)
-                            <div class="col-md-4">
+                                    <div class="col-md-4 mb-2">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" 
                                                 class="custom-control-input" 
                                                 id="contestant_{{ $contestant->id }}" 
-                                           name="contestants[]" 
+                                                name="contestant_ids[]" 
                                                 value="{{ $contestant->id }}"
-                                           {{ in_array($contestant->id, $eventContestants) ? 'checked' : '' }}>
+                                                {{ in_array($contestant->id, $eventContestants) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="contestant_{{ $contestant->id }}">
                                                 {{ $contestant->name }}
                                             </label>
@@ -49,20 +51,27 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                    </div>
+                    @error('contestant_ids')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="form-group">
-                    <label>Categories</label>
+                    <label>Categories <span class="text-danger">*</span></label>
+                    <div class="card">
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
                             <div class="row">
                                 @foreach($categories as $category)
-                            <div class="col-md-4">
+                                    <div class="col-md-4 mb-2">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" 
                                                 class="custom-control-input" 
                                                 id="category_{{ $category->id }}" 
-                                           name="categories[]" 
+                                                name="category_ids[]" 
                                                 value="{{ $category->id }}"
-                                           {{ in_array($category->id, $eventCategories) ? 'checked' : '' }}>
+                                                {{ in_array($category->id, $eventCategories) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="category_{{ $category->id }}">
                                                 {{ $category->name }}
                                             </label>
@@ -70,6 +79,11 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                    </div>
+                    @error('category_ids')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="form-group">

@@ -69,19 +69,62 @@
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('tenant.event-assignments.destroy', ['slug' => $slug, 'id' => $assignment['id']]) }}" 
-                                              method="POST" 
-                                              class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to delete all assignments for this event? This action cannot be undone.');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $assignment['id'] }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
+                            
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteModal{{ $assignment['id'] }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $assignment['id'] }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title" id="deleteModalLabel{{ $assignment['id'] }}">Confirm Delete</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <h6 class="font-weight-bold">{{ $assignment['event_name'] }}</h6>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="badge badge-{{ $assignment['status'] === 'confirmed' ? 'success' : ($assignment['status'] === 'withdrawn' ? 'danger' : 'warning') }} me-2">
+                                                        {{ ucfirst($assignment['status']) }}
+                                                    </span>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 font-weight-bold">Contestants:</p>
+                                                        <ul class="list-unstyled small">
+                                                            @foreach($assignment['contestants'] as $contestant)
+                                                                <li>{{ $contestant }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 font-weight-bold">Categories:</p>
+                                                        <ul class="list-unstyled small">
+                                                            @foreach($assignment['categories'] as $category)
+                                                                <li>{{ $category }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p>Are you sure you want to delete all assignments for this event?</p>
+                                            <p class="text-danger"><small>This action cannot be undone. All related scoring data will also be deleted.</small></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ route('tenant.event-assignments.destroy', ['slug' => $slug, 'id' => $assignment['id']]) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger">Delete Assignment</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </tbody>
                 </table>

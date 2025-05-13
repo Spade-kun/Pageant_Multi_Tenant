@@ -353,8 +353,9 @@ $(document).ready(function() {
                   });
             mainPanel.css({
                 'float': 'left',
-                'margin-right': '250px',
-                'margin-left': '0'
+                'margin-right': isSidebarCollapsed ? '75px' : '250px',
+                'margin-left': '0',
+                'width': 'calc(100% - ' + (isSidebarCollapsed ? '75px' : '250px') + ')'
             });
         } else {
             sidebar.removeClass('sidebar-right')
@@ -366,7 +367,8 @@ $(document).ready(function() {
             mainPanel.css({
                 'float': '',
                 'margin-right': '',
-                'margin-left': ''
+                'margin-left': '',
+                'width': ''
             });
         }
         

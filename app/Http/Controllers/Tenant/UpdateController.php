@@ -331,9 +331,11 @@ class UpdateController extends Controller
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // Redirect to updates page after success
-            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                ->with('success', 'System updated to version ' . $targetVersion . ' successfully! Composer and migrations have been run.');
+            // Store the update details in the session for the success page
+            session()->flash('update_success', 'System successfully updated to version ' . $targetVersion);
+            
+            // Redirect to success page rather than the index page
+            return redirect()->route('tenant.updates.success', ['slug' => $this->getSlug()]);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
@@ -347,94 +349,63 @@ class UpdateController extends Controller
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
-        $debugMode = true;
+        $this->logDebug("Copying files from {$source} to {$destination}", true);
         
         if (!is_dir($source)) {
-            $this->logDebug("Source is not a directory: {$source}", $debugMode, 'warning');
-            return;
+            $this->logDebug("Source directory does not exist: {$source}", true, 'error');
+            return false;
+        }
+
+        if (!is_dir($destination)) {
+            if (!mkdir($destination, 0755, true)) {
+                $this->logDebug("Failed to create destination directory: {$destination}", true, 'error');
+                return false;
+            }
         }
         
         $dir = opendir($source);
-        if (!file_exists($destination)) {
-            $this->logDebug("Creating destination directory: {$destination}", $debugMode);
-            @mkdir($destination, 0755, true);
-        }
-        
-        $copyCount = 0;
-        $skipCount = 0;
-        $errorCount = 0;
-        
-        while(false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
-                $srcPath = $source . DIRECTORY_SEPARATOR . $file;
+        while (($file = readdir($dir)) !== false) {
+            if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
+                $sourcePath = $source . DIRECTORY_SEPARATOR . $file;
                 $destPath = $destination . DIRECTORY_SEPARATOR . $file;
                 
-                // Check if this path should be excluded
-                $relativePath = ltrim(str_replace($destination, '', $destPath), DIRECTORY_SEPARATOR);
-                $skip = false;
-                
-                foreach ($exclude as $ex) {
-                    // Handle wildcard patterns
-                    if (strpos($ex, '*') !== false) {
-                        $pattern = str_replace('*', '.*', $ex);
-                        if (preg_match('/' . $pattern . '/', $file) || preg_match('/' . $pattern . '/', $relativePath)) {
-                            $skip = true;
-                            break;
-                        }
-                    } else if (stripos($relativePath, $ex) === 0 || stripos($file, $ex) === 0) {
-                        $skip = true;
-                        break;
-                    }
-                }
-                
-                if ($skip) {
-                    $this->logDebug("Skipping excluded path: {$relativePath}", $debugMode);
-                    $skipCount++;
-                    continue;
-                }
-                
-                if (is_dir($srcPath)) {
-                    // Create directory if it doesn't exist
-                    if (!file_exists($destPath)) {
-                        $this->logDebug("Creating directory: {$relativePath}", $debugMode);
-                        @mkdir($destPath, 0755, true);
-                    }
-                    
-                    // Recursively copy directory contents 
-                    $this->copyUpdateFiles($srcPath, $destPath, $exclude);
+                if (is_dir($sourcePath)) {
+                    $this->copyUpdateFiles($sourcePath, $destPath, $exclude);
                 } else {
-                    // Make sure destination directory exists
-                    $destDir = dirname($destPath);
-                    if (!file_exists($destDir)) {
-                        $this->logDebug("Creating parent directory: {$destDir}", $debugMode);
-                        @mkdir($destDir, 0755, true);
-                    }
-                    
-                    // Force overwrite files - important for updates!
-                    // First try to remove the existing file if it exists
-                    if (file_exists($destPath)) {
-                        $this->logDebug("Removing existing file: {$relativePath}", $debugMode);
-                        @unlink($destPath);
-                    }
-                    
-                    // Now copy the new file
-                    $this->logDebug("Copying file: {$relativePath}", $debugMode);
-                    if (@copy($srcPath, $destPath)) {
-                        if (file_exists($destPath)) {
-                            @chmod($destPath, 0644);
-                            $this->logDebug("Successfully updated file: {$relativePath}", $debugMode);
-                            $copyCount++;
+                    // Special handling for artisan file
+                    if ($file === 'artisan') {
+                        $this->logDebug("Copying artisan file", true);
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy artisan file", true, 'error');
+                            return false;
                         }
-                    } else {
-                        $this->logDebug("Failed to update file: {$relativePath}", $debugMode, 'warning');
-                        $errorCount++;
+                        // Make artisan file executable
+                        chmod($destPath, 0755);
+                        $this->logDebug("Made artisan file executable", true);
+                    }
+                    // Special handling for run-servers.php
+                    else if ($file === 'run-servers.php') {
+                        $this->logDebug("Copying run-servers.php", true);
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy run-servers.php", true, 'error');
+                            return false;
+                        }
+                        // Make run-servers.php executable
+                        chmod($destPath, 0755);
+                        $this->logDebug("Made run-servers.php executable", true);
+                    }
+                    // Regular file copy
+                    else {
+                        if (!copy($sourcePath, $destPath)) {
+                            $this->logDebug("Failed to copy file: {$file}", true, 'error');
+                            return false;
                     }
                 }
             }
         }
-        
+        }
         closedir($dir);
-        $this->logDebug("Copy operation completed. {$copyCount} files copied, {$skipCount} files skipped, {$errorCount} errors", $debugMode);
+        return true;
     }
 
     protected function getReleases()
@@ -617,5 +588,25 @@ class UpdateController extends Controller
         // If we can't identify a typical structure, default to the extraction root
         $this->logDebug("No standard structure detected - defaulting to extract root", $debugMode);
         return $extractPath;
+    }
+
+    /**
+     * Display the update success page
+     * 
+     * @return \Illuminate\View\View
+     */
+    public function success()
+    {
+        try {
+            $currentVersion = $this->updater->source()->getVersionInstalled();
+            return view('tenant.updates.success', [
+                'slug' => $this->getSlug(),
+                'currentVersion' => $currentVersion
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error showing success page: ' . $e->getMessage());
+            return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
+                ->with('error', 'Error displaying success page: ' . $e->getMessage());
+        }
     }
 } 

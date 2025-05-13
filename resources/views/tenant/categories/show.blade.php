@@ -93,18 +93,66 @@
                     <h6 class="m-0 font-weight-bold text-danger">Danger Zone</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('tenant.categories.destroy', ['slug' => $slug, 'id' => $category->id]) }}" 
-                          method="POST" 
-                          onsubmit="return confirm('Are you sure you want to delete this category? This action cannot be undone.');">
+                    <button type="button" class="btn btn-danger btn-block" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal">
+                        <i class="fas fa-trash"></i> Delete Category
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h5 class="font-weight-bold">{{ $category->name }}</h5>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge badge-{{ $category->is_active ? 'success' : 'danger' }} me-2">
+                                {{ $category->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                            <span class="text-muted">{{ $category->percentage }}%</span>
+                        </div>
+                        <div class="card bg-light p-3 mt-2">
+                            <p class="mb-0">{{ $category->description ?? 'No description available' }}</p>
+                        </div>
+                    </div>
+                    <p>Are you sure you want to delete this category?</p>
+                    <p class="text-danger"><small>This action cannot be undone. All related data and scoring criteria will also be deleted.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ route('tenant.categories.destroy', ['slug' => $slug, 'id' => $category->id]) }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-block">
-                            <i class="fas fa-trash"></i> Delete Category
-                        </button>
+                        <button type="submit" class="btn btn-danger">Delete Category</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection 
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure modal works properly
+        var deleteButton = document.querySelector('[data-bs-target="#deleteCategoryModal"]');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                var modalElement = document.querySelector('#deleteCategoryModal');
+                var modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement, {
+                    backdrop: false
+                });
+                modal.show();
+            });
+        }
+    });
+</script>
+@endpush 

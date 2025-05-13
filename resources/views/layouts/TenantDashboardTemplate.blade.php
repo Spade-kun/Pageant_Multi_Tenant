@@ -98,7 +98,7 @@
     </script>
 
     <!-- CSS Files -->
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}" />
 
@@ -337,6 +337,40 @@
         margin-left: 0 !important;
       }
 
+      /* Sidebar right specific styles */
+      .sidebar.sidebar-right {
+        position: fixed;
+        right: 0;
+        left: auto !important;
+        transform: none !important;
+        overflow: hidden;
+      }
+
+      .sidebar.sidebar-right .sidebar-wrapper {
+        padding-right: 0;
+        overflow: hidden;
+      }
+
+      .sidebar.sidebar-right:hover .scrollbar-inner {
+        overflow-y: auto;
+      }
+
+      .sidebar.sidebar-right .nav .nav-item .collapse {
+        left: auto;
+        right: 60px;
+      }
+
+      .wrapper.sidebar-right-layout .main-panel {
+        float: left;
+        margin-right: 250px;
+        margin-left: 0;
+        width: calc(100% - 250px);
+      }
+
+      .wrapper.sidebar-right-layout.sidebar-collapse .main-panel {
+        margin-right: 75px;
+      }
+
       /* Adjust navbar width based on sidebar position - more precise calculations */
       .wrapper:not(.sidebar-collapse) .main-header,
       .wrapper:not(.sidebar-collapse) .navbar-header {
@@ -369,6 +403,10 @@
         margin-left: 0 !important;
         left: 0 !important;
         right: 76px !important; /* 1px extra to avoid any possible overlap */
+      }
+
+      .wrapper.sidebar-collapse.sidebar-right-layout .sidebar {
+        width: 75px !important;
       }
 
       .wrapper.sidebar-collapse:not(.sidebar-right-layout) .main-header,
@@ -497,7 +535,37 @@
       }
 
       .sidebar {
-        z-index: 1029 !important;
+        z-index: 1031 !important;
+        position: fixed;
+        height: 100%;
+        overflow: hidden;
+        transition: all 0.3s;
+      }
+      
+      /* Hide scrollbars but maintain functionality */
+      .sidebar .sidebar-wrapper {
+        overflow: hidden;
+        height: calc(100% - 60px); /* Adjust based on logo header height */
+      }
+      
+      .sidebar .sidebar-content {
+        overflow: hidden;
+        height: 100%;
+      }
+      
+      /* Use custom scrollbar only when needed */
+      .sidebar .scrollbar-inner {
+        overflow: hidden;
+      }
+      
+      /* Only show scrollbar on hover if content overflows */
+      .sidebar:hover .scrollbar-inner {
+        overflow-y: auto;
+      }
+
+      /* Right sidebar specific z-index and positioning fixes */
+      .sidebar.sidebar-right {
+        z-index: 1031 !important;
       }
 
       /* Remove the hardcoded text-dark class and add dynamic color support */
@@ -519,6 +587,86 @@
       html {
         font-size: {{ $fontScale * 100 }}% !important;
       }
+
+      /* Custom scrollbar styling */
+      .sidebar .scrollbar-inner::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      .sidebar .scrollbar-inner::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      .sidebar .scrollbar-inner::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+      
+      .sidebar .scrollbar-inner::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      
+      /* For light sidebar themes */
+      .sidebar[data-background-color="white"] .scrollbar-inner::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      
+      .sidebar[data-background-color="white"] .scrollbar-inner::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Modal improvements */
+      .modal {
+        pointer-events: none;
+        background-color: rgba(0, 0, 0, 0.2);
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .modal-dialog {
+        pointer-events: all;
+        margin: 0 auto;
+        max-width: 500px;
+        width: calc(100% - 30px);
+      }
+      
+      @media (max-width: 576px) {
+        .modal-dialog {
+          max-width: 95%;
+          margin: 10px auto;
+        }
+        
+        .modal-content {
+          padding: 10px;
+        }
+      }
+      
+      .modal-content {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        border: none;
+        animation: modalFadeIn 0.3s ease;
+      }
+      
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .modal-backdrop {
+        display: none !important;
+      }
+      
+      body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+      }
     </style>
   </head>
   <body>
@@ -529,9 +677,9 @@
                       {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}">
       <!-- Sidebar -->
       <div class="sidebar {{ $uiSettings->sidebar_position === 'right' ? 'sidebar-right' : '' }}" 
-           style="background-color: {{ $uiSettings->sidebar_color }};"
-           data-background-color="{{ $uiSettings->sidebar_color }}"
-           style="{{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto !important; transform: none !important;' : '' }}">
+           style="background-color: {{ $uiSettings->sidebar_color }};
+                  {{ $uiSettings->sidebar_position === 'right' ? 'right: 0; left: auto !important; transform: none !important;' : '' }}"
+           data-background-color="{{ $uiSettings->sidebar_color }}">
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" 
@@ -734,7 +882,7 @@
       </div>
       <!-- End Sidebar -->
 
-      <div class="main-panel" style="{{ $uiSettings->sidebar_position === 'right' ? 'float: left; margin-right: 250px; margin-left: 0;' : '' }}">
+      <div class="main-panel">
         <div class="main-header {{ $uiSettings->navbar_position === 'bottom' ? 'navbar-bottom' : 'navbar-top' }}" 
              style="{{ $uiSettings->navbar_position === 'bottom' ? 'position: fixed; bottom: 0; top: auto;' : 'position: fixed; top: 0; bottom: auto;' }}
                     {{ $uiSettings->sidebar_position === 'right' ? 'width: calc(100% - 251px); left: 0; right: 251px;' : 'width: calc(100% - 251px); left: 251px; right: 0;' }}
@@ -1008,7 +1156,7 @@
     <!--   Core JS Files   -->
     <script src="{{ asset('assets/js/core/jquery.3.2.1.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <!-- jQuery UI -->
     <script src="{{ asset('assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js') }}"></script>
@@ -1016,6 +1164,39 @@
     <script src="{{ asset('assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
     <!-- Custom JS Files -->
     <script src="{{ asset('assets/js/custom-scripts.js') }}"></script>
-        @stack('scripts')
+    
+    <!-- Bootstrap Modal Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all modals with custom options
+            var modals = document.querySelectorAll('.modal');
+            if (modals.length > 0) {
+                modals.forEach(function(modal) {
+                    // Set backdrop to false to allow clicking through it
+                    new bootstrap.Modal(modal, {
+                        backdrop: false
+                    });
+                });
+            }
+            
+            // Add custom styling to fix backdrop issues
+            var style = document.createElement('style');
+            style.innerHTML = `
+                .modal-open {
+                    overflow: auto !important;
+                    padding-right: 0 !important;
+                }
+                .modal {
+                    background-color: rgba(0, 0, 0, 0.3);
+                }
+                .modal-backdrop {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+    
+    @stack('scripts')
   </body>
 </html>

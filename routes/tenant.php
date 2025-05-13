@@ -22,6 +22,10 @@ use Illuminate\Support\Facades\DB;
 Route::middleware('guest:tenant')->group(function () {
     Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/tenant/login', [TenantLoginController::class, 'login']);
+    
+    // Google OAuth Routes
+    Route::get('/tenant/google/redirect', [TenantLoginController::class, 'redirectToGoogle'])->name('tenant.google.redirect');
+    Route::get('/tenant/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
 });
 
 // Tenant Owner/Organizer Registration
@@ -376,6 +380,39 @@ Route::middleware(['auth:tenant'])->group(function () {
             // Call the controller method with the custom request
             return $controller->update($customRequest);
         })->name('tenant.updates.update');
+        
+        // Add a specific route for the update success page
+        Route::get('/{slug}/updates/success', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+            
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
+            }
+            
+            // Set the specific tenant slug in the session
+            session(['tenant_slug' => $slug]);
+            
+            // Call the controller's success method
+            return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->success();
+        })->name('tenant.updates.success');
     });
     
     // Handle direct GET access to the update URL - place outside middleware to ensure it's always accessible

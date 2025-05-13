@@ -81,25 +81,10 @@
                 </a>
               </li>
               <li class="nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
-                <a data-bs-toggle="collapse" href="#tenantManagement">
+                <a href="{{ route('admin.tenants.index') }}">
                   <i class="fas fa-building"></i>
                   <p>Tenant Management</p>
-                  <span class="caret"></span>
                 </a>
-                <div class="collapse" id="tenantManagement">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="{{ route('admin.tenants.index') }}">
-                        <span class="sub-item">Tenants List</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="{{ route('admin.tenants.access') }}">
-                        <span class="sub-item">Access Control</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </li>
               <li class="nav-item">
                 <a href="{{ route('admin.plans.index') }}">
@@ -113,18 +98,7 @@
                   <p>Plan Requests</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-users"></i>
-                  <p>User Management</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#">
-                  <i class="fas fa-cog"></i>
-                  <p>System Settings</p>
-                </a>
-              </li>
+              
             </ul>
           </div>
         </div>
