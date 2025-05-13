@@ -227,12 +227,12 @@ class UpdateController extends Controller
                 '*.log',  // Exclude all log files
                 'storage/logs',  // Exclude logs directory
                 'bootstrap/cache',  // Exclude cache directory
+                'admin-server.log',  // Specific log file
+                'tenant-server.log',  // Specific log file
+                'laravel.log',  // Laravel log file
                 '.env.backup',
                 '.DS_Store',
-                'phpunit.xml',
-                'tenant-server.log',  // Explicitly exclude tenant-server.log
-                'admin-server.log',   // Explicitly exclude admin-server.log
-                'laravel.log'        // Explicitly exclude laravel.log
+                'phpunit.xml'
             ];
 
             // Backup current app (excluding critical folders/files)
@@ -254,7 +254,7 @@ class UpdateController extends Controller
                     foreach ($exclude as $ex) {
                         // Handle wildcard patterns
                         if (strpos($ex, '*') !== false) {
-                            $pattern = str_replace('', '.', $ex);
+                            $pattern = str_replace('*', '.*', $ex);
                             if (preg_match('/' . $pattern . '/', $relativePath)) {
                                 $skip = true;
                                 break;
@@ -353,8 +353,12 @@ class UpdateController extends Controller
             session()->flash('update_version', $targetVersion);
             session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Redirect to success page rather than the index page
-            return redirect()->route('tenant.updates.success', ['slug' => $this->getSlug()]);
+            // Get the slug for direct redirect
+            $slug = $this->getSlug();
+            
+            // Use a direct URL to bypass the update route
+            $successUrl = url('/' . $slug . '/updates/success');
+            return redirect($successUrl);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
