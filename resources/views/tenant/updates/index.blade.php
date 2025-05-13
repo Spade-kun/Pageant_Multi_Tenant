@@ -90,7 +90,7 @@
                                             <td>{!! nl2br(e($release['description'])) !!}</td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.process', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
@@ -207,7 +207,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.process', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 

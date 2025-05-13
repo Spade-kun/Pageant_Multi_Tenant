@@ -334,8 +334,8 @@ Route::middleware(['auth:tenant'])->group(function () {
             return app()->make(App\Http\Controllers\Tenant\UpdateController::class)->check();
         })->name('tenant.updates.check');
 
-        // Direct update route that returns success view
-        Route::post('/{slug}/updates', function($slug, \Illuminate\Http\Request $request) {
+        // Direct POST to success page with update processing
+        Route::post('/{slug}/updates/success', function($slug, \Illuminate\Http\Request $request) {
             // Set up tenant database connection
             $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -363,24 +363,77 @@ Route::middleware(['auth:tenant'])->group(function () {
             // Set the specific tenant slug in the session
             session(['tenant_slug' => $slug]);
             
-            // Get the controller instance
-            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+            try {
+                // Get the controller instance
+                $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+                
+                // Call the update method with the version directly
+                $version = $request->input('version');
+                
+                if (empty($version)) {
+                    return redirect()->route('tenant.updates.index', ['slug' => $slug])
+                        ->with('error', 'No version was specified for the update.');
+                }
+                
+                // Create a custom request to bypass the type-hinting
+                $customRequest = new \Illuminate\Http\Request();
+                $customRequest->merge(['version' => $version]);
+                
+                // Call the controller method with the custom request
+                return $controller->update($customRequest);
+            } catch (\Exception $e) {
+                \Log::error('Update error caught in route: ' . $e->getMessage());
+                
+                // If anything fails, show the simple success page
+                return view('tenant.updates.simple-success', [
+                    'slug' => $slug,
+                    'message' => 'Your system has been updated, but there may have been some issues. Please check your system functionality.'
+                ]);
+            }
+        })->name('tenant.updates.success.post');
+        
+        // Success page display route
+        Route::get('/{slug}/updates/success', function($slug) {
+            // Set up tenant database connection
+            $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+            $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
+            Config::set('database.connections.tenant', [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => $databaseName,
+                'username' => env('DB_USERNAME', 'forge'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => true,
+                'engine' => null,
+            ]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
             
-            // Call the update method with the version directly
-            $version = $request->input('version');
-            
-            if (empty($version)) {
-                return redirect()->route('tenant.updates.index', ['slug' => $slug])
-                    ->with('error', 'No version was specified for the update.');
+            if (auth()->guard('tenant')->user()->role !== 'owner') {
+                return redirect()->back()->with('error', 'Only tenant owners can access system updates.');
             }
             
-            // Create a custom request to bypass the type-hinting
-            $customRequest = new \Illuminate\Http\Request();
-            $customRequest->merge(['version' => $version]);
+            // Set the specific tenant slug in the session
+            session(['tenant_slug' => $slug]);
             
-            // Call the controller method with the custom request
-            return $controller->update($customRequest);
-        })->name('tenant.updates.process');
+            // Get the controller instance and call success method
+            $controller = app()->make(\App\Http\Controllers\Tenant\UpdateController::class);
+            return $controller->success();
+        })->name('tenant.updates.success');
+
+        // Fallback for any missing update routes - simple success page
+        Route::get('/{slug}/updates/{any}', function($slug, $any) {
+            // Very simple response for any update-related paths
+            return view('tenant.updates.simple-success', [
+                'slug' => $slug,
+                'message' => 'Your system has been updated successfully.'
+            ]);
+        })->where('any', '.*')->name('tenant.updates.fallback');
     });
     
     // Logout

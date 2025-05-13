@@ -352,17 +352,13 @@ class UpdateController extends Controller
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            // Store the update details in the session for the success page
-            session()->flash('update_success', true);
-            session()->flash('update_version', $targetVersion);
-            session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
+            // Set success information variables
+            $version = $targetVersion;
+            $migrationStatus = 'Central database and tenant databases have been migrated.';
+            $slug = $this->getSlug();
             
-            // After successful update, return the success view directly
-            return view('tenant.updates.success', [
-                'version' => $targetVersion,
-                'migrationStatus' => 'Central database and tenant databases have been migrated.',
-                'slug' => $this->getSlug()
-            ]);
+            // Render the success view directly
+            return view('tenant.updates.success', compact('version', 'migrationStatus', 'slug'));
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
