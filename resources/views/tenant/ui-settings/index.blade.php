@@ -44,7 +44,14 @@
                         </div>
                     </div>
                     
+                    <!-- Color Customization Section -->
                     <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label">Dashboard Colors</label>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4" id="customColorsSection">
                         <!-- Logo Header Color -->
                         <div class="col-md-4">
                             <div class="form-group">
@@ -53,6 +60,7 @@
                                     <input type="color" class="form-control form-control-color" id="logoHeaderColorPicker" name="logo_header_color" value="{{ $settings->logo_header_color }}" title="Choose logo header color">
                                     <input type="text" class="form-control" id="logoHeaderColorHex" value="{{ $settings->logo_header_color }}">
                                 </div>
+                                <div class="color-preview mt-2" id="logoHeaderColorPreview" style="background-color: {{ $settings->logo_header_color }}; height: 25px; border-radius: 4px;"></div>
                             </div>
                         </div>
 
@@ -64,6 +72,7 @@
                                     <input type="color" class="form-control form-control-color" id="navbarColorPicker" name="navbar_color" value="{{ $settings->navbar_color }}" title="Choose navbar color">
                                     <input type="text" class="form-control" id="navbarColorHex" value="{{ $settings->navbar_color }}">
                                 </div>
+                                <div class="color-preview mt-2" id="navbarColorPreview" style="background-color: {{ $settings->navbar_color }}; height: 25px; border-radius: 4px;"></div>
                             </div>
                         </div>
 
@@ -75,6 +84,7 @@
                                     <input type="color" class="form-control form-control-color" id="sidebarColorPicker" name="sidebar_color" value="{{ $settings->sidebar_color }}" title="Choose sidebar color">
                                     <input type="text" class="form-control" id="sidebarColorHex" value="{{ $settings->sidebar_color }}">
                                 </div>
+                                <div class="color-preview mt-2" id="sidebarColorPreview" style="background-color: {{ $settings->sidebar_color }}; height: 25px; border-radius: 4px;"></div>
                             </div>
                         </div>
                     </div>
@@ -169,6 +179,70 @@
 <!-- Add Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<style>
+    /* Color preview styling */
+    .color-preview {
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid #ddd;
+    }
+    
+    /* Add some fancy hover effects to color pickers */
+    .input-group:hover .form-control {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Make form inputs look nice */
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ebedf2;
+        padding: 8px 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #4285f4;
+        box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+    }
+    
+    /* Style for color picker inputs */
+    .form-control-color {
+        height: 38px;
+        padding: 4px;
+        cursor: pointer;
+    }
+    
+    /* Button styling */
+    .btn {
+        border-radius: 4px;
+        font-weight: 600;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: #4285f4;
+        border-color: #4285f4;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+        box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+    }
+    
+    .btn-danger {
+        background-color: #ea4335;
+        border-color: #ea4335;
+    }
+    
+    .btn-danger:hover {
+        background-color: #d73025;
+        border-color: #d73025;
+        box-shadow: 0 4px 10px rgba(215, 48, 37, 0.3);
+    }
+</style>
+
 <script>
 $(document).ready(function() {
     // Logo preview functionality
@@ -184,49 +258,55 @@ $(document).ready(function() {
     });
 
     // Color picker synchronization
-    function syncColorPicker(pickerId, hexId) {
+    function syncColorPicker(pickerId, hexId, previewId) {
         $(pickerId).on('input', function() {
             $(hexId).val($(this).val());
-            applyChanges();
-            $(document).trigger('colorChanged'); // Trigger color change event
+            if(previewId) {
+                $(previewId).css('background-color', $(this).val());
+            }
+            // Don't apply changes immediately, just update preview
         });
         $(hexId).on('input', function() {
             $(pickerId).val($(this).val());
-            applyChanges();
-            $(document).trigger('colorChanged'); // Trigger color change event
+            if(previewId) {
+                $(previewId).css('background-color', $(this).val());
+            }
+            // Don't apply changes immediately, just update preview
         });
     }
 
-    syncColorPicker('#logoHeaderColorPicker', '#logoHeaderColorHex');
-    syncColorPicker('#navbarColorPicker', '#navbarColorHex');
-    syncColorPicker('#sidebarColorPicker', '#sidebarColorHex');
-
-    // Font preview functionality
+    syncColorPicker('#logoHeaderColorPicker', '#logoHeaderColorHex', '#logoHeaderColorPreview');
+    syncColorPicker('#navbarColorPicker', '#navbarColorHex', '#navbarColorPreview');
+    syncColorPicker('#sidebarColorPicker', '#sidebarColorHex', '#sidebarColorPreview');
+    
+    // Font preview functionality - just for preview, not applying
     $('#primaryFont').on('change', function() {
         const selectedFont = $(this).val();
         
-        // Update CSS variable
-        document.documentElement.style.setProperty('--primary-font', `'${selectedFont}', sans-serif`);
+        // Just update the preview text in the font dropdown
+        $(this).css('font-family', `'${selectedFont}', sans-serif`);
         
-        // Apply to all elements
-        document.body.style.setProperty('font-family', `'${selectedFont}', sans-serif`, 'important');
-        
-        const elements = document.querySelectorAll('*');
-        elements.forEach(element => {
-            element.style.setProperty('font-family', `'${selectedFont}', sans-serif`, 'important');
-        });
-        
-        // Force reflow
-        void document.documentElement.offsetHeight;
-        
-        // Save to session storage
-        sessionStorage.setItem('selectedFont', selectedFont);
+        // Update a small sample preview if we have one
+        if ($('#fontPreview').length) {
+            $('#fontPreview').css('font-family', `'${selectedFont}', sans-serif`);
+        } else {
+            // Create a font preview element if it doesn't exist
+            const preview = $('<div id="fontPreview" class="mt-2 p-2 border rounded">Sample text in ' + selectedFont + '</div>');
+            preview.css('font-family', `'${selectedFont}', sans-serif`);
+            $(this).parent().append(preview);
+        }
     });
 
-    // Font size scale functionality
+    // Font size scale functionality - just for preview
     $('#fontSizeScale').on('change', function() {
         const scale = parseFloat($(this).val());
-        $('html').css('font-size', `${scale * 100}%`);
+        // Just update the preview text in the scale dropdown
+        $(this).css('font-size', `${scale * 100}%`);
+        
+        // Update the font preview if it exists
+        if ($('#fontPreview').length) {
+            $('#fontPreview').css('font-size', `${scale * 100}%`);
+        }
     });
 
     // Reset to defaults
@@ -258,13 +338,21 @@ $(document).ready(function() {
             $('#sidebarCollapsed').prop('checked', defaults.is_sidebar_collapsed);
             $('#navbarFixed').prop('checked', defaults.is_navbar_fixed);
             $('#sidebarFixed').prop('checked', defaults.is_sidebar_fixed);
-
-            // Trigger change events
-            applyChanges();
+            
+            // Update preview colors
+            $('#logoHeaderColorPreview').css('background-color', defaults.logo_header_color);
+            $('#navbarColorPreview').css('background-color', defaults.navbar_color);
+            $('#sidebarColorPreview').css('background-color', defaults.sidebar_color);
+            
+            // Add a small animation to show changes are reset
+            $('.color-preview').css('transform', 'scale(1.05)');
+            setTimeout(() => {
+                $('.color-preview').css('transform', 'scale(1)');
+            }, 300);
         }
     });
 
-    // Original applyChanges function with modifications
+    // Enhanced applyChanges function - only used when form is submitted
     function applyChanges() {
         const logoHeader = $('.logo-header');
         const navbar = $('.navbar-header');
@@ -309,8 +397,10 @@ $(document).ready(function() {
         // Apply dynamic text colors
         if (isLightColor(logoColor)) {
             logoHeader.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+            $('.brand-text').css('color', '#1a2035');
         } else {
             logoHeader.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+            $('.brand-text').css('color', '#ffffff');
         }
 
         if (isLightColor(navbarColor)) {
@@ -321,8 +411,21 @@ $(document).ready(function() {
 
         if (isLightColor(sidebarColor)) {
             sidebar.addClass('text-dynamic-dark').removeClass('text-dynamic-light');
+            // Update sidebar menu text to dark
+            $('.sidebar .nav .nav-item a p').css('color', '#1a2035');
+            $('.sidebar .nav .nav-item a i').css('color', '#1a2035');
         } else {
             sidebar.addClass('text-dynamic-light').removeClass('text-dynamic-dark');
+            // Update sidebar menu text to light
+            $('.sidebar .nav .nav-item a p').css('color', '#ffffff');
+            $('.sidebar .nav .nav-item a i').css('color', '#ffffff');
+            
+            // Make active menu items more visible
+            $('.sidebar .nav .nav-item.active > a').css({
+                'background-color': 'rgba(255, 255, 255, 0.23)',
+                'color': '#ffffff'
+            });
+            $('.sidebar .nav .nav-item.active > a i, .sidebar .nav .nav-item.active > a p').css('color', '#ffffff');
         }
 
         // Apply font
@@ -453,10 +556,16 @@ $(document).ready(function() {
         }
     }
 
-    // Form submission with file upload
+    // Form submission with file upload - apply changes only when form is submitted
     $('#uiSettingsForm').on('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
+        
+        // Show loading indicator
+        const saveBtn = $('#saveChanges');
+        const originalBtnText = saveBtn.html();
+        saveBtn.html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+        saveBtn.prop('disabled', true);
         
         $.ajax({
             url: $(this).attr('action'),
@@ -497,24 +606,29 @@ $(document).ready(function() {
                     '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                     '</div>');
                 $('#uiSettingsForm').before(alert);
+                
+                // Restore button
+                saveBtn.html(originalBtnText);
+                saveBtn.prop('disabled', false);
             }
         });
     });
 
-    // Add change event listeners for all form controls
+    // Add change event listeners for form controls - don't apply changes, just update preview
     $('#uiSettingsForm select, #uiSettingsForm input[type="checkbox"]').on('change', function() {
-        applyChanges();
-        $(document).trigger('colorChanged'); // Trigger color change event
-        });
+        // Don't apply changes immediately
+    });
         
-    // Add input event listeners for color pickers
+    // Add input event listeners for color pickers - don't apply changes, just update preview
     $('#logoHeaderColorPicker, #navbarColorPicker, #sidebarColorPicker').on('input', function() {
-        applyChanges();
-        $(document).trigger('colorChanged'); // Trigger color change event
+        // Don't apply changes immediately
     });
 
-    // Apply initial settings
-    applyChanges();
+    // Add "Save Changes" button styling to make it more prominent
+    $('#saveChanges').addClass('btn-lg').css({
+        'margin-top': '10px',
+        'font-weight': '600'
+    });
 });
 </script>
 @endpush

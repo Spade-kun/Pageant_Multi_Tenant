@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlanRequest;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 
 class PlanRequestController extends Controller
@@ -16,7 +17,10 @@ class PlanRequestController extends Controller
             }]);
         }, 'plan'])->latest()->get();
         
-        return view('admin.requests.index', compact('requests'));
+        // Get all plans for the change plan modal
+        $plans = Plan::where('is_active', true)->get();
+        
+        return view('admin.requests.index', compact('requests', 'plans'));
     }
 
     public function show(PlanRequest $request)

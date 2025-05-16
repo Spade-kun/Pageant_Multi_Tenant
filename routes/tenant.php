@@ -22,11 +22,19 @@ use Illuminate\Support\Facades\DB;
 // Make the update success page directly accessible without middleware or tenant database access
 Route::get('/{slug}/updates/success', function($slug) {
     return view('tenant.updates.success', [
-        'version' => session('update_version') ?? $_GET['version'] ?? $_COOKIE['update_in_progress'] ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
+        'version' => session('update_version') ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
         'migrationStatus' => session('migration_status') ?? 'Update completed successfully.',
         'slug' => $slug
     ]);
 })->name('tenant.updates.success');
+
+// Add a standalone success page that doesn't depend on the template
+Route::get('/{slug}/updates/standalone-success', function($slug) {
+    return view('tenant.updates.standalone-success', [
+        'version' => session('update_version') ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
+        'slug' => $slug
+    ]);
+})->name('tenant.updates.standalone-success');
 
 // Add a route to get update logs
 Route::get('/{slug}/updates/logs', function($slug) {
@@ -51,6 +59,9 @@ Route::middleware('guest:tenant')->group(function () {
     Route::get('/tenant/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
 });
 
+// Route for disabled tenant page (accessible without tenant.active middleware)
+Route::view('/{slug}/disabled', 'tenant.disabled')->name('tenant.disabled');
+
 // Tenant Owner/Organizer Registration
 Route::get('/tenant/register', [TenantController::class, 'showRegistrationForm'])->name('register');
 Route::post('/tenant/register', [TenantController::class, 'register']);
@@ -62,7 +73,7 @@ Route::post('/{slug}/users/register', [TenantController::class, 'register'])->na
 Route::get('/{slug}/users/register-success', [TenantController::class, 'registrationSuccess'])->name('tenant.register.success');
 
 // Tenant Dashboard and protected routes
-Route::middleware(['auth:tenant'])->group(function () {
+Route::middleware(['auth:tenant', 'tenant.active'])->group(function () {
     // Owner Dashboard
     Route::get('/{slug}/dashboard', function ($slug) {
         // Verify tenant exists

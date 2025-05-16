@@ -34,9 +34,13 @@ class TenantStatusNotification extends Mailable
      */
     public function envelope(): Envelope
     {
-        $subject = $this->status === 'approved' 
-            ? 'Your Tenant Application Has Been Approved' 
-            : 'Your Tenant Application Has Been Rejected';
+        $subject = match($this->status) {
+            'approved' => 'Your Tenant Application Has Been Approved',
+            'rejected' => 'Your Tenant Application Has Been Rejected',
+            'enabled' => 'Your Tenant Access Has Been Enabled',
+            'disabled' => 'Your Tenant Access Has Been Disabled',
+            default => 'Update Regarding Your Tenant Status'
+        };
 
         return new Envelope(
             subject: $subject,
@@ -68,9 +72,13 @@ class TenantStatusNotification extends Mailable
      */
     public function build()
     {
-        $subject = $this->status === 'approved' 
-            ? 'Your Tenant Application Has Been Approved' 
-            : 'Your Tenant Application Has Been Rejected';
+        $subject = match($this->status) {
+            'approved' => 'Your Tenant Application Has Been Approved',
+            'rejected' => 'Your Tenant Application Has Been Rejected',
+            'enabled' => 'Your Tenant Access Has Been Enabled',
+            'disabled' => 'Your Tenant Access Has Been Disabled',
+            default => 'Update Regarding Your Tenant Status'
+        };
 
         return $this->markdown('emails.tenant-status')
             ->subject($subject)

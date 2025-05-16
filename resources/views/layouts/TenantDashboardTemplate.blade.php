@@ -125,6 +125,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}" />
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
@@ -1186,6 +1189,11 @@
     <script src="{{ asset('assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js') }}"></script>
     <!-- jQuery Scrollbar -->
     <script src="{{ asset('assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
     <!-- Custom JS Files -->
     <script src="{{ asset('assets/js/custom-scripts.js') }}"></script>
     
@@ -1218,6 +1226,99 @@
                 }
             `;
             document.head.appendChild(style);
+            
+            // Function to determine if a color is light
+            function isLightColor(color) {
+                const hex = color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return brightness > 155;
+            }
+            
+            // Convert RGB to HEX for the isLightColor function
+            const rgbToHex = function(rgb) {
+                if (rgb.startsWith('rgb')) {
+                    const parts = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                    if (parts) {
+                        delete parts[0];
+                        for (let i = 1; i <= 3; ++i) {
+                            parts[i] = parseInt(parts[i]).toString(16);
+                            if (parts[i].length === 1) parts[i] = '0' + parts[i];
+                        }
+                        return '#' + parts.join('').toUpperCase();
+                    }
+                }
+                return rgb;
+            };
+            
+            // Apply text colors based on background colors
+            const logoHeader = document.querySelector('.logo-header');
+            const sidebar = document.querySelector('.sidebar');
+            const navbar = document.querySelector('.navbar-header');
+            
+            if (logoHeader) {
+                const logoColor = window.getComputedStyle(logoHeader).backgroundColor;
+                const brandText = document.querySelector('.brand-text');
+                if (brandText) {
+                    const hexColor = rgbToHex(logoColor);
+                    if (isLightColor(hexColor)) {
+                        brandText.style.color = '#1a2035';
+                    } else {
+                        brandText.style.color = '#ffffff';
+                    }
+                }
+            }
+            
+            if (navbar) {
+                const navbarColor = window.getComputedStyle(navbar).backgroundColor;
+                const hexColor = rgbToHex(navbarColor);
+                
+                // Adjust username text color
+                const usernameText = document.querySelectorAll('.profile-username, .profile-username .op-7, .profile-username .fw-bold');
+                usernameText.forEach(function(element) {
+                    if (isLightColor(hexColor)) {
+                        element.style.color = '#1a2035';
+                    } else {
+                        element.style.color = '#ffffff';
+                    }
+                });
+            }
+            
+            if (sidebar) {
+                const sidebarColor = window.getComputedStyle(sidebar).backgroundColor;
+                const sidebarLinks = document.querySelectorAll('.sidebar .nav .nav-item a p, .sidebar .nav .nav-item a i');
+                const activeMenuItems = document.querySelectorAll('.sidebar .nav .nav-item.active > a, .sidebar .nav .nav-item.active > a p, .sidebar .nav .nav-item.active > a i');
+                
+                const hexColor = rgbToHex(sidebarColor);
+                
+                // Apply colors to all sidebar menu items
+                sidebarLinks.forEach(function(link) {
+                    if (isLightColor(hexColor)) {
+                        link.style.color = '#1a2035';
+                    } else {
+                        link.style.color = '#ffffff';
+                    }
+                });
+                
+                // Special handling for active menu items
+                if (!isLightColor(hexColor)) {
+                    activeMenuItems.forEach(function(item) {
+                        item.style.color = '#ffffff';
+                        if (item.tagName.toLowerCase() === 'a') {
+                            item.style.backgroundColor = 'rgba(255, 255, 255, 0.23)';
+                        }
+                    });
+                } else {
+                    activeMenuItems.forEach(function(item) {
+                        item.style.color = '#1a2035';
+                        if (item.tagName.toLowerCase() === 'a') {
+                            item.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                        }
+                    });
+                }
+            }
         });
     </script>
     

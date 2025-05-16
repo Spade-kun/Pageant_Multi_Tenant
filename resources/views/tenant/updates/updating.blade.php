@@ -125,6 +125,7 @@
         // Store important values
         const successUrl = "{{ route('tenant.updates.success', ['slug' => $slug]) }}";
         const updatesUrl = "{{ route('tenant.updates.index', ['slug' => $slug]) }}";
+        const targetVersion = "{{ $targetVersion }}";
         
         // Setup page elements
         const progressBar = document.getElementById('progress-bar');
@@ -136,6 +137,9 @@
         const attemptsSpan = document.getElementById('attempts');
         const statusText = document.getElementById('status-text');
         const tryAgainBtn = document.getElementById('try-again-btn');
+        
+        // Store the update start time
+        const updateStartTime = new Date();
         
         // Setup local logging to help with debugging
         function logToLocalStorage(message) {
@@ -154,8 +158,50 @@
             }
         }
         
+        // Function to reload the success page after a specified delay
+        function reloadSuccessPage(delay = 3000) {
+            logToLocalStorage(`Waiting ${delay/1000} seconds and trying to load success page again...`);
+            setTimeout(() => {
+                logToLocalStorage("Reloading success page...");
+                // Create and submit a form to navigate to the success page
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = successUrl;
+                
+                // Add hidden input for version
+                const versionInput = document.createElement('input');
+                versionInput.type = 'hidden';
+                versionInput.name = 'version';
+                versionInput.value = targetVersion;
+                form.appendChild(versionInput);
+                
+                // Add timestamp parameter to prevent caching
+                const timestampInput = document.createElement('input');
+                timestampInput.type = 'hidden';
+                timestampInput.name = 'ts';
+                timestampInput.value = new Date().getTime();
+                form.appendChild(timestampInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }, delay);
+        }
+        
+        // Check if the update has been running for a reasonable amount of time
+        // If it's been longer than 20 seconds, attempt auto-reload
+        setTimeout(() => {
+            const updateDuration = (new Date() - updateStartTime) / 1000;
+            logToLocalStorage(`Update has been running for ${updateDuration} seconds`);
+            
+            // If we're still on the progress page after 20 seconds, try to load the success page
+            if (updatingContent.style.display !== 'none') {
+                logToLocalStorage("Still on progress page after 20+ seconds, attempting to load success page");
+                reloadSuccessPage(100); // Almost immediate reload
+            }
+        }, 20000);
+        
         // Log initial state
-        logToLocalStorage(`Update process started for version ${successUrl}`);
+        logToLocalStorage(`Update process started for version ${targetVersion}`);
         
         // Progress simulation
         let progress = 10;
@@ -213,7 +259,6 @@
                             logToLocalStorage("Redirecting to success page: " + successUrl);
                             
                             // Create and submit a form to navigate to the success page
-                            // This approach works better with some browsers than window.location
                             const form = document.createElement('form');
                             form.method = 'GET';
                             form.action = successUrl;
@@ -222,7 +267,7 @@
                             const versionInput = document.createElement('input');
                             versionInput.type = 'hidden';
                             versionInput.name = 'version';
-                            versionInput.value = '{{ $targetVersion }}';
+                            versionInput.value = targetVersion;
                             form.appendChild(versionInput);
                             
                             document.body.appendChild(form);
@@ -278,11 +323,9 @@
                     // Exponential backoff: wait longer between attempts
                     setTimeout(attemptRedirect, attempts * 1000);
                 } else {
-                    // After max attempts, show manual options
-                    logToLocalStorage(`Maximum attempts (${maxAttempts}) reached. Showing manual options.`);
-                    updatingContent.style.display = 'none';
-                    retryContent.style.display = 'none';
-                    manualRedirect.style.display = 'block';
+                    // After max attempts, try one more time with GET request instead of HEAD
+                    logToLocalStorage(`Maximum attempts (${maxAttempts}) reached. Trying direct navigation.`);
+                    reloadSuccessPage(100);
                 }
             }
             
@@ -304,17 +347,15 @@
         // Begin the checking process after showing progress
         setTimeout(checkServerAndRedirect, 10000);
         
-        // Add a fallback to show manual redirect options after a long timeout
+        // Add a fallback to show manual redirect options after a timeout
         setTimeout(() => {
-            // If we're still showing the progress or retry content after 2 minutes,
-            // show the manual options
+            // If we're still showing the progress or retry content after 1 minute,
+            // try a direct reload of the success page
             if (completedContent.style.display === 'none' && manualRedirect.style.display === 'none') {
-                logToLocalStorage("Timeout reached. Showing manual options.");
-                updatingContent.style.display = 'none';
-                retryContent.style.display = 'none';
-                manualRedirect.style.display = 'block';
+                logToLocalStorage("1 minute timeout reached. Attempting direct navigation to success page.");
+                reloadSuccessPage(100);
             }
-        }, 120000); // 2 minutes
+        }, 60000); // 1 minute
     </script>
 </body>
 </html> 

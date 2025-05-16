@@ -456,7 +456,7 @@ class UpdateController extends Controller
             
             // Get the slug for the success page URL
             $slug = $this->getSlug();
-            $successUrl = route('tenant.updates.success', ['slug' => $slug]);
+            $successUrl = route('tenant.updates.standalone-success', ['slug' => $slug]);
             
             $this->logUpdateActivity("Update process completed successfully. Redirecting to $successUrl");
             

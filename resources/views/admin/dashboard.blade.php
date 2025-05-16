@@ -31,13 +31,13 @@
                         <div class="col-12 col-sm-6 col-md-4">
                             <div class="info-box mb-3">
                                 <span class="info-box-icon bg-success elevation-1">
-                                    <i class="fas fa-users"></i>
+                                    <i class="fas fa-credit-card"></i>
                                 </span>
                                 <div class="info-box-content">
-                                    <h5 class="info-box-text">{{ __('Manage Users') }}</h5>
-                                    <p class="info-box-desc text-sm mb-2">{{ __('Manage admin users and their permissions.') }}</p>
-                                    <a href="#" class="btn btn-success btn-sm">
-                                        <i class="fas fa-arrow-right"></i> {{ __('View Users') }}
+                                    <h5 class="info-box-text">{{ __('Manage Subscriptions') }}</h5>
+                                        <p class="info-box-desc text-sm mb-2">{{ __('Manage tenant subscriptions and plans.') }}</p>
+                                        <a href="{{ route('admin.plans.index') }}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-arrow-right"></i> {{ __('View Subscriptions') }}
                             </a>
                                 </div>
                             </div>

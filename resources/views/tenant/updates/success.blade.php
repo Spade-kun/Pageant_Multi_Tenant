@@ -60,7 +60,7 @@
                                         <h5 class="card-title">
                                             <i class="fas fa-tasks mr-2"></i> Next Steps
                                         </h5>
-                        </div>
+                                    </div>
                                     <div class="card-body">
                                         <ul class="fa-ul">
                                             <li class="mb-2">
@@ -75,7 +75,7 @@
                                                 <span class="fa-li"><i class="fas fa-check text-success"></i></span>
                                                 Review any new features or changes
                                             </li>
-                            </ul>
+                                        </ul>
                                         <div class="mt-3 text-center">
                                             <a href="{{ route('tenant.dashboard', ['slug' => $slug]) }}" class="btn btn-primary btn-lg mr-2">
                                                 <i class="fas fa-home"></i> Go to Dashboard

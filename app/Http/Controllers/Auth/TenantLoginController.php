@@ -118,6 +118,13 @@ class TenantLoginController extends Controller
             ])->onlyInput('email');
         }
 
+        // If tenant is not active
+        if (!$tenant->is_active) {
+            return back()->withErrors([
+                'email' => 'This tenant is currently disabled. Please contact the administrator.',
+            ])->onlyInput('email');
+        }
+
         // If we found a tenant user but not a user in the tenant database, set up the connection
         if ($tenantUser && !$user) {
             $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
@@ -346,6 +353,16 @@ class TenantLoginController extends Controller
                 ]);
                 return redirect()->route('tenant.login')
                     ->withErrors(['email' => 'Your account is not approved or the tenant is not active.']);
+            }
+
+            // If tenant is not active
+            if (!$tenant->is_active) {
+                \Log::warning('Tenant not active', [
+                    'email' => $googleUser->email,
+                    'tenant_slug' => $tenant ? $tenant->slug : 'null'
+                ]);
+                return redirect()->route('tenant.login')
+                    ->withErrors(['email' => 'This tenant is currently disabled. Please contact the administrator.']);
             }
 
             // If we found a tenant user but not a user in the tenant database, set up the connection

@@ -317,29 +317,56 @@ class TenantManagementController extends Controller
     }
 
     /**
-     * Display the tenant access management page.
+     * Toggle tenant access
      */
     public function access()
     {
-        // Redirect to the index page with access tab active
-        return redirect()->route('admin.tenants.index', ['tab' => 'access']);
+        return redirect()->route('admin.tenants.index');
     }
 
     /**
-     * Enable access for the specified tenant.
+     * Enable a tenant's access
      */
     public function enable(Tenant $tenant)
     {
-        $tenant->update(['is_active' => true]);
-        return redirect()->back()->with('success', 'Tenant access has been enabled.');
+        try {
+            $tenant->update([
+                'is_active' => true
+            ]);
+            
+            // Notify tenant owner
+            $ownerUser = $tenant->users()->where('role', 'owner')->first();
+            if ($ownerUser) {
+                Mail::to($ownerUser->email)
+                    ->send(new TenantStatusNotification($tenant, 'enabled'));
+            }
+            
+            return back()->with('success', 'Tenant access has been enabled.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to enable tenant access: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Disable access for the specified tenant.
+     * Disable a tenant's access
      */
     public function disable(Tenant $tenant)
     {
-        $tenant->update(['is_active' => false]);
-        return redirect()->back()->with('success', 'Tenant access has been disabled.');
+        try {
+            $tenant->update([
+                'is_active' => false
+            ]);
+            
+            // Notify tenant owner
+            $ownerUser = $tenant->users()->where('role', 'owner')->first();
+            if ($ownerUser) {
+                Mail::to($ownerUser->email)
+                    ->send(new TenantStatusNotification($tenant, 'disabled'));
+            }
+            
+            return back()->with('success', 'Tenant access has been disabled.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to disable tenant access: ' . $e->getMessage());
+        }
     }
 } 

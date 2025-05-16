@@ -106,12 +106,86 @@
         </div>
 @endsection
 
-@section('scripts')
+@push('styles')
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}">
+<style>
+    /* DataTables Styling */
+    .dataTables_wrapper .dataTables_length select {
+        width: 75px;
+        display: inline-block;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 300px;
+        margin-left: 0.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        padding-top: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5rem 1rem;
+        margin-left: 0.25rem;
+        border-radius: 0.25rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #0d6efd !important;
+        color: white !important;
+        border: 1px solid #0d6efd !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #0b5ed7 !important;
+        color: white !important;
+        border: 1px solid #0b5ed7 !important;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<!-- jQuery -->
+<script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
+<!-- Bootstrap JS -->
+<script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+<!-- DataTables JS -->
+<script src="{{ asset('assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script>
     $(document).ready(function() {
         $('#dataTable').DataTable({
             "pageLength": 10,
-            "order": [[0, 'asc']]
+            "responsive": true,
+            "order": [[0, 'asc']],
+            "columnDefs": [
+                { "orderable": false, "targets": 5 } // Disable sorting for actions column
+            ],
+            language: {
+                search: "Search categories:",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "No entries to show",
+                infoFiltered: "(filtered from _MAX_ total entries)",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                }
+            }
         });
         
         // Ensure modals work properly
@@ -128,4 +202,4 @@
         });
     });
 </script>
-@endsection 
+@endpush 
