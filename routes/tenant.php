@@ -59,6 +59,9 @@ Route::middleware('guest:tenant')->group(function () {
     Route::get('/tenant/google/callback', [TenantLoginController::class, 'handleGoogleCallback'])->name('tenant.google.callback');
 });
 
+// Route for disabled tenant page (accessible without tenant.active middleware)
+Route::view('/{slug}/disabled', 'tenant.disabled')->name('tenant.disabled');
+
 // Tenant Owner/Organizer Registration
 Route::get('/tenant/register', [TenantController::class, 'showRegistrationForm'])->name('register');
 Route::post('/tenant/register', [TenantController::class, 'register']);
@@ -70,7 +73,7 @@ Route::post('/{slug}/users/register', [TenantController::class, 'register'])->na
 Route::get('/{slug}/users/register-success', [TenantController::class, 'registrationSuccess'])->name('tenant.register.success');
 
 // Tenant Dashboard and protected routes
-Route::middleware(['auth:tenant'])->group(function () {
+Route::middleware(['auth:tenant', 'tenant.active'])->group(function () {
     // Owner Dashboard
     Route::get('/{slug}/dashboard', function ($slug) {
         // Verify tenant exists
