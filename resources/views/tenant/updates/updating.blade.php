@@ -104,6 +104,15 @@
                 <div class="mt-4">
                     <button class="btn btn-primary" id="try-again-btn">Try Again</button>
                 </div>
+                <hr>
+                <div class="mt-4">
+                    <p>If links don't work, use this form to navigate to the success page:</p>
+                    <form action="{{ $successUrl }}" method="GET">
+                        <input type="hidden" name="version" value="{{ $targetVersion }}">
+                        <input type="hidden" name="manual_redirect" value="1">
+                        <button type="submit" class="btn btn-success">Go to Success Page</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +133,26 @@
         const statusText = document.getElementById('status-text');
         const tryAgainBtn = document.getElementById('try-again-btn');
         
+        // Setup local logging to help with debugging
+        function logToLocalStorage(message) {
+            try {
+                if (window.localStorage) {
+                    const timestamp = new Date().toISOString();
+                    const logKey = 'update_log_{{ $targetVersion }}';
+                    let logs = JSON.parse(localStorage.getItem(logKey) || '[]');
+                    logs.push(`${timestamp}: ${message}`);
+                    localStorage.setItem(logKey, JSON.stringify(logs.slice(-100))); // Keep only last 100 entries
+                    console.log(`[UPDATE LOG] ${message}`);
+                }
+            } catch (e) {
+                // Silently fail if localStorage is not available
+                console.log(`[UPDATE LOG ERROR] ${e.message}`);
+            }
+        }
+        
+        // Log initial state
+        logToLocalStorage(`Update process started for version ${successUrl}`);
+        
         // Progress simulation
         let progress = 10;
         let progressSteps = [
@@ -143,9 +172,11 @@
         const progressInterval = setInterval(() => {
             if (currentStep < progressSteps.length) {
                 progress = progressSteps[currentStep].progress;
-                statusText.textContent = progressSteps[currentStep].message;
+                const message = progressSteps[currentStep].message;
+                statusText.textContent = message;
                 progressBar.style.width = progress + '%';
                 progressBar.setAttribute('aria-valuenow', progress);
+                logToLocalStorage(`Progress: ${progress}%, ${message}`);
                 currentStep++;
             } else {
                 clearInterval(progressInterval);
@@ -163,6 +194,7 @@
                 progressBar.style.width = progress + '%';
                 progressBar.setAttribute('aria-valuenow', progress);
                 statusText.textContent = "Update completed!";
+                logToLocalStorage("Update process completed, preparing to redirect");
                 
                 // Show completion animation
                 setTimeout(() => {
@@ -174,8 +206,10 @@
                     // Try to redirect after showing the success message briefly
                     setTimeout(() => {
                         try {
+                            logToLocalStorage("Redirecting to success page: " + successUrl);
                             window.location.href = successUrl;
                         } catch (e) {
+                            logToLocalStorage("Redirect failed: " + e.message);
                             // Show manual redirect options if automatic redirect fails
                             completedContent.style.display = 'none';
                             manualRedirect.style.display = 'block';
@@ -185,6 +219,8 @@
             }
             
             function attemptRedirect() {
+                logToLocalStorage(`Attempt ${attempts} of ${maxAttempts} to check server availability`);
+                
                 // Try to fetch the success page to see if server is responsive
                 fetch(successUrl, { 
                     method: 'HEAD',
@@ -192,6 +228,7 @@
                     headers: { 'Cache-Control': 'no-cache' }
                 })
                 .then(response => {
+                    logToLocalStorage(`Server responded with status: ${response.status}`);
                     if (response.ok) {
                         finalizeAndRedirect();
                     } else {
@@ -199,6 +236,7 @@
                     }
                 })
                 .catch(error => {
+                    logToLocalStorage(`Error checking server: ${error.message}`);
                     console.error("Error checking server:", error);
                     retryIfNeeded();
                 });
@@ -208,6 +246,7 @@
                 if (attempts < maxAttempts) {
                     attempts++;
                     attemptsSpan.textContent = attempts;
+                    logToLocalStorage(`Will retry in ${attempts} seconds (attempt ${attempts} of ${maxAttempts})`);
                     
                     // Show the retry message after the first attempt
                     if (attempts === 2) {
@@ -221,6 +260,7 @@
                     setTimeout(attemptRedirect, attempts * 1000);
                 } else {
                     // After max attempts, show manual options
+                    logToLocalStorage(`Maximum attempts (${maxAttempts}) reached. Showing manual options.`);
                     updatingContent.style.display = 'none';
                     retryContent.style.display = 'none';
                     manualRedirect.style.display = 'block';
@@ -234,6 +274,7 @@
         // Try again button handler
         if (tryAgainBtn) {
             tryAgainBtn.addEventListener('click', function() {
+                logToLocalStorage("Try again button clicked");
                 manualRedirect.style.display = 'none';
                 updatingContent.style.display = 'block';
                 statusText.textContent = "Checking server status...";
@@ -249,6 +290,7 @@
             // If we're still showing the progress or retry content after 2 minutes,
             // show the manual options
             if (completedContent.style.display === 'none' && manualRedirect.style.display === 'none') {
+                logToLocalStorage("Timeout reached. Showing manual options.");
                 updatingContent.style.display = 'none';
                 retryContent.style.display = 'none';
                 manualRedirect.style.display = 'block';

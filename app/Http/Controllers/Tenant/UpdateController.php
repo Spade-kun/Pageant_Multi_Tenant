@@ -28,6 +28,41 @@ class UpdateController extends Controller
                 'Authorization' => $token ? "token {$token}" : null
             ]
         ]);
+        
+        // Create a dedicated log file for update activities
+        if (!file_exists(storage_path('logs/updates'))) {
+            mkdir(storage_path('logs/updates'), 0755, true);
+        }
+    }
+
+    /**
+     * Log update activity to dedicated log file
+     * 
+     * @param string $message Message to log
+     * @param string $level Log level (info, error, warning)
+     * @return void
+     */
+    protected function logUpdateActivity($message, $level = 'info')
+    {
+        $logFile = storage_path('logs/updates/update_' . date('Y-m-d') . '.log');
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[$timestamp] [$level] $message" . PHP_EOL;
+        
+        // Log to dedicated update log
+        file_put_contents($logFile, $logMessage, FILE_APPEND);
+        
+        // Also log to Laravel logs
+        switch ($level) {
+            case 'error':
+                \Log::error("[UPDATE] $message");
+                break;
+            case 'warning':
+                \Log::warning("[UPDATE] $message");
+                break;
+            default:
+                \Log::info("[UPDATE] $message");
+                break;
+        }
     }
 
     /**
@@ -93,6 +128,9 @@ class UpdateController extends Controller
      */
     public function update($request)
     {
+        // Log start of update process
+        $this->logUpdateActivity("Starting update process for tenant: " . $this->getSlug());
+        
         // Prevent timeout for long-running update
         set_time_limit(0);
         ini_set('memory_limit', '512M');
@@ -112,34 +150,42 @@ class UpdateController extends Controller
         try {
             // Get version from request
             $targetVersion = $request->input('version');
+            $this->logUpdateActivity("Target version: $targetVersion");
             
             if (empty($targetVersion)) {
+                $this->logUpdateActivity("No version specified for update", "error");
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'No version was specified for the update.');
             }
             
             $currentVersion = $this->updater->source()->getVersionInstalled();
             $this->logDebug("Updating from version {$currentVersion} to {$targetVersion}", $debugMode);
+            $this->logUpdateActivity("Current version: $currentVersion, Target version: $targetVersion");
 
             // Validate if the selected version exists in releases
             $releases = $this->getReleases();
             $validVersion = collect($releases)->where('version', $targetVersion)->first();
 
             if (!$validVersion) {
+                $this->logUpdateActivity("Invalid version specified: $targetVersion", "error");
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Selected version is not available.');
             }
+            $this->logUpdateActivity("Valid version confirmed: $targetVersion");
 
             $updatePath = storage_path('app/updater');
             if (!file_exists($updatePath)) {
+                $this->logUpdateActivity("Creating update directory: $updatePath");
                 if (!mkdir($updatePath, 0755, true)) {
                     $this->logDebug("Failed to create update directory: {$updatePath}", $debugMode, 'error');
+                    $this->logUpdateActivity("Failed to create update directory: $updatePath", "error");
                     return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to create update directory. Please check directory permissions.');
                 }
             }
             
             if (!is_writable($updatePath)) {
+                $this->logUpdateActivity("Update directory is not writable: $updatePath", "error");
                 \Log::error('Update directory is not writable: ' . $updatePath);
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Update directory is not writable. Please check directory permissions.');
@@ -148,10 +194,13 @@ class UpdateController extends Controller
             // Get the download URL for the release
             $vendor = config('self-update.repository_types.github.repository_vendor');
             $repo = config('self-update.repository_types.github.repository_name');
+            $this->logUpdateActivity("Fetching release info from GitHub: $vendor/$repo/releases/tags/v$targetVersion");
+            
             $response = $this->client->get("repos/{$vendor}/{$repo}/releases/tags/v{$targetVersion}");
             $releaseData = json_decode($response->getBody(), true);
 
             if (!isset($releaseData['zipball_url'])) {
+                $this->logUpdateActivity("Could not find download URL for version: $targetVersion", "error");
                 \Log::error('Could not find download URL for version: ' . $targetVersion);
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Could not find download URL for the selected version.');
@@ -159,6 +208,8 @@ class UpdateController extends Controller
 
             $zipUrl = $releaseData['zipball_url'];
             $zipFile = $updatePath . DIRECTORY_SEPARATOR . "release-v{$targetVersion}.zip";
+            $this->logUpdateActivity("ZIP URL: $zipUrl");
+            $this->logUpdateActivity("ZIP destination: $zipFile");
 
             // Check if there's a release asset zip file
             $assetZipUrl = null;
@@ -167,6 +218,7 @@ class UpdateController extends Controller
                     if (preg_match('/\.zip$/', $asset['name'])) {
                         $assetZipUrl = $asset['download_url'];
                         $this->logDebug("Found asset zip file: {$asset['name']}", $debugMode);
+                        $this->logUpdateActivity("Found asset zip file: {$asset['name']}");
                         break;
                     }
                 }
@@ -175,16 +227,22 @@ class UpdateController extends Controller
             // Download the zip file
             try {
                 $this->logDebug("Downloading zip from: {$zipUrl}", $debugMode);
+                $this->logUpdateActivity("Downloading zip from: $zipUrl");
+                
                 $zipResponse = $this->client->get($zipUrl, ['sink' => $zipFile]);
                 if (!file_exists($zipFile)) {
                     $this->logDebug("Failed to download zip file to: {$zipFile}", $debugMode, 'error');
+                    $this->logUpdateActivity("Failed to download zip file to: $zipFile", "error");
                     return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                         ->with('error', 'Failed to download release zip file.');
                 } else {
-                    $this->logDebug("Successfully downloaded zip file: {$zipFile} (size: " . filesize($zipFile) . " bytes)", $debugMode);
+                    $fileSize = filesize($zipFile);
+                    $this->logDebug("Successfully downloaded zip file: {$zipFile} (size: $fileSize bytes)", $debugMode);
+                    $this->logUpdateActivity("Successfully downloaded zip file: $zipFile (size: $fileSize bytes)");
                 }
             } catch (\Exception $e) {
                 $this->logDebug("Error downloading zip: " . $e->getMessage(), $debugMode, 'error');
+                $this->logUpdateActivity("Error downloading zip: " . $e->getMessage(), "error");
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Error downloading release zip: ' . $e->getMessage());
             }
@@ -192,28 +250,37 @@ class UpdateController extends Controller
             // Extract the zip file
             $extractPath = $updatePath . DIRECTORY_SEPARATOR . "extracted-v{$targetVersion}";
             if (!file_exists($extractPath)) {
+                $this->logUpdateActivity("Creating extract directory: $extractPath");
                 mkdir($extractPath, 0755, true);
             }
             
             $zip = new \ZipArchive();
             $zipResult = $zip->open($zipFile);
             $this->logDebug("Zip open result: " . ($zipResult === TRUE ? 'SUCCESS' : 'FAILED (code: ' . $zipResult . ')'), $debugMode);
+            $this->logUpdateActivity("Zip open result: " . ($zipResult === TRUE ? 'SUCCESS' : 'FAILED (code: ' . $zipResult . ')'));
             
             if ($zipResult === TRUE) {
                 $this->logDebug("Extracting zip to: {$extractPath}", $debugMode);
+                $this->logUpdateActivity("Extracting zip to: $extractPath");
                 $zip->extractTo($extractPath);
                 $zip->close();
-                $this->logDebug("Extraction completed. Number of files: " . count(glob($extractPath . '/*')), $debugMode);
+                
+                $fileCount = count(glob($extractPath . '/*'));
+                $this->logDebug("Extraction completed. Number of files: $fileCount", $debugMode);
+                $this->logUpdateActivity("Extraction completed. Number of files: $fileCount");
             } else {
                 $this->logDebug("Failed to extract zip file", $debugMode, 'error');
+                $this->logUpdateActivity("Failed to extract zip file", "error");
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to extract release zip.');
             }
 
             // Detect the actual code directory from the extracted zip
             $this->logDebug("Detecting source code root", $debugMode);
+            $this->logUpdateActivity("Detecting source code root");
             $actualSource = $this->detectSourceCodeRoot($extractPath);
             $this->logDebug("Source code root detected: {$actualSource}", $debugMode);
+            $this->logUpdateActivity("Source code root detected: $actualSource");
 
             // Define which files and folders to exclude from updates and backups
             $exclude = [
@@ -234,10 +301,12 @@ class UpdateController extends Controller
                 '.DS_Store',
                 'phpunit.xml'
             ];
+            $this->logUpdateActivity("Exclude patterns: " . implode(", ", $exclude));
 
             // Backup current app (excluding critical folders/files)
             $rootPath = base_path();
             $backupFile = $updatePath . DIRECTORY_SEPARATOR . "backup-v{$currentVersion}.zip";
+            $this->logUpdateActivity("Creating backup at: $backupFile");
             
             $zipBackup = new \ZipArchive();
             if ($zipBackup->open($backupFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
@@ -246,6 +315,7 @@ class UpdateController extends Controller
                     \RecursiveIteratorIterator::SELF_FIRST
                 );
                 
+                $backupFileCount = 0;
                 foreach ($files as $file) {
                     $filePath = $file->getRealPath();
                     $relativePath = ltrim(str_replace($rootPath, '', $filePath), DIRECTORY_SEPARATOR);
@@ -275,13 +345,16 @@ class UpdateController extends Controller
                         } else {
                             if ($filePath && file_exists($filePath)) {
                                 $zipBackup->addFile($filePath, $relativePath);
+                                $backupFileCount++;
                             }
                         }
                     }
                 }
                 
                 $zipBackup->close();
+                $this->logUpdateActivity("Backup created with $backupFileCount files, size: " . filesize($backupFile) . " bytes");
             } else {
+                $this->logUpdateActivity("Failed to create backup zip", "error");
                 \Log::error('Failed to create backup zip.');
                 return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                     ->with('error', 'Failed to create backup zip.');
@@ -289,25 +362,32 @@ class UpdateController extends Controller
 
             // Copy extracted files to app root (excluding critical folders/files)
             $this->logDebug("Copying files from {$actualSource} to {$rootPath}", $debugMode);
-            $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
-            $this->logDebug("File copying completed", $debugMode);
+            $this->logUpdateActivity("Copying files from $actualSource to $rootPath");
+            $updatedFiles = $this->copyUpdateFiles($actualSource, $rootPath, $exclude);
+            $this->logDebug("File copying completed. Updated $updatedFiles files", $debugMode);
+            $this->logUpdateActivity("File copying completed. Updated $updatedFiles files");
 
             // Clean up extracted folder
+            $this->logUpdateActivity("Cleaning up extracted folder");
             $this->deleteDirectory($extractPath);
             
             // Update SELF_UPDATER_VERSION_INSTALLED in .env
+            $this->logUpdateActivity("Updating version in .env file to $targetVersion");
             $this->updateEnvVersion($targetVersion);
 
             // Clear caches
             try {
                 $this->logDebug("Clearing application caches", $debugMode);
+                $this->logUpdateActivity("Clearing application caches");
                 \Artisan::call('config:clear');
                 \Artisan::call('cache:clear');
                 \Artisan::call('view:clear');
                 \Artisan::call('route:clear');
                 $this->logDebug("Application caches cleared successfully", $debugMode);
+                $this->logUpdateActivity("Application caches cleared successfully");
             } catch (\Exception $e) {
                 $this->logDebug("Error clearing caches: " . $e->getMessage(), $debugMode, 'warning');
+                $this->logUpdateActivity("Error clearing caches: " . $e->getMessage(), "warning");
             }
 
             // Run composer install --no-dev
@@ -316,37 +396,48 @@ class UpdateController extends Controller
             
             try {
                 $this->logDebug("Running composer install", $debugMode);
+                $this->logUpdateActivity("Running composer install");
                 exec('composer install --no-dev 2>&1', $composerOutput, $composerReturn);
                 if ($composerReturn !== 0) {
                     $this->logDebug("Composer install returned non-zero exit code: " . $composerReturn, $debugMode, 'warning');
-                    $this->logDebug("Composer output: " . implode("\n", $composerOutput), $debugMode, 'warning');
+                    $this->logUpdateActivity("Composer install returned non-zero exit code: $composerReturn", "warning");
+                    $this->logUpdateActivity("Composer output: " . implode("\n", $composerOutput), "warning");
                 } else {
                     $this->logDebug("Composer install completed successfully", $debugMode);
+                    $this->logUpdateActivity("Composer install completed successfully");
                 }
             } catch (\Exception $e) {
                 $this->logDebug("Error running composer: " . $e->getMessage(), $debugMode, 'warning');
+                $this->logUpdateActivity("Error running composer: " . $e->getMessage(), "warning");
             }
             
             // Run php artisan migrate for central database
             try {
                 $this->logDebug("Running migrations for central database", $debugMode);
+                $this->logUpdateActivity("Running migrations for central database");
                 $migrateOutput = \Artisan::call('migrate', ['--force' => true]);
                 $this->logDebug("Central database migrations completed with exit code: {$migrateOutput}", $debugMode);
+                $this->logUpdateActivity("Central database migrations completed with exit code: $migrateOutput");
             } catch (\Exception $e) {
                 $this->logDebug("Central database migration error: " . $e->getMessage(), $debugMode, 'error');
+                $this->logUpdateActivity("Central database migration error: " . $e->getMessage(), "error");
             }
             
             // Run migrations for all tenant databases
             try {
                 $this->logDebug("Running migrations for all tenant databases", $debugMode);
+                $this->logUpdateActivity("Running migrations for all tenant databases");
                 $tenantMigrateOutput = \Artisan::call('migrate:all-tenants', ['--force' => true]);
                 $this->logDebug("Tenant migrations completed with exit code: {$tenantMigrateOutput}", $debugMode);
+                $this->logUpdateActivity("Tenant migrations completed with exit code: $tenantMigrateOutput");
                 
                 if ($tenantMigrateOutput !== 0) {
                     $this->logDebug("Some tenant migrations failed. Check the log for details.", $debugMode, 'warning');
+                    $this->logUpdateActivity("Some tenant migrations failed. Check the log for details.", "warning");
                 }
             } catch (\Exception $e) {
                 $this->logDebug("Tenant migrations error: " . $e->getMessage(), $debugMode, 'error');
+                $this->logUpdateActivity("Tenant migrations error: " . $e->getMessage(), "error");
             }
 
             // Restore original log level
@@ -355,11 +446,15 @@ class UpdateController extends Controller
             // Store the update details in the session for the success page
             session()->flash('update_success', true);
             session()->flash('update_version', $targetVersion);
-            session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
+            session()->flash('migration_status', 'Central database and tenant databases have been migrated successfully.');
+            session()->flash('updated_files_count', $updatedFiles);
+            session()->flash('update_log_file', 'updates/update_' . date('Y-m-d') . '.log');
             
             // Get the slug for the success page URL
             $slug = $this->getSlug();
             $successUrl = url('/' . $slug . '/updates/success');
+            
+            $this->logUpdateActivity("Update process completed successfully. Redirecting to $successUrl");
             
             // Return a response with JavaScript redirect
             // This handles the case where the server might be temporarily unavailable
@@ -368,36 +463,41 @@ class UpdateController extends Controller
                 'successUrl' => $successUrl, 
                 'targetVersion' => $targetVersion,
                 'slug' => $slug,
-                'updatedFiles' => count(glob($actualSource . '/**/.*', GLOB_NOSORT | GLOB_BRACE)) + count(glob($actualSource . '/**/*', GLOB_NOSORT | GLOB_BRACE)),
+                'updatedFiles' => $updatedFiles,
                 'migrationStatus' => 'Central database and tenant databases have been migrated successfully.'
             ]);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
-            \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            $errorMessage = 'Update failed: ' . $e->getMessage();
+            $this->logUpdateActivity($errorMessage . "\n" . $e->getTraceAsString(), "error");
+            \Log::error($errorMessage . "\n" . $e->getTraceAsString());
+            
             return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
-                ->with('error', 'Update failed: ' . $e->getMessage());
+                ->with('error', $errorMessage);
         }
     }
 
     // Recursively copy files from source to destination, skipping excluded folders/files
     protected function copyUpdateFiles($source, $destination, $exclude = [])
     {
-        $this->logDebug("Copying files from {$source} to {$destination}", true);
+        $this->logUpdateActivity("Copying files from {$source} to {$destination}");
         
         if (!is_dir($source)) {
-            $this->logDebug("Source directory does not exist: {$source}", true, 'error');
-            return false;
+            $this->logUpdateActivity("Source directory does not exist: {$source}", "error");
+            return 0;
         }
 
         if (!is_dir($destination)) {
+            $this->logUpdateActivity("Creating destination directory: {$destination}");
             if (!mkdir($destination, 0755, true)) {
-                $this->logDebug("Failed to create destination directory: {$destination}", true, 'error');
-                return false;
+                $this->logUpdateActivity("Failed to create destination directory: {$destination}", "error");
+                return 0;
             }
         }
         
+        $fileCount = 0;
         $dir = opendir($source);
         while (($file = readdir($dir)) !== false) {
             if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
@@ -406,47 +506,48 @@ class UpdateController extends Controller
                 
                 // Skip log files
                 if ($this->isLogFile($sourcePath)) {
-                    $this->logDebug("Skipping log file: {$file}", true);
+                    $this->logUpdateActivity("Skipping log file: {$file}");
                     continue;
                 }
                 
                 if (is_dir($sourcePath)) {
-                    $this->copyUpdateFiles($sourcePath, $destPath, $exclude);
+                    $fileCount += $this->copyUpdateFiles($sourcePath, $destPath, $exclude);
                 } else {
                     // Special handling for artisan file
                     if ($file === 'artisan') {
-                        $this->logDebug("Copying artisan file", true);
+                        $this->logUpdateActivity("Copying artisan file and making executable");
                         if (!copy($sourcePath, $destPath)) {
-                            $this->logDebug("Failed to copy artisan file", true, 'error');
-                            return false;
+                            $this->logUpdateActivity("Failed to copy artisan file", "error");
+                            continue;
                         }
                         // Make artisan file executable
                         chmod($destPath, 0755);
-                        $this->logDebug("Made artisan file executable", true);
                     }
                     // Special handling for run-servers.php
                     else if ($file === 'run-servers.php') {
-                        $this->logDebug("Copying run-servers.php", true);
+                        $this->logUpdateActivity("Copying run-servers.php and making executable");
                         if (!copy($sourcePath, $destPath)) {
-                            $this->logDebug("Failed to copy run-servers.php", true, 'error');
-                            return false;
+                            $this->logUpdateActivity("Failed to copy run-servers.php", "error");
+                            continue;
                         }
                         // Make run-servers.php executable
                         chmod($destPath, 0755);
-                        $this->logDebug("Made run-servers.php executable", true);
                     }
                     // Regular file copy
                     else {
                         if (!copy($sourcePath, $destPath)) {
-                            $this->logDebug("Failed to copy file: {$file}", true, 'error');
-                            return false;
+                            $this->logUpdateActivity("Failed to copy file: {$file}", "error");
+                            continue;
+                        }
                     }
+                    $fileCount++;
                 }
             }
         }
-        }
         closedir($dir);
-        return true;
+        
+        $this->logUpdateActivity("Copied {$fileCount} files from {$source} to {$destination}");
+        return $fileCount;
     }
     
     /**

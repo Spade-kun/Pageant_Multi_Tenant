@@ -28,6 +28,19 @@ Route::get('/{slug}/updates/success', function($slug) {
     ]);
 })->name('tenant.updates.success');
 
+// Add a route to get update logs
+Route::get('/{slug}/updates/logs', function($slug) {
+    $logFile = session('update_log_file') ?? 'updates/update_' . date('Y-m-d') . '.log';
+    $logPath = storage_path('logs/' . $logFile);
+    
+    $logs = '';
+    if (file_exists($logPath)) {
+        $logs = file_get_contents($logPath);
+    }
+    
+    return response()->json(['logs' => $logs]);
+})->name('tenant.updates.get-logs');
+
 // Tenant Authentication
 Route::middleware('guest:tenant')->group(function () {
     Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
