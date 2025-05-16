@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 // Make the update success page directly accessible without middleware or tenant database access
 Route::get('/{slug}/updates/success', function($slug) {
     return view('tenant.updates.success', [
-        'version' => session('update_version') ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
+        'version' => session('update_version') ?? $_GET['version'] ?? $_COOKIE['update_in_progress'] ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
         'migrationStatus' => session('migration_status') ?? 'Update completed successfully.',
         'slug' => $slug
     ]);

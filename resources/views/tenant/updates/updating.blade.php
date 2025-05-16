@@ -90,16 +90,20 @@
             </div>
             
             <div id="manual-redirect" style="display: none;">
-                <div class="alert alert-danger mt-4" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> We're having trouble connecting to the server automatically.
+                <div class="alert alert-warning mt-4" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> The server is restarting as part of the update process.
                 </div>
-                <p>Please click the link below or copy it to your browser address bar:</p>
+                <p>This is normal when system files are updated. You can:</p>
+                <ol class="text-left">
+                    <li class="mb-2">Try <strong>refreshing this page</strong> - the update should be complete</li>
+                    <li class="mb-2">Click the link below to go to the success page:</li>
+                </ol>
                 <div class="manual-link">
-                    <a href="{{ $successUrl }}" id="manual-success-link">{{ $successUrl }}</a>
+                    <a href="{{ route('tenant.updates.success', ['slug' => $slug, 'version' => $targetVersion]) }}" id="manual-success-link">{{ route('tenant.updates.success', ['slug' => $slug]) }}</a>
                 </div>
                 <p class="mt-3">Or return to the updates page:</p>
                 <div class="manual-link">
-                    <a href="{{ url('/' . $slug . '/updates') }}" id="manual-updates-link">{{ url('/' . $slug . '/updates') }}</a>
+                    <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" id="manual-updates-link">{{ route('tenant.updates.index', ['slug' => $slug]) }}</a>
                 </div>
                 <div class="mt-4">
                     <button class="btn btn-primary" id="try-again-btn">Try Again</button>
@@ -107,7 +111,7 @@
                 <hr>
                 <div class="mt-4">
                     <p>If links don't work, use this form to navigate to the success page:</p>
-                    <form action="{{ $successUrl }}" method="GET">
+                    <form action="{{ route('tenant.updates.success', ['slug' => $slug]) }}" method="GET">
                         <input type="hidden" name="version" value="{{ $targetVersion }}">
                         <input type="hidden" name="manual_redirect" value="1">
                         <button type="submit" class="btn btn-success">Go to Success Page</button>
@@ -119,8 +123,8 @@
     
     <script>
         // Store important values
-        const successUrl = "{{ $successUrl }}";
-        const updatesUrl = "{{ url('/' . $slug . '/updates') }}";
+        const successUrl = "{{ route('tenant.updates.success', ['slug' => $slug]) }}";
+        const updatesUrl = "{{ route('tenant.updates.index', ['slug' => $slug]) }}";
         
         // Setup page elements
         const progressBar = document.getElementById('progress-bar');
@@ -207,7 +211,22 @@
                     setTimeout(() => {
                         try {
                             logToLocalStorage("Redirecting to success page: " + successUrl);
-                            window.location.href = successUrl;
+                            
+                            // Create and submit a form to navigate to the success page
+                            // This approach works better with some browsers than window.location
+                            const form = document.createElement('form');
+                            form.method = 'GET';
+                            form.action = successUrl;
+                            
+                            // Add hidden input for version
+                            const versionInput = document.createElement('input');
+                            versionInput.type = 'hidden';
+                            versionInput.name = 'version';
+                            versionInput.value = '{{ $targetVersion }}';
+                            form.appendChild(versionInput);
+                            
+                            document.body.appendChild(form);
+                            form.submit();
                         } catch (e) {
                             logToLocalStorage("Redirect failed: " + e.message);
                             // Show manual redirect options if automatic redirect fails

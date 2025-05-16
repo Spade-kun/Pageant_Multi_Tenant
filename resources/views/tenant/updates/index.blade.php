@@ -2,6 +2,13 @@
 
 @section('title', 'System Updates')
 
+@php
+// Helper function to create a valid ID from version string
+function versionToId($version) {
+    return str_replace('.', '', $version);
+}
+@endphp
+
 @section('content')
 <div class="content">
     <div class="container-fluid">
@@ -64,12 +71,13 @@
 
                         @if(isset($releases) && count($releases) > 0)
                         <div class="mt-4">
-                            <h4>Release History</h4>
+                            <h4 class="version-history-heading">Release History</h4>
                             <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
+                                <table class="table table-striped table-hover table-releases">
+                                    <thead class="thead-dark">
                                         <tr>
                                             <th>VERSION</th>
+                                            <th>BRANCH</th>
                                             <th>RELEASED AT</th>
                                             <th>AUTHOR</th>
                                             <th>DESCRIPTION</th>
@@ -80,17 +88,29 @@
                                         @foreach($releases as $release)
                                         <tr>
                                             <td>
-                                                {{ $release['version'] }}
+                                                <span class="badge badge-primary">v{{ $release['version'] }}</span>
                                                 @if($release['version'] === $currentVersion)
                                                     <span class="badge badge-success ml-2">Current</span>
                                                 @endif
                                             </td>
-                                            <td>{{ $release['released_at'] }}</td>
+                                            <td>
+                                                <span class="badge badge-secondary">{{ $release['branch'] ?? 'main' }}</span>
+                                            </td>
+                                            <td>{{ date('M d, Y H:i', strtotime($release['released_at'])) }}</td>
                                             <td>{{ $release['author'] }}</td>
-                                            <td>{!! nl2br(e($release['description'])) !!}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-link p-0" type="button" data-toggle="collapse" data-target="#releaseDesc{{ versionToId($release['version']) }}" aria-expanded="false">
+                                                    View details
+                                                </button>
+                                                <div class="collapse mt-2" id="releaseDesc{{ versionToId($release['version']) }}">
+                                                    <div class="card card-body bg-light release-description">
+                                                        {!! nl2br(e($release['description'])) !!}
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline" target="_blank">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
@@ -153,11 +173,14 @@
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i> During the update process, the server may temporarily restart, causing a brief interruption. This is normal.
                     </div>
+                    <div class="alert alert-primary">
+                        <i class="fas fa-external-link-alt"></i> The update will open in a new tab. If the new tab shows "This site can't be reached", simply refresh the page or copy the URL into another browser tab.
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
+                <form id="updateForm" action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none" target="_blank">
                     @csrf
                     <input type="hidden" name="version" id="updateVersion">
                     <button type="submit" class="btn btn-primary" id="installUpdateBtn">Install Update</button>
@@ -210,7 +233,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline" target="_blank">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 
@@ -220,15 +243,40 @@ $(document).ready(function() {
                     </button>
                 </form>`;
 
+            const releaseDate = new Date(release.released_at);
+            const formattedDate = releaseDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            
+            // Create a valid ID by removing dots from version
+            const versionId = release.version.replace(/\./g, '');
+
             tbody.append(`
                 <tr>
                     <td>
-                        ${release.version}
+                        <span class="badge badge-primary">v${release.version}</span>
                         ${isCurrentVersion ? '<span class="badge badge-success ml-2">Current</span>' : ''}
                     </td>
-                    <td>${release.released_at}</td>
+                    <td>
+                        <span class="badge badge-secondary">${release.branch || 'main'}</span>
+                    </td>
+                    <td>${formattedDate}</td>
                     <td>${release.author}</td>
-                    <td>${release.description.replace(/\n/g, '<br>')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-link p-0" type="button" data-toggle="collapse" data-target="#releaseDesc${versionId}" aria-expanded="false">
+                            View details
+                        </button>
+                        <div class="collapse mt-2" id="releaseDesc${versionId}">
+                            <div class="card card-body bg-light release-description">
+                                ${release.description.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    </td>
                     <td>${actionButton}</td>
                 </tr>
             `);
@@ -283,4 +331,63 @@ $(document).ready(function() {
     });
 });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    .table-releases th {
+        background-color: #343a40;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table-releases .badge-primary {
+        background-color: #4e73df;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.5rem;
+    }
+    
+    .table-releases .badge-secondary {
+        background-color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .table-releases .badge-success {
+        background-color: #1cc88a;
+        font-size: 0.75rem;
+    }
+    
+    .table-releases .btn-primary {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    .table-releases .btn-warning {
+        background-color: #f6c23e;
+        border-color: #f6c23e;
+        color: #212529;
+    }
+    
+    .table-releases tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    .version-history-heading {
+        font-weight: 700;
+        color: #4e73df;
+        border-bottom: 2px solid #e3e6f0;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .release-description {
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-line;
+        font-size: 0.9rem;
+    }
+</style>
 @endpush 
