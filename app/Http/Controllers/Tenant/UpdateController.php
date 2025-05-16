@@ -613,8 +613,21 @@ class UpdateController extends Controller
             }
 
             return collect($releases)->map(function ($release) {
+                // Extract branch information from release name or target branch
+                $branch = 'main'; // Default branch
+                
+                // Check if branch is mentioned in the release body
+                if (preg_match('/\bbranch:\s*([a-zA-Z0-9_\-\/]+)\b/i', $release['body'], $matches)) {
+                    $branch = $matches[1];
+                }
+                // Or check target branch if available
+                elseif (!empty($release['target_commitish'])) {
+                    $branch = $release['target_commitish'];
+                }
+                
                 return [
                     'version' => ltrim($release['tag_name'], 'v'),
+                    'branch' => $branch,
                     'released_at' => date('Y-m-d H:i:s', strtotime($release['published_at'])),
                     'description' => $release['body'],
                     'author' => $release['author']['login'],

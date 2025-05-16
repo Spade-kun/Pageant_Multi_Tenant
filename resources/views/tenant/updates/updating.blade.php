@@ -119,8 +119,8 @@
     
     <script>
         // Store important values
-        const successUrl = "{{ $successUrl }}";
-        const updatesUrl = "{{ url('/' . $slug . '/updates') }}";
+        const successUrl = "{{ route('tenant.updates.success', ['slug' => $slug]) }}";
+        const updatesUrl = "{{ route('tenant.updates.index', ['slug' => $slug]) }}";
         
         // Setup page elements
         const progressBar = document.getElementById('progress-bar');
@@ -207,7 +207,22 @@
                     setTimeout(() => {
                         try {
                             logToLocalStorage("Redirecting to success page: " + successUrl);
-                            window.location.href = successUrl;
+                            
+                            // Create and submit a form to navigate to the success page
+                            // This approach works better with some browsers than window.location
+                            const form = document.createElement('form');
+                            form.method = 'GET';
+                            form.action = successUrl;
+                            
+                            // Add hidden input for version
+                            const versionInput = document.createElement('input');
+                            versionInput.type = 'hidden';
+                            versionInput.name = 'version';
+                            versionInput.value = '{{ $targetVersion }}';
+                            form.appendChild(versionInput);
+                            
+                            document.body.appendChild(form);
+                            form.submit();
                         } catch (e) {
                             logToLocalStorage("Redirect failed: " + e.message);
                             // Show manual redirect options if automatic redirect fails
