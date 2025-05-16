@@ -1,0 +1,147 @@
+# Pageant Multi-Tenant System Commands and Scripts
+# Last Updated: [Current Date]
+
+## Update System Commands
+----------------------------------------
+# Check for updates
+php artisan tenant:check-updates
+
+# Update to specific version
+php artisan tenant:update --version=1.0.3
+
+# Force update (skip version check)
+php artisan tenant:update --version=1.0.3 --force
+
+## Backup and Restore Commands
+----------------------------------------
+# Create backup
+php artisan tenant:backup
+
+# Restore from backup
+php artisan tenant:restore --backup=backup-v1.0.3.zip
+
+# Manual restore script (for emergency)
+php restore_backup.php
+
+## Database Commands
+----------------------------------------
+# Run migrations
+php artisan migrate
+
+# Rollback last migration
+php artisan migrate:rollback
+
+# Reset all migrations
+php artisan migrate:reset
+
+# Refresh database (rollback and migrate)
+php artisan migrate:refresh
+
+# Seed the database
+php artisan db:seed
+
+## Cache and Config Commands
+----------------------------------------
+# Clear all cache
+php artisan cache:clear
+
+# Clear config cache
+php artisan config:clear
+
+# Clear route cache
+php artisan route:clear
+
+# Clear view cache
+php artisan view:clear
+
+## Composer Commands
+----------------------------------------
+# Install dependencies
+composer install
+
+# Install dependencies (production)
+composer install --no-dev
+
+# Update dependencies
+composer update
+
+# Autoload optimization
+composer dump-autoload -o
+
+## System Maintenance
+----------------------------------------
+# Start development server
+php artisan serve
+
+# Generate application key
+php artisan key:generate
+
+# List all routes
+php artisan route:list
+
+# Show environment
+php artisan env
+
+## Tenant Management
+----------------------------------------
+# Create new tenant
+php artisan tenant:create
+
+# Delete tenant
+php artisan tenant:delete
+
+# List all tenants
+php artisan tenant:list
+
+## Emergency Restore Script (restore_backup.php)
+----------------------------------------
+This script is used to manually restore the system to a previous version.
+Usage: php restore_backup.php
+
+The script will:
+1. Extract the backup file
+2. Copy files to root directory
+3. Update .env version
+4. Clean up temporary files
+
+## Important Notes
+----------------------------------------
+1. Always backup before updating
+2. Check file permissions before running commands
+3. Run composer install after updates
+4. Clear cache after updates
+5. Check logs in storage/logs for errors
+
+## File Permissions
+----------------------------------------
+# Set proper permissions (Linux/Unix)
+chmod -R 755 storage bootstrap/cache
+chmod -R 644 .env
+
+## Log Files
+----------------------------------------
+Main log file: storage/logs/laravel.log
+Admin server log: admin-server.log
+
+## Configuration Files
+----------------------------------------
+Update config: config/self-update.php
+Environment: .env
+Tenant config: config/tenant.php
+
+## Backup Location
+----------------------------------------
+Backups are stored in: storage/app/updater/
+Format: backup-v{version}.zip
+
+## Update Process
+----------------------------------------
+1. Check for updates
+2. Create backup
+3. Download new version
+4. Extract files
+5. Copy to root
+6. Run composer install
+7. Run migrations
+8. Clear cache
+9. Update version in .env 
