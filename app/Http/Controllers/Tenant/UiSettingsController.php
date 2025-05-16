@@ -127,6 +127,34 @@ class UiSettingsController extends Controller
             $settings->tenant_id = $tenant->id;
         }
 
+        // Handle color palette selection
+        if ($request->has('color_palette') && $request->color_palette !== 'custom') {
+            // Apply predefined palette colors
+            switch ($request->color_palette) {
+                case 'purple-pink':
+                    $request->merge([
+                        'logo_header_color' => '#563456',
+                        'navbar_color' => '#ff69b4',
+                        'sidebar_color' => '#563456'
+                    ]);
+                    break;
+                case 'purple-blue':
+                    $request->merge([
+                        'logo_header_color' => '#4B0082',
+                        'navbar_color' => '#4169E1',
+                        'sidebar_color' => '#4B0082'
+                    ]);
+                    break;
+                case 'burgundy-red':
+                    $request->merge([
+                        'logo_header_color' => '#800020',
+                        'navbar_color' => '#9b2242',
+                        'sidebar_color' => '#800020'
+                    ]);
+                    break;
+            }
+        }
+
         // Handle logo upload
         if ($request->hasFile('header_logo')) {
             $file = $request->file('header_logo');

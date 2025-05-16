@@ -31,6 +31,7 @@ php artisan migrate
 # Rollback last migration
 php artisan migrate:rollback
 
+
 # Reset all migrations
 php artisan migrate:reset
 
@@ -53,6 +54,11 @@ php artisan route:clear
 
 # Clear view cache
 php artisan view:clear
+
+## Storage Commands
+----------------------------------------
+# Link storage
+php artisan storage:link
 
 ## Composer Commands
 ----------------------------------------
