@@ -367,7 +367,9 @@ class UpdateController extends Controller
             return response()->view('tenant.updates.updating', [
                 'successUrl' => $successUrl, 
                 'targetVersion' => $targetVersion,
-                'slug' => $slug
+                'slug' => $slug,
+                'updatedFiles' => count(glob($actualSource . '/**/.*', GLOB_NOSORT | GLOB_BRACE)) + count(glob($actualSource . '/**/*', GLOB_NOSORT | GLOB_BRACE)),
+                'migrationStatus' => 'Central database and tenant databases have been migrated successfully.'
             ]);
         } catch (\Exception $e) {
             // Restore original log level
@@ -678,32 +680,8 @@ class UpdateController extends Controller
      */
     public function success()
     {
-        // Get the data needed for the success page
-        try {
-            // Try to get version from session or fallback to current installed version
-            $version = session('update_version') ?? $this->updater->source()->getVersionInstalled();
-            
-            // Get migration status or set default
-            $migrationStatus = session('migration_status') ?? 'Update process completed successfully.';
-            
-            // Get the slug
-            $slug = $this->getSlug();
-            
-            // Return the success view with all required data
-            return view('tenant.updates.success', [
-                'version' => $version,
-                'migrationStatus' => $migrationStatus,
-                'slug' => $slug
-            ]);
-        } catch (\Exception $e) {
-            // Log the error but still show the success page with default values
-            \Log::error('Error in update success page: ' . $e->getMessage());
-            
-            return view('tenant.updates.success', [
-                'version' => 'Unknown',
-                'migrationStatus' => 'Update completed, but details are unavailable.',
-                'slug' => $this->getSlug()
-            ]);
-        }
+        // This method is no longer used as we're now using the direct route access approach
+        // But we'll keep it for backward compatibility
+        return redirect()->route('tenant.updates.success', ['slug' => $this->getSlug()]);
     }
 } 

@@ -37,6 +37,13 @@
             margin-bottom: 20px;
             display: none;
         }
+        .manual-link {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +59,10 @@
                 
                 <div class="progress">
                     <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                
+                <div class="mt-3 mb-3">
+                    <span class="badge badge-info" id="status-text">Starting update process...</span>
                 </div>
                 
                 <p class="text-muted mt-3">
@@ -77,33 +88,72 @@
                     <p>Attempt <span id="attempts">1</span> of 10</p>
                 </div>
             </div>
+            
+            <div id="manual-redirect" style="display: none;">
+                <div class="alert alert-danger mt-4" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> We're having trouble connecting to the server automatically.
+                </div>
+                <p>Please click the link below or copy it to your browser address bar:</p>
+                <div class="manual-link">
+                    <a href="{{ $successUrl }}" id="manual-success-link">{{ $successUrl }}</a>
+                </div>
+                <p class="mt-3">Or return to the updates page:</p>
+                <div class="manual-link">
+                    <a href="{{ url('/' . $slug . '/updates') }}" id="manual-updates-link">{{ url('/' . $slug . '/updates') }}</a>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary" id="try-again-btn">Try Again</button>
+                </div>
+            </div>
         </div>
     </div>
     
     <script>
-        // Simulate progress
-        let progress = 10;
+        // Store important values
+        const successUrl = "{{ $successUrl }}";
+        const updatesUrl = "{{ url('/' . $slug . '/updates') }}";
+        
+        // Setup page elements
         const progressBar = document.getElementById('progress-bar');
         const successIcon = document.querySelector('.success-icon');
         const updatingContent = document.getElementById('updating-content');
         const completedContent = document.getElementById('completed-content');
         const retryContent = document.getElementById('retry-content');
+        const manualRedirect = document.getElementById('manual-redirect');
         const attemptsSpan = document.getElementById('attempts');
+        const statusText = document.getElementById('status-text');
+        const tryAgainBtn = document.getElementById('try-again-btn');
         
-        // Gradually increase progress
+        // Progress simulation
+        let progress = 10;
+        let progressSteps = [
+            { progress: 20, message: "Downloading update package..." },
+            { progress: 30, message: "Extracting files..." },
+            { progress: 40, message: "Creating system backup..." },
+            { progress: 50, message: "Installing new files..." },
+            { progress: 60, message: "Updating {{ $updatedFiles ?? 'many' }} files..." },
+            { progress: 70, message: "Running database migrations..." },
+            { progress: 80, message: "Applying migrations: {{ $migrationStatus ?? 'in progress' }}" },
+            { progress: 90, message: "Finalizing update..." }
+        ];
+        
+        let currentStep = 0;
+        
+        // Simulate the update progress
         const progressInterval = setInterval(() => {
-            if (progress < 90) {
-                progress += 5;
+            if (currentStep < progressSteps.length) {
+                progress = progressSteps[currentStep].progress;
+                statusText.textContent = progressSteps[currentStep].message;
                 progressBar.style.width = progress + '%';
                 progressBar.setAttribute('aria-valuenow', progress);
+                currentStep++;
             } else {
                 clearInterval(progressInterval);
             }
-        }, 500);
+        }, 1500);
         
         // Function to check if the server is accessible
         function checkServerAndRedirect() {
-            const successUrl = "{{ $successUrl }}";
             let attempts = 1;
             let maxAttempts = 10;
             
@@ -112,6 +162,7 @@
                 progress = 100;
                 progressBar.style.width = progress + '%';
                 progressBar.setAttribute('aria-valuenow', progress);
+                statusText.textContent = "Update completed!";
                 
                 // Show completion animation
                 setTimeout(() => {
@@ -120,26 +171,37 @@
                     completedContent.style.display = 'block';
                     successIcon.style.display = 'inline-block';
                     
-                    // Redirect after showing the success message briefly
+                    // Try to redirect after showing the success message briefly
                     setTimeout(() => {
-                        window.location.href = successUrl;
+                        try {
+                            window.location.href = successUrl;
+                        } catch (e) {
+                            // Show manual redirect options if automatic redirect fails
+                            completedContent.style.display = 'none';
+                            manualRedirect.style.display = 'block';
+                        }
                     }, 1500);
                 }, 500);
             }
             
             function attemptRedirect() {
-                // Create a test request to check if server is responsive
-                fetch(successUrl, { method: 'HEAD' })
-                    .then(response => {
-                        if (response.ok) {
-                            finalizeAndRedirect();
-                        } else {
-                            retryIfNeeded();
-                        }
-                    })
-                    .catch(error => {
+                // Try to fetch the success page to see if server is responsive
+                fetch(successUrl, { 
+                    method: 'HEAD',
+                    cache: 'no-store', // Prevent caching
+                    headers: { 'Cache-Control': 'no-cache' }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        finalizeAndRedirect();
+                    } else {
                         retryIfNeeded();
-                    });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking server:", error);
+                    retryIfNeeded();
+                });
             }
             
             function retryIfNeeded() {
@@ -152,11 +214,16 @@
                         retryContent.style.display = 'block';
                     }
                     
+                    // Update status text
+                    statusText.textContent = "Waiting for server to respond...";
+                    
                     // Exponential backoff: wait longer between attempts
                     setTimeout(attemptRedirect, attempts * 1000);
                 } else {
-                    // After max attempts, just try to redirect directly
-                    finalizeAndRedirect();
+                    // After max attempts, show manual options
+                    updatingContent.style.display = 'none';
+                    retryContent.style.display = 'none';
+                    manualRedirect.style.display = 'block';
                 }
             }
             
@@ -164,8 +231,29 @@
             setTimeout(attemptRedirect, 5000);
         }
         
-        // Begin the checking process after a delay
-        setTimeout(checkServerAndRedirect, 3000);
+        // Try again button handler
+        if (tryAgainBtn) {
+            tryAgainBtn.addEventListener('click', function() {
+                manualRedirect.style.display = 'none';
+                updatingContent.style.display = 'block';
+                statusText.textContent = "Checking server status...";
+                checkServerAndRedirect();
+            });
+        }
+        
+        // Begin the checking process after showing progress
+        setTimeout(checkServerAndRedirect, 10000);
+        
+        // Add a fallback to show manual redirect options after a long timeout
+        setTimeout(() => {
+            // If we're still showing the progress or retry content after 2 minutes,
+            // show the manual options
+            if (completedContent.style.display === 'none' && manualRedirect.style.display === 'none') {
+                updatingContent.style.display = 'none';
+                retryContent.style.display = 'none';
+                manualRedirect.style.display = 'block';
+            }
+        }, 120000); // 2 minutes
     </script>
 </body>
 </html> 

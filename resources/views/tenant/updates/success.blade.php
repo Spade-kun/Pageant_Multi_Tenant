@@ -107,4 +107,14 @@
         border-top-color: #17a2b8;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    // Clear any update-related session storage
+    if (window.sessionStorage) {
+        sessionStorage.removeItem('system_update_in_progress');
+        sessionStorage.removeItem('update_version');
+    }
+</script>
 @endpush 

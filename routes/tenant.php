@@ -18,6 +18,16 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
+// Place this route BEFORE all other route groups to ensure it's accessible immediately after an update
+// Make the update success page directly accessible without middleware or tenant database access
+Route::get('/{slug}/updates/success', function($slug) {
+    return view('tenant.updates.success', [
+        'version' => session('update_version') ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
+        'migrationStatus' => session('migration_status') ?? 'Update completed successfully.',
+        'slug' => $slug
+    ]);
+})->name('tenant.updates.success');
+
 // Tenant Authentication
 Route::middleware('guest:tenant')->group(function () {
     Route::get('/tenant/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
@@ -386,32 +396,6 @@ Route::middleware(['auth:tenant'])->group(function () {
     // Logout
     Route::post('/{slug}/logout', [TenantLoginController::class, 'logout'])->name('tenant.logout');
 });
-
-// Make the update success page directly accessible without middleware
-Route::get('/{slug}/updates/success', function($slug) {
-    // Set up tenant database connection
-    $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
-    $databaseName = 'tenant_' . str_replace('-', '_', $tenant->slug);
-    Config::set('database.connections.tenant', [
-        'driver' => 'mysql',
-        'host' => env('DB_HOST', '127.0.0.1'),
-        'port' => env('DB_PORT', '3306'),
-        'database' => $databaseName,
-        'username' => env('DB_USERNAME', 'forge'),
-        'password' => env('DB_PASSWORD', ''),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'prefix_indexes' => true,
-        'strict' => true,
-        'engine' => null,
-    ]);
-    DB::purge('tenant');
-    DB::reconnect('tenant');
-    
-    // Create instance of the controller and call success method
-    return app()->make(\App\Http\Controllers\Tenant\UpdateController::class)->success();
-})->name('tenant.updates.success');
 
 Route::get('/{slug}/reports/generate', [ReportController::class, 'generateReport'])->name('tenant.reports.generate');
 
