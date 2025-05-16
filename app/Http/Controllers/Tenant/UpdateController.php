@@ -357,34 +357,23 @@ class UpdateController extends Controller
             session()->flash('update_version', $targetVersion);
             session()->flash('migration_status', 'Central database and tenant databases have been migrated.');
             
-            // Check if this is an AJAX request
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Update completed successfully',
-                    'version' => $targetVersion,
-                    'redirect' => url('/' . $this->getSlug() . '/updates/success')
-                ]);
-            }
-            
-            // If not AJAX, redirect to success page
+            // Get the slug for the success page URL
             $slug = $this->getSlug();
             $successUrl = url('/' . $slug . '/updates/success');
-            return redirect($successUrl);
+            
+            // Return a response with JavaScript redirect
+            // This handles the case where the server might be temporarily unavailable
+            // due to files being replaced during the update
+            return response()->view('tenant.updates.updating', [
+                'successUrl' => $successUrl, 
+                'targetVersion' => $targetVersion,
+                'slug' => $slug
+            ]);
         } catch (\Exception $e) {
             // Restore original log level
             config(['app.log_level' => $originalLogLevel]);
             
             \Log::error('Update failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            
-            // Check if this is an AJAX request
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Update failed: ' . $e->getMessage()
-                ], 500);
-            }
-            
             return redirect()->route('tenant.updates.index', ['slug' => $this->getSlug()])
                 ->with('error', 'Update failed: ' . $e->getMessage());
         }
