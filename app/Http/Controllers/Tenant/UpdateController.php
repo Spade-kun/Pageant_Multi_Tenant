@@ -450,9 +450,13 @@ class UpdateController extends Controller
             session()->flash('updated_files_count', $updatedFiles);
             session()->flash('update_log_file', 'updates/update_' . date('Y-m-d') . '.log');
             
+            // Set a cookie indicating an update is in progress
+            // This helps detect and recover from connection resets
+            setcookie('update_in_progress', $targetVersion, time() + 3600, '/', '', false, false);
+            
             // Get the slug for the success page URL
             $slug = $this->getSlug();
-            $successUrl = route('tenant.updates.success', ['slug' => $slug]);
+            $successUrl = route('tenant.updates.standalone-success', ['slug' => $slug]);
             
             $this->logUpdateActivity("Update process completed successfully. Redirecting to $successUrl");
             
@@ -541,8 +545,8 @@ class UpdateController extends Controller
                         }
                     }
                     $fileCount++;
-                }
             }
+        }
         }
         closedir($dir);
         
@@ -586,7 +590,7 @@ class UpdateController extends Controller
         
         // Check if file is in storage/logs
         if (strpos($filePath, DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs') !== false) {
-            return true;
+        return true;
         }
         
         return false;

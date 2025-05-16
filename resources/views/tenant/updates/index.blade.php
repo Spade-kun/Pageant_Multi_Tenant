@@ -110,7 +110,7 @@ function versionToId($version) {
                                             </td>
                                             <td>
                                                 @if($release['version'] !== $currentVersion)
-                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline" target="_blank">
                                                         @csrf
                                                         <input type="hidden" name="version" value="{{ $release['version'] }}">
                                                         <button type="submit" 
@@ -173,11 +173,14 @@ function versionToId($version) {
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i> During the update process, the server may temporarily restart, causing a brief interruption. This is normal.
                     </div>
+                    <div class="alert alert-primary">
+                        <i class="fas fa-external-link-alt"></i> The update will open in a new tab. If the new tab shows "This site can't be reached", simply refresh the page or copy the URL into another browser tab.
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="updateForm" action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none">
+                <form id="updateForm" action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-none" target="_blank">
                     @csrf
                     <input type="hidden" name="version" id="updateVersion">
                     <button type="submit" class="btn btn-primary" id="installUpdateBtn">Install Update</button>
@@ -230,7 +233,7 @@ $(document).ready(function() {
             
             const actionButton = isCurrentVersion ? 
                 `<span class="badge badge-success">Current Version</span>` :
-                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline">
+                `<form action="{{ route('tenant.updates.success.post', ['slug' => request()->route('slug')]) }}" method="POST" class="d-inline" target="_blank">
                     @csrf
                     <input type="hidden" name="version" value="${release.version}">
                     <button type="submit" 

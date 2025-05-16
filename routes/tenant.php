@@ -28,6 +28,14 @@ Route::get('/{slug}/updates/success', function($slug) {
     ]);
 })->name('tenant.updates.success');
 
+// Add a standalone success page that doesn't depend on the template
+Route::get('/{slug}/updates/standalone-success', function($slug) {
+    return view('tenant.updates.standalone-success', [
+        'version' => session('update_version') ?? env('SELF_UPDATER_VERSION_INSTALLED', 'Unknown'),
+        'slug' => $slug
+    ]);
+})->name('tenant.updates.standalone-success');
+
 // Add a route to get update logs
 Route::get('/{slug}/updates/logs', function($slug) {
     $logFile = session('update_log_file') ?? 'updates/update_' . date('Y-m-d') . '.log';

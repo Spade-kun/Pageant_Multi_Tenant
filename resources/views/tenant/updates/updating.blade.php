@@ -90,16 +90,20 @@
             </div>
             
             <div id="manual-redirect" style="display: none;">
-                <div class="alert alert-danger mt-4" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> We're having trouble connecting to the server automatically.
+                <div class="alert alert-warning mt-4" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> The server is restarting as part of the update process.
                 </div>
-                <p>Please click the link below or copy it to your browser address bar:</p>
+                <p>This is normal when system files are updated. You can:</p>
+                <ol class="text-left">
+                    <li class="mb-2">Try <strong>refreshing this page</strong> - the update should be complete</li>
+                    <li class="mb-2">Click the link below to go to the success page:</li>
+                </ol>
                 <div class="manual-link">
-                    <a href="{{ $successUrl }}" id="manual-success-link">{{ $successUrl }}</a>
+                    <a href="{{ route('tenant.updates.success', ['slug' => $slug, 'version' => $targetVersion]) }}" id="manual-success-link">{{ route('tenant.updates.success', ['slug' => $slug]) }}</a>
                 </div>
                 <p class="mt-3">Or return to the updates page:</p>
                 <div class="manual-link">
-                    <a href="{{ url('/' . $slug . '/updates') }}" id="manual-updates-link">{{ url('/' . $slug . '/updates') }}</a>
+                    <a href="{{ route('tenant.updates.index', ['slug' => $slug]) }}" id="manual-updates-link">{{ route('tenant.updates.index', ['slug' => $slug]) }}</a>
                 </div>
                 <div class="mt-4">
                     <button class="btn btn-primary" id="try-again-btn">Try Again</button>
@@ -107,7 +111,7 @@
                 <hr>
                 <div class="mt-4">
                     <p>If links don't work, use this form to navigate to the success page:</p>
-                    <form action="{{ $successUrl }}" method="GET">
+                    <form action="{{ route('tenant.updates.success', ['slug' => $slug]) }}" method="GET">
                         <input type="hidden" name="version" value="{{ $targetVersion }}">
                         <input type="hidden" name="manual_redirect" value="1">
                         <button type="submit" class="btn btn-success">Go to Success Page</button>
@@ -121,6 +125,7 @@
         // Store important values
         const successUrl = "{{ route('tenant.updates.success', ['slug' => $slug]) }}";
         const updatesUrl = "{{ route('tenant.updates.index', ['slug' => $slug]) }}";
+        const targetVersion = "{{ $targetVersion }}";
         
         // Setup page elements
         const progressBar = document.getElementById('progress-bar');
@@ -132,6 +137,9 @@
         const attemptsSpan = document.getElementById('attempts');
         const statusText = document.getElementById('status-text');
         const tryAgainBtn = document.getElementById('try-again-btn');
+        
+        // Store the update start time
+        const updateStartTime = new Date();
         
         // Setup local logging to help with debugging
         function logToLocalStorage(message) {
@@ -150,8 +158,50 @@
             }
         }
         
+        // Function to reload the success page after a specified delay
+        function reloadSuccessPage(delay = 3000) {
+            logToLocalStorage(`Waiting ${delay/1000} seconds and trying to load success page again...`);
+            setTimeout(() => {
+                logToLocalStorage("Reloading success page...");
+                // Create and submit a form to navigate to the success page
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = successUrl;
+                
+                // Add hidden input for version
+                const versionInput = document.createElement('input');
+                versionInput.type = 'hidden';
+                versionInput.name = 'version';
+                versionInput.value = targetVersion;
+                form.appendChild(versionInput);
+                
+                // Add timestamp parameter to prevent caching
+                const timestampInput = document.createElement('input');
+                timestampInput.type = 'hidden';
+                timestampInput.name = 'ts';
+                timestampInput.value = new Date().getTime();
+                form.appendChild(timestampInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }, delay);
+        }
+        
+        // Check if the update has been running for a reasonable amount of time
+        // If it's been longer than 20 seconds, attempt auto-reload
+        setTimeout(() => {
+            const updateDuration = (new Date() - updateStartTime) / 1000;
+            logToLocalStorage(`Update has been running for ${updateDuration} seconds`);
+            
+            // If we're still on the progress page after 20 seconds, try to load the success page
+            if (updatingContent.style.display !== 'none') {
+                logToLocalStorage("Still on progress page after 20+ seconds, attempting to load success page");
+                reloadSuccessPage(100); // Almost immediate reload
+            }
+        }, 20000);
+        
         // Log initial state
-        logToLocalStorage(`Update process started for version ${successUrl}`);
+        logToLocalStorage(`Update process started for version ${targetVersion}`);
         
         // Progress simulation
         let progress = 10;
@@ -209,7 +259,6 @@
                             logToLocalStorage("Redirecting to success page: " + successUrl);
                             
                             // Create and submit a form to navigate to the success page
-                            // This approach works better with some browsers than window.location
                             const form = document.createElement('form');
                             form.method = 'GET';
                             form.action = successUrl;
@@ -218,7 +267,7 @@
                             const versionInput = document.createElement('input');
                             versionInput.type = 'hidden';
                             versionInput.name = 'version';
-                            versionInput.value = '{{ $targetVersion }}';
+                            versionInput.value = targetVersion;
                             form.appendChild(versionInput);
                             
                             document.body.appendChild(form);
@@ -274,11 +323,9 @@
                     // Exponential backoff: wait longer between attempts
                     setTimeout(attemptRedirect, attempts * 1000);
                 } else {
-                    // After max attempts, show manual options
-                    logToLocalStorage(`Maximum attempts (${maxAttempts}) reached. Showing manual options.`);
-                    updatingContent.style.display = 'none';
-                    retryContent.style.display = 'none';
-                    manualRedirect.style.display = 'block';
+                    // After max attempts, try one more time with GET request instead of HEAD
+                    logToLocalStorage(`Maximum attempts (${maxAttempts}) reached. Trying direct navigation.`);
+                    reloadSuccessPage(100);
                 }
             }
             
@@ -300,17 +347,15 @@
         // Begin the checking process after showing progress
         setTimeout(checkServerAndRedirect, 10000);
         
-        // Add a fallback to show manual redirect options after a long timeout
+        // Add a fallback to show manual redirect options after a timeout
         setTimeout(() => {
-            // If we're still showing the progress or retry content after 2 minutes,
-            // show the manual options
+            // If we're still showing the progress or retry content after 1 minute,
+            // try a direct reload of the success page
             if (completedContent.style.display === 'none' && manualRedirect.style.display === 'none') {
-                logToLocalStorage("Timeout reached. Showing manual options.");
-                updatingContent.style.display = 'none';
-                retryContent.style.display = 'none';
-                manualRedirect.style.display = 'block';
+                logToLocalStorage("1 minute timeout reached. Attempting direct navigation to success page.");
+                reloadSuccessPage(100);
             }
-        }, 120000); // 2 minutes
+        }, 60000); // 1 minute
     </script>
 </body>
 </html> 

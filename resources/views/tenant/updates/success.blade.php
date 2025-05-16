@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         @if(session('update_log_file'))
                         <div class="row mt-4">
                             <div class="col-12">
@@ -167,6 +167,14 @@
         sessionStorage.removeItem('system_update_in_progress');
         sessionStorage.removeItem('update_version');
     }
+    
+    // Clear any update cookies
+    function clearUpdateCookie() {
+        document.cookie = 'update_in_progress=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+    
+    // Clear cookies when page loads
+    clearUpdateCookie();
     
     // Handle toggle logs button
     $(document).ready(function() {
